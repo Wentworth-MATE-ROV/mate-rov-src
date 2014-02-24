@@ -37,4 +37,8 @@ int init_arduino(rov_arduino*,const char*,size_t,const rov_motor**,
                  size_t,const rov_servo**,const rov_therm*,
                  const rov_accel*,const rov_laser*);
 
+// Writes an integer as 2 7bit values.
+// return: 0 on success, non-zero on failure.
+int write_int(rov_arduino*,int);
+
 #endif

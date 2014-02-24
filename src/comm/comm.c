@@ -22,7 +22,7 @@ int init_arduino(rov_arduino *a,const char *f,
                  const rov_laser *laser){
     struct termios topts;
     if ((a->fd = open(f,O_RDWR | O_NONBLOCK)) == -1){
-        perror("init_arduino: cannot open f");
+        perror("init_arduino: could not open f");
         return -1;
     }
     if (tcgetattr(a->fd,&tops) < 0){
@@ -56,3 +56,35 @@ int init_arduino(rov_arduino *a,const char *f,
     a->laser  = laser;
     return 0;
 }
+
+// Writes an integer to the arduino as 2 7bit values.
+// return: 0 on success, non-zero on failure.
+int write_int(rov_arduino *a,int n){
+    unsigned char buf[2] = { n & B01111111,n >> 7 & B01111111 };
+    return write(a->fd,buf,2) != 2;
+}
+
+// Sends a signal to start sysex mode.
+// return: 0 on success, non-zero on failure.
+int start_sysex(rov_arduino *a){
+    unsigned char buf = START_SYSEX;
+    return write(a->fd,&buf,1) != 1;
+}
+
+// Sends a signal to end sysex mode.
+// return: 0 on success, non-zero on failure.
+int end_sysex(rov_arduino *a){
+    unsigned char buf = END_SYSEX;
+    return write(a->fd,&buf,1) != 1;
+}
+
+// Sends a value to an analog pin.
+// return: 0 on success, non-zero on failure.
+int send_analog(rov_arduino *a,rov_apin pin,int v){
+    unsigned char buf = ANALOG_MESSAGE | (pin & 0x0f);
+    return write(a->fd,&buf,1) != 1 && !write_int(a,v);
+}
+
+int send_digital(rov_arduino *a,rov_dpin pin,inv v){
+    unsigned char buf = DIGITAL_MESSAGE | (portNumber & 0x0f);
+    return write(a->fd,&buf,1)

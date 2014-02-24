@@ -1,0 +1,6 @@
+TODO:
+    * Test arduino control
+    * Implmenet full firmata protocol
+    * Get joystick control working
+    * Get a mockup interface going
+    * Camera data streams

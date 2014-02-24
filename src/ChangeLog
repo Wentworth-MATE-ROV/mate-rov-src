@@ -1,0 +1,6 @@
+2014-2-24 Joe Jevnik <joejev@gmail.com>
+	* ChangeLog: Added ChangeLog
+	* TODO: Added TODO
+	* src/comm/comm.h, src/comm/comm.c: Started arduino communication
+	implementation.
+	* src/motor/motor.h, src/motor/motor.c: Started motor interface.
