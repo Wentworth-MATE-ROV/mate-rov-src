@@ -10,16 +10,22 @@
 #include <fcntl.h>
 #include <errno.h>
 
+typedef int rov_apin;
+typedef int rov_dpin;
+
 // A complete arduino.
 typedef struct{
-    int         fd;     // A file descriptor to the /dev/tty_ channel.
-    size_t      motorc; // The number of motors connected.
-    rov_motor **motorv; // The array of motors.
-    size_t      servoc; // The number of servos.
-    rov_servo **servov; // The array of servos.
-    rov_therm  *therm;  // The electrical cabinent temperature.
-    rov_accel  *accel;  // The accelerometer on the robot.
-    rov_laser  *laser;  // The laser mechanism.
+    int         fd;          // A file descriptor to the /dev/tty_ channel.
+    size_t      motorc;      // The number of motors connected.
+    rov_motor **motorv;      // The array of motors.
+    size_t      servoc;      // The number of servos.
+    rov_servo **servov;      // The array of servos.
+    rov_therm  *therm;       // The electrical cabinent temperature.
+    rov_accel  *accel;       // The accelerometer on the robot.
+    rov_laser  *laser;       // The laser mechanism.
+    int        *digital_out; // The digital data to write out.
+    int        *digital_in;  // The digital data we have read in.
+    int        *analog_in;   // The analog data we have read in.
 } rov_arduino;
 
 // Initializes an arduino.
