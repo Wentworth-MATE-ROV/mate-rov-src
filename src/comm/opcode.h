@@ -4,18 +4,18 @@
 
 
 // message command bytes (128-255/0x80-0xFF)
-#define DIGITAL_MESSAGE 0x90 // send data for a digital pin
-#define ANALOG_MESSAGE  0xE0 // send data for an analog pin (or PWM)
-#define REPORT_ANALOG   0xC0 // enable analog input by pin #
-#define REPORT_DIGITAL  0xD0 // enable digital input by port pair
+#define DIGITAL_MESSAGE         0x90 // send data for a digital pin
+#define ANALOG_MESSAGE          0xE0 // send data for an analog pin (or PWM)
+#define REPORT_ANALOG           0xC0 // enable analog input by pin #
+#define REPORT_DIGITAL          0xD0 // enable digital input by port pair
 
-#define SET_PIN_MODE 0xF4 // set a pin to INPUT/OUTPUT/PWM/etc
+#define SET_PIN_MODE            0xF4 // set a pin to INPUT/OUTPUT/PWM/etc
 
-#define REPORT_VERSION 0xF9 // report protocol version
-#define SYSTEM_RESET   0xFF // reset from MIDI
+#define REPORT_VERSION          0xF9 // report protocol version
+#define SYSTEM_RESET            0xFF // reset from MIDI
 
-#define START_SYSEX 0xF0 // start a MIDI Sysex message
-#define END_SYSEX   0xF7 // end a MIDI Sysex message
+#define START_SYSEX             0xF0 // start a MIDI Sysex message
+#define END_SYSEX               0xF7 // end a MIDI Sysex message
 
 // extended command set using sysex (0-127/0x00-0x7F)
 /* 0x00-0x0F reserved for user-defined commands */

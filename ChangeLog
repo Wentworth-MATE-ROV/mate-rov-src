@@ -2,5 +2,7 @@
 	* ChangeLog: Added ChangeLog
 	* TODO: Added TODO
 	* src/comm/comm.h, src/comm/comm.c: Started arduino communication
-	implementation.
+	implementation. Need to revise how StandardFirmata code should be
+	interacted with.
 	* src/motor/motor.h, src/motor/motor.c: Started motor interface.
+	* src/common.h: Added src/common.h

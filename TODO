@@ -1,6 +1,7 @@
 TODO:
     * Test arduino control
     * Implmenet full firmata protocol
+      - Figure out how this works
     * Get joystick control working
     * Get a mockup interface going
     * Camera data streams

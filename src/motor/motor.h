@@ -5,9 +5,11 @@
 #ifndef ROV_MOTOR_H
 #define ROV_MOTOR_H
 
+#include "../common.h"
+
 // A struct representing a motor controller attached to the arduino.
 typedef struct{
-    rov_apin pin;   // The analog pin this motor is connected to.
+    rov_pin  pin;   // The analog pin this motor is connected to.
     char     power; // The power that is currently being supplied. [-100,100]
 } rov_motor;
 
@@ -19,4 +21,4 @@ void init_motor(rov_motor*,rov_apin);
 // RETURN: 0 on success, non-zero on failure.
 int m_setpower(rov_motor*,char);
 
-#endif ROV_MOTOR_H
+#endif
