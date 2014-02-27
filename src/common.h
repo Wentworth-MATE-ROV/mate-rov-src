@@ -6,7 +6,10 @@
 #define ROV_COMMON_H
 
 #include <stdlib.h>
+#include <stdbool.h>
+#include <unistd.h>
 
+// The type of a pin on the arduino. Range: [0,63]
 typedef unsigned char rov_pin;
 
 // PLACEHOLDER:
@@ -27,16 +30,43 @@ typedef struct{
     int     max;
 } rov_servo;
 
+// A node in the queue.
+struct rov_node{
+    unsigned char   *msg;  // The message to send.
+    size_t           len;  // The length of the message.
+    volatile bool    is_blocking; // Is this node blocking the main thread.
+    struct rov_node *tail; // The next node in the list.
+};
+typedef struct rov_node rov_node;
+
+// Forward declare the arduino.
+struct rov_arduino;
+
+// The message queue to handle mesage passing requests.
+typedef struct rov_msgqueue{
+    struct rov_arduino *arduino;     // The arduino that this queue works on.
+    rov_node           *head;        // The first elem in the queue.
+    rov_node           *last;        // The last elem in the queue.
+    volatile size_t     size;        // The number of messages in the queue.
+    volatile bool       is_waiting;  // Is this queue waiting for the arduino.
+    unsigned short     *response;    // The response to grab for blocking calls.
+    volatile size_t     miswrites;   // The number of miswrites.
+    useconds_t          sleep_time;  // The number of microseconds to sleep for.
+    size_t              r_attempts;  // The number of times to try to resend a
+                                     // message if it fails.
+} rov_msgqueue;
+
 // A complete arduino.
-typedef struct{
-    int         fd;          // A file descriptor to the /dev/tty_ channel.
-    size_t      motorc;      // The number of motors connected.
-    rov_motor **motorv;      // The array of motors.
-    size_t      servoc;      // The number of servos.
-    rov_servo **servov;      // The array of servos.
-    rov_therm  *therm;       // The electrical cabinent temperature.
-    rov_accel  *accel;       // The accelerometer on the robot.
-    rov_laser  *laser;       // The laser mechanism.
+typedef struct rov_arduino{
+    int           fd;          // A file descriptor to the /dev/tty_ channel.
+    rov_msgqueue *queue;       // The message queue.
+    size_t        motorc;      // The number of motors connected.
+    rov_motor   **motorv;      // The array of motors.
+    size_t        servoc;      // The number of servos.
+    rov_servo   **servov;      // The array of servos.
+    rov_therm    *therm;       // The electrical cabinent temperature.
+    rov_accel    *accel;       // The accelerometer on the robot.
+    rov_laser    *laser;       // The laser mechanism.
 } rov_arduino;
 
 #endif

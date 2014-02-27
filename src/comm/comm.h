@@ -15,6 +15,8 @@
 #include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
+#include <assert.h>
 
 // Initializes an arduino.
 // Parameters: the arduino pointer
@@ -42,24 +44,45 @@ int write_str(rov_arduino*,unsigned char*,size_t);
 // return: 0 on success, non-zero on failure.
 int write_short(rov_arduino*,unsigned short);
 
-// Sets a digital pin on or off.
-// return: 0 on success, non-zero on failure.
-int digital_write(rov_arduino*,rov_pin,bool);
+// Initializes a node with the given message.
+void init_node(rov_node*,unsigned char*,size_t);
 
-// Sends a value to a pin in the range of [0,1023]
+// Initializes an empty queue.
+void init_queue(rov_msgqueue*,rov_arduino*,useconds_t,size_t);
+
+// Enqueues a message to be sent to the arduino when it is ready.
+// return: The pointer to the allocated node.
+rov_node *enqueue(rov_msgqueue*,unsigned char*,size_t);
+
+// Enqueues a message and blocks the caller for a response.
+// return: The response from the arduino.
+unsigned short enqueue_blocking(rov_msgqueue*,unsigned char*,size_t);
+
+// Dequeues the next message and sends it.
+// return: the staus of the underlying write call.
+int dequeue(rov_msgqueue*);
+
+// Procedure to run in a pthread to manage the message queue.
+// Accepts the rov_msgqueue* as a void*.
+void *process_queue(void*);
+
+// Enqueues a message that sets a digital pin on or off.
+void digital_write(rov_arduino*,rov_pin,bool);
+
+// Enqueues a message that sends a value to a pin in the range of [0,1023]
 // Data is formatted as so: byte 1 = lsb of v.
 //          first 2 bits of byte 2 = 2 last bits in v.
 //           last 6 bits of byte 2 = the pin number.
-// return: 0 on success, non-zero on failure.
-int analog_write(rov_arduino*,rov_pin,unsigned short);
+void analog_write(rov_arduino*,rov_pin,unsigned short);
 
-// Reads an analog value in the range of [0,1023] off of a pin.
-// return: The value of the pin on success, negative value on failure.
-int analog_read(rov_arduino*,rov_pin);
+// Enqueues a message that reads an analog value in the range of [0,1023] off of
+// a pin.
+// warning: This call blocks the main thread until a respose is read.
+unsigned short analog_read(rov_arduino*,rov_pin);
 
 // Polls the arduino to check if it should stop sending messages.
 // return: true iff you should stop sending messages.
-bool poll_shouldstop(rov_arduino*);
+bool poll_shouldwait(rov_arduino*);
 
 // Polls the arduino to check if you should start sending messages again.
 // return: true iff you should start sending messages again.

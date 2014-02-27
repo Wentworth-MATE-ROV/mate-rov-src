@@ -16,3 +16,10 @@
 	* src/ui/main.c: Added src/ui/main.c to act as our mockup main.
 	* src/common.h: Added the motor, servo, and pin type declerations.
 	* TODO: updated TODO.
+
+2014-2-24 Joe Jevnik <joejev@gmail.com>
+	* src/comm/msgqueue.c: Added the rov_msgqueue
+	to handle the new messages.
+	* src/comm/comm.h, src/comm/comm.c: Changed to a queue based system as
+	opposed to having direct to the arduino. This allows us to use the wait
+	and start commands.

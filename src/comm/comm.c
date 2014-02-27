@@ -38,7 +38,7 @@ int init_arduino(rov_arduino *a,char *f,size_t motorc,rov_motor **motorv,
     topts.c_iflag     &= ~(IXON | IXOFF | IXANY);
     topts.c_lflag     &= ~(ICANON | ECHO | ECHOE | ISIG);
     topts.c_oflag     &= ~OPOST;
-    topts.c_cc[VMIN]  =  2; // Minimum number of characters to read.
+    topts.c_cc[VMIN]  =  0; // Minimum number of characters to read.
     topts.c_cc[VTIME] =  0; // * 0.1 = Time to wait for input.
     tcsetattr(a->fd,TCSANOW,&topts);
     if (tcsetattr(a->fd,TCSAFLUSH,&topts) < 0){
@@ -81,48 +81,41 @@ int write_short(rov_arduino *a,unsigned short v){
 }
 
 // Sets a digital pin on or off.
-// return: 0 on success, non-zero on failure.
-int digital_write(rov_arduino *a,rov_pin p,bool v){
-    return write_char(a,(v) ? OP_DIGITAL_ON : OP_DIGITAL_OFF)
-        || write_char(a,p);
+void digital_write(rov_arduino *a,rov_pin p,bool v){
+    unsigned char msg[] = { (v) ? OP_DIGITAL_ON : OP_DIGITAL_OFF,p };
+    enqueue(a->queue,msg,2 * sizeof(unsigned char));
 }
 
 // Sends a value to a pin in the range of [0,1023]
 // Data is formatted as so: byte 1 = lsb of v.
 //          first 2 bits of byte 2 = 2 last bits in v.
 //           last 6 bits of byte 2 = the pin number.
-// return: 0 on success, non-zero on failure.
-int analog_write(rov_arduino *a,rov_pin p,unsigned short v){
+void analog_write(rov_arduino *a,rov_pin p,unsigned short v){
     unsigned char *b = (unsigned char*) &v;
+    unsigned char msg[3];
     b[1] <<= 6;
     b[1] |=  p;
-    return write_char(a,OP_ANALOG_WRITE)
-        || write_char(a,b[0])
-        || write_char(a,b[1]);
+    msg[0]  = OP_ANALOG_WRITE;
+    msg[1] = b[0];
+    msg[2] = b[1];
+    enqueue(a->queue,msg,3 * sizeof(unsigned char));
 }
 
 // Reads an analog value in the range of [0,1023] off of a pin.
-// return: The value of the pin on success, negative value on failure.
-int analog_read(rov_arduino *a,rov_pin p){
-    unsigned short v;
-    if (!write_char(a,OP_ANALOG_READ) && !write_char(a,p)){
-        if (read(a->fd,&v,sizeof(unsigned short)) == -1){
-            perror("analog_read: could not read value");
-            return -1;
-        }
-        return v;
-    }
-    return -1;
+// return: The value of the pin.
+unsigned short analog_read(rov_arduino *a,rov_pin p){
+    unsigned char msg[] = { OP_ANALOG_READ,p };
+    return enqueue_blocking(a->queue,msg,2 * sizeof(unsigned char));
 }
 
 // Polls the arduino to check if it should stop sending messages.
 // return: true iff you should stop sending messages.
-bool poll_shouldstop(rov_arduino *a){
+bool poll_shouldwait(rov_arduino *a){
     unsigned char c;
     if (read(a->fd,&c,sizeof(unsigned char) != 1)){
         return false;
     }
-    if (c == OP_SHOULDSTOP){
+    if (c == OP_SHOULDWAIT){
         return true;
     }
     return false;

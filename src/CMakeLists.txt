@@ -1,6 +1,7 @@
 # CMakeLists.txt --- CMake file for mate-rov-src
 
 set(MATEROV_FILES comm/comm.c
+                  comm/msgqueue.c
                   motor/motor.c
                   ui/main.c)
 

@@ -15,9 +15,12 @@ void init_motor(rov_motor*,rov_pin);
 void init_servo(rov_servo*,rov_pin,int);
 
 // Sets the power on a motor in the range of [-100,100]
-// RETURN: 0 on success, non-zero on failure.
+// This automagically scales [-100,100] -> [0,1023].
+// return: 0 on success, non-zero on failure.
 int m_setpower(rov_arduino*,size_t,char);
 
+// Procedure to run in a pthread to manage the message queue.
+// Accepts the rov_msgqueue* as a void*.
 int s_setangle(rov_arduino*,size_t,int);
 
 #endif
