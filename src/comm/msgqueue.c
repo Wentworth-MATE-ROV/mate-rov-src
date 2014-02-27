@@ -22,7 +22,7 @@ void init_queue(rov_msgqueue *q,rov_arduino *a,useconds_t sleep_time,size_t r){
     q->last       = NULL;
     q->size       = 0;
     q->is_waiting = false;
-    q->response   = malloc(sizeof(unsigned short));
+    q->response   = 0;
     q->miswrites  = 0;
     q->sleep_time = sleep_time;
     q->r_attempts = r;
@@ -51,7 +51,7 @@ unsigned short enqueue_blocking(rov_msgqueue *q,unsigned char *msg,size_t len){
     rov_node *n = enqueue(q,msg,len);
     n->is_blocking = true;
     while (n->is_blocking);
-    return *q->response;
+    return q->response;
 }
 
 // Dequeues the next message and sends it.
@@ -67,7 +67,7 @@ int dequeue(rov_msgqueue *q){
         r = write_str(q->arduino,n->msg,n->len);
     }
     if (n->is_blocking){
-        while (!read(q->arduino->fd,q->response,sizeof(unsigned short))){
+        while (!read(q->arduino->fd,&q->response,sizeof(unsigned short))){
             usleep(500);
         }
         n->is_blocking = false;
@@ -76,6 +76,7 @@ int dequeue(rov_msgqueue *q){
     free(q->head->msg);
     free(q->head);
     q->head = n;
+    --q->size;
     return r;
 }
 
