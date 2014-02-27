@@ -15,11 +15,9 @@
 //             the accelerometer
 //             the laser
 // return: 0 on success, non-zero on failure.
-int init_arduino(rov_arduino *a,const char *f,
-                 size_t motorc,const rov_motor **motorv,
-                 size_t servoc,const rov_servo **servov,
-                 const rov_therm *therm,const rov_accel *accel,
-                 const rov_laser *laser){
+int init_arduino(rov_arduino *a,char *f,size_t motorc,rov_motor **motorv,
+                 size_t servoc,rov_servo **servov,rov_therm *therm,
+                 rov_accel *accel,rov_laser *laser){
     struct termios topts;
     int n;
     if ((a->fd = open(f,O_RDWR | O_NONBLOCK)) == -1){
@@ -55,73 +53,72 @@ int init_arduino(rov_arduino *a,const char *f,
     a->therm  = therm;
     a->accel  = accel;
     a->laser  = laser;
-    for (n = 0;n < 16;n++){
-        write_byte(a,REPORT_DIGITAL | n);
-        write_byte(a,1);
-    }
+    sleep(2);
     return 0;
 }
 
 // Writes a single byte to the arduino.
 // return: 0 on success, non-zero on failure.
-int write_byte(rov_arduino *a,unsigned char b){
+int write_char(rov_arduino *a,unsigned char b){
     return write(a->fd,&b,sizeof(unsigned char)) != sizeof(unsigned char);
 }
 
-// Writes an integer to the arduino as 2 7bit values.
-// return: 0 on success, non-zero on failure.
-int write_int(rov_arduino *a,int n){
-    unsigned char buf[2] = { n & 0x7f,n >> 7 };
-    return write(a->fd,buf,sizeof(unsigned char)) != 2 * sizeof(unsigned char);
-}
-
-// Sets the mode of a pin on the arduino.
-// return: 0 on success, non-zero on failure.
-int set_pinmode(rov_arduino *a,rov_pin pin,rov_pinmode m){
-    return !write_byte(a,SET_PIN_MODE)
-        && !write_byte(a,pin)
-        && !write_byte(a,m);
-}
-
-// Sends a signal to start sysex mode.
-// return: 0 on success, non-zero on failure.
-int start_sysex(rov_arduino *a){
-    return write_byte(a,START_SYSEX);
-}
-
-// Sends a signal to end sysex mode.
-// return: 0 on success, non-zero on failure.
-int end_sysex(rov_arduino *a){
-    return write_byte(a,END_SYSEX);
-}
-
-// Sends a value to an analog pin.
-// return: 0 on success, non-zero on failure.
-int send_analog(rov_arduino *a,rov_pin pin,int v){
-    return !write_byte(a,ANALOG_MESSAGE | (pin & 0x0f))
-        && !write_int(a,v);
-}
-
-// Sends data to a digital pin.
-// return: 0 on success, non-zero on failure.
-int send_digital(rov_arduino *a,rov_pin pin,int v){
-    int port = (pin >> 3) & 0x0f;
-    return !write_byte(a,DIGITAL_MESSAGE + pin)
-        && !write_int(a,v);
-}
-
-// Sends servo data (just a thin wrapper over send_analog).
-// return: 0 on success, non-zero on failure.
-int send_servo(rov_arduino *a,rov_pin pin,int v){
-    if (v > 180 || v < 0){
+// Writes a string to the arduino.
+// return: the number of bytes written, -1 on failure.
+ssize_t write_str(rov_arduino *a,unsigned char *s,size_t s){
+    int n;
+    for (n = 0;n < s;n++){
+        if (!write_char(a,s[n])){
+            break;
+        }
+    }
+    if (!n){
         return -1;
     }
-    return !send_analog(a,pin,v);
+    return s - n;
+}
+
+
+// Writes a short as a string of bytes.
+// return: 0 on success, non-zero on failure.
+int write_short(rov_arduino *a,unsigned short v){
+    return write_str(a,(unsigned char*) &v,sizeof (unsigned short))
+        != sizeof(unsigned short);
+}
+
+// Sets a digital pin on or off.
+// return: 0 on success, non-zero on failure.
+int digital_write(rov_arduino *a,rov_pin p,bool v){
+    return !write_byte(a->fd,(v) ? DIGITAL_ON : DIGITAL_OFF)
+        && !write_byte(a->fd,p);
+}
+
+// Sends a value to a pin in the range of [0,1023]
+// Data is formatted as so: byte 1 = lsb of v.
+//          first 2 bits of byte 2 = 2 last bits in v.
+//           last 6 bits of byte 2 = the pin number.
+// return: 0 on success, non-zero on failure.
+int analog_write(rov_arduino *a,rov_pin p,unsigned short v){
+    unsigned char *b = (unsigned char*) &v;
+    b[1] <<= 6;
+    b[1] |=  p;
+    return !write_byte(a,v[0])
+        && !write_byte(a,v[1]);
 }
 
 int main(void){
     rov_arduino a;
+    char buf[128];
+    int n;
     init_arduino(&a,"/dev/ttyACM0",0,NULL,0,NULL,NULL,NULL,NULL);
-    set_pinmode(&a,8,ROV_PINOUTPUT);
-    send_digital(&a,8,1);
+    read(a.fd,buf,128);
+    puts(buf);
+    for (n = 0;n < 128;n++){
+        buf[n] = 0;
+    }
+    write(a.fd,"test",4);
+    sleep(1);
+    read(a.fd,buf,4);
+    puts(buf);
+    return 0;
 }
