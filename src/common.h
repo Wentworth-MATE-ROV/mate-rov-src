@@ -47,11 +47,12 @@ typedef struct rov_msgqueue{
     struct rov_arduino *arduino;     // The arduino that this queue works on.
     rov_node           *head;        // The first elem in the queue.
     rov_node           *last;        // The last elem in the queue.
-    volatile size_t     size;        // The number of messages in the queue.
-    volatile bool       is_waiting;  // Is this queue waiting for the arduino.
-    unsigned short      response;    // The response to grab for blocking calls.
-    volatile size_t     miswrites;   // The number of miswrites.
+    size_t              size;        // The number of messages in the queue.
+    bool                is_waiting;  // Is this queue waiting for the arduino.
+    unsigned short      response;    // The response to grab for blockingcalls.
+    size_t              miswrites;   // The number of miswrites.
     useconds_t          sleep_time;  // The number of microseconds to sleep for.
+    pthread_mutex_t     mutex;       // The mutex for this structure.
     size_t              r_attempts;  // The number of times to try to resend a
                                      // message if it fails.
 } rov_msgqueue;

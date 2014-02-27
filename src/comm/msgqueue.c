@@ -26,6 +26,7 @@ void init_queue(rov_msgqueue *q,rov_arduino *a,useconds_t sleep_time,size_t r){
     q->miswrites  = 0;
     q->sleep_time = sleep_time;
     q->r_attempts = r;
+    pthread_mutex_init(&q->mutex,NULL);
 }
 
 // Enqueues a message to be sent to the arduino when it is ready.
@@ -33,6 +34,7 @@ void init_queue(rov_msgqueue *q,rov_arduino *a,useconds_t sleep_time,size_t r){
 rov_node *enqueue(rov_msgqueue *q,unsigned char *msg,size_t len){
     rov_node *n = malloc(sizeof(rov_node));
     init_node(n,msg,len);
+    pthread_mutex_lock(&q->mutex);
     if (!q->size){
         q->head = n;
         q->last  = n;
@@ -42,6 +44,7 @@ rov_node *enqueue(rov_msgqueue *q,unsigned char *msg,size_t len){
         q->last       = n;
         ++q->size;
     }
+    pthread_mutex_unlock(&q->mutex);
     return n;
 }
 
@@ -49,8 +52,10 @@ rov_node *enqueue(rov_msgqueue *q,unsigned char *msg,size_t len){
 // return: The response from the arduino.
 unsigned short enqueue_blocking(rov_msgqueue *q,unsigned char *msg,size_t len){
     rov_node *n = enqueue(q,msg,len);
+    pthread_mutex_lock(&q->mutex);
     n->is_blocking = true;
     while (n->is_blocking);
+    pthread_mutex_unlock(&q->mutex);
     return q->response;
 }
 
@@ -58,18 +63,21 @@ unsigned short enqueue_blocking(rov_msgqueue *q,unsigned char *msg,size_t len){
 // return: the staus of the underlying write call.
 int dequeue(rov_msgqueue *q){
     rov_node *n;
-    int c;
+    unsigned short res;
+    int r,c;
+    pthread_mutex_lock(&q->mutex);
     assert(q->size > 0);
     n = q->head;
-    int r = write_str(q->arduino,n->msg,n->len);
+    r = write_str(q->arduino,n->msg,n->len);
     for (c = 0;r && c < q->r_attempts;c++){
         ++q->miswrites;
         r = write_str(q->arduino,n->msg,n->len);
     }
     if (n->is_blocking){
-        while (!read(q->arduino->fd,&q->response,sizeof(unsigned short))){
+        while (!read(q->arduino->fd,&res,sizeof(unsigned short))){
             usleep(500);
         }
+        q->response    = res;
         n->is_blocking = false;
     }
     n = n->tail;
@@ -77,6 +85,7 @@ int dequeue(rov_msgqueue *q){
     free(q->head);
     q->head = n;
     --q->size;
+    pthread_mutex_unlock(&q->mutex);
     return r;
 }
 
