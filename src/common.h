@@ -5,13 +5,27 @@
 #ifndef ROV_COMMON_H
 #define ROV_COMMON_H
 
+#include <stdlib.h>
+
 typedef unsigned char rov_pin;
 
 // PLACEHOLDER:
 typedef int rov_laser;
 typedef int rov_therm;
-typedef int rov_servo;
 typedef int rov_accel;
+
+// A struct representing a motor controller attached to the arduino.
+typedef struct{
+    rov_pin  pin;   // The pin this motor is connected to.
+    char     power; // The power that is currently being supplied. [-100,100]
+} rov_motor;
+
+// A struct representing a servo attached to the arduino.
+typedef struct{
+    rov_pin pin;
+    int     loc;
+    int     max;
+} rov_servo;
 
 // A complete arduino.
 typedef struct{

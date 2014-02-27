@@ -6,3 +6,13 @@
 	interacted with.
 	* src/motor/motor.h, src/motor/motor.c: Started motor interface.
 	* src/common.h: Added src/common.h
+
+2014-2-24 Joe Jevnik <joejev@gmail.com>
+	* CMakeLists.txt, src/CMakeLists.txt: Added cmake build system.
+	* src/comm/comm.h, src/comm/comm.c: Implemented new protocol.
+	* src/comm/opcodes.h: Added the new opcodes.
+	* src/motor/motor.h, src/motor/motor.c: Added motor and servo control
+	wrapper calls to underlying write commands.
+	* src/ui/main.c: Added src/ui/main.c to act as our mockup main.
+	* src/common.h: Added the motor, servo, and pin type declerations.
+	* TODO: updated TODO.

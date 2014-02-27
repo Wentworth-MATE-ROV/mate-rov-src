@@ -1,7 +1,5 @@
 TODO:
-    * Test arduino control
-    * Implmenet full firmata protocol
-      - Figure out how this works
+    * Implement message passing queue / thread.
+    * ncurses work should begin soon.
     * Get joystick control working
-    * Get a mockup interface going
     * Camera data streams
