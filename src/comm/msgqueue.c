@@ -16,7 +16,8 @@ void init_node(rov_node* n,unsigned char* msg,size_t len){
 
 
 // Initializes an empty queue.
-void init_queue(rov_msgqueue *q,rov_arduino *a,useconds_t sleep_time,size_t r){
+void init_queue(rov_msgqueue *q,rov_arduino *a,useconds_t sleep_time,
+                size_t r_attempts){
     q->arduino    = a;
     q->head       = NULL;
     q->last       = NULL;
@@ -25,8 +26,17 @@ void init_queue(rov_msgqueue *q,rov_arduino *a,useconds_t sleep_time,size_t r){
     q->response   = 0;
     q->miswrites  = 0;
     q->sleep_time = sleep_time;
-    q->r_attempts = r;
+    q->r_attempts = r_attempts;
     pthread_mutex_init(&q->mutex,NULL);
+}
+
+// Frees the message queue's mesages and mutex.
+void destroy_queue(rov_msgqueue *q){
+    rov_node n;
+    for (n = q->head;n;n = q->head->tail){
+        free(n);
+    }
+    pthread_mutex_destroy(&q->mutex);
 }
 
 // Enqueues a message to be sent to the arduino when it is ready.
@@ -37,7 +47,7 @@ rov_node *enqueue(rov_msgqueue *q,unsigned char *msg,size_t len){
     pthread_mutex_lock(&q->mutex);
     if (!q->size){
         q->head = n;
-        q->last  = n;
+        q->last = n;
         q->size = 1;
     }else{
         q->last->tail = n;
@@ -52,10 +62,8 @@ rov_node *enqueue(rov_msgqueue *q,unsigned char *msg,size_t len){
 // return: The response from the arduino.
 unsigned short enqueue_blocking(rov_msgqueue *q,unsigned char *msg,size_t len){
     rov_node *n = enqueue(q,msg,len);
-    pthread_mutex_lock(&q->mutex);
     n->is_blocking = true;
     while (n->is_blocking);
-    pthread_mutex_unlock(&q->mutex);
     return q->response;
 }
 
@@ -75,7 +83,7 @@ int dequeue(rov_msgqueue *q){
     }
     if (n->is_blocking){
         while (!read(q->arduino->fd,&res,sizeof(unsigned short))){
-            usleep(500);
+            usleep(200); // Magic timing number.
         }
         q->response    = res;
         n->is_blocking = false;
@@ -93,16 +101,18 @@ int dequeue(rov_msgqueue *q){
 // Accepts the rov_msgqueue* as a void*.
 void *process_queue(void *v_q){
     rov_msgqueue *q = v_q;
+    char w;
     for (;;){
         if (q->size > 0 && !q->is_waiting){
             if (dequeue(q)){
                 fputs("Unable to sends a command, ignoring!",stderr);
             }
         }
-        if (q->is_waiting){
-            q->is_waiting = poll_shouldstart(q->arduino);
-        }else{
-            q->is_waiting = !poll_shouldwait(q->arduino);
+        w = poll_wait(q->arduino);
+        if (q->is_waiting && w == OP_SHOULDSTART){
+            q->is_waiting = false;
+        }else if (!q->is_waiting && w == OP_SHOULDWAIT){
+            q->is_waiting = true;
         }
         usleep(q->sleep_time);
     }

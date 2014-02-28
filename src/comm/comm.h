@@ -33,6 +33,9 @@
 int init_arduino(rov_arduino*,char*,size_t,rov_motor**,size_t,rov_servo**,
                  rov_therm*,rov_accel*,rov_laser*);
 
+// Closes the file descripotr to the arduino.
+void destroy_arduino(rov_arduino*);
+
 // Writes a single byte to the arduino.
 // return: 0 on success, non-zero on failure.
 int write_char(rov_arduino*,unsigned char);
@@ -50,6 +53,9 @@ void init_node(rov_node*,unsigned char*,size_t);
 
 // Initializes an empty queue.
 void init_queue(rov_msgqueue*,rov_arduino*,useconds_t,size_t);
+
+// Frees the message queue's mesages and mutex.
+void destroy_queue(rov_msgqueue*);
 
 // Enqueues a message to be sent to the arduino when it is ready.
 // return: The pointer to the allocated node.
@@ -82,11 +88,7 @@ void analog_write(rov_arduino*,rov_pin,unsigned short);
 unsigned short analog_read(rov_arduino*,rov_pin);
 
 // Polls the arduino to check if it should stop sending messages.
-// return: true iff you should stop sending messages.
-bool poll_shouldwait(rov_arduino*);
-
-// Polls the arduino to check if you should start sending messages again.
-// return: true iff you should start sending messages again.
-bool poll_shouldstart(rov_arduino*);
+// return: 0 if nothing is read, or the opcode.
+unsigned char poll_wait(rov_arduino*);
 
 #endif

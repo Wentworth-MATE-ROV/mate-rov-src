@@ -48,7 +48,7 @@ typedef struct rov_msgqueue{
     rov_node           *head;        // The first elem in the queue.
     rov_node           *last;        // The last elem in the queue.
     size_t              size;        // The number of messages in the queue.
-    bool                is_waiting;  // Is this queue waiting for the arduino.
+    volatile bool       is_waiting;  // Is this queue waiting for the arduino.
     unsigned short      response;    // The response to grab for blockingcalls.
     size_t              miswrites;   // The number of miswrites.
     useconds_t          sleep_time;  // The number of microseconds to sleep for.
@@ -69,5 +69,26 @@ typedef struct rov_arduino{
     rov_accel    *accel;       // The accelerometer on the robot.
     rov_laser    *laser;       // The laser mechanism.
 } rov_arduino;
+
+// A message and its attribute.
+typedef struct{
+    char *txt;
+    int   attr;
+} rov_logmsg;
+
+// The screen structure that manages the entire UI.
+typedef struct{
+    rov_arduino    *arduino; // The arduino to pull stats from.
+    int             mr;      // Max rows
+    int             mc;      // Max columns
+    WINDOW         *logw;    // The message log window.
+    WINDOW         *statw;   // The stat window.
+    WINDOW         *ctlw;    // The control window.
+    size_t          logc;    // Log count
+    rov_logmsg     *logv;    // Log values
+    FILE           *logf;    // Log File
+    pthread_t       statt;   // Stat Thread
+    pthread_mutex_t mutex;   // The mutex for screen writing
+} rov_screen;
 
 #endif

@@ -2,6 +2,9 @@
 // 2014.2.23
 // All the opcodes needed for communication.
 
+#ifndef ROV_OPCODES_H
+#define ROV_OPCODES_H
+
 #define OP_SHOULDWAIT    0x50
 #define OP_SHOULDSTART   0x60
 
@@ -10,3 +13,5 @@
 #define OP_DIGITAL_READ  0x20
 #define OP_ANALOG_WRITE  0x30
 #define OP_ANALOG_READ   0x40
+
+#endif

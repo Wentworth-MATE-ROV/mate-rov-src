@@ -17,9 +17,13 @@
 	* src/common.h: Added the motor, servo, and pin type declerations.
 	* TODO: updated TODO.
 
-2014-2-24 Joe Jevnik <joejev@gmail.com>
+2014-2-26 Joe Jevnik <joejev@gmail.com>
 	* src/comm/msgqueue.c: Added the rov_msgqueue
 	to handle the new messages.
 	* src/comm/comm.h, src/comm/comm.c: Changed to a queue based system as
 	opposed to having direct to the arduino. This allows us to use the wait
 	and start commands.
+
+2014-2-28 Joe Jevnik <joejev@gmail.com>
+	* src/ui/screen.h, src/ui/screen.c: Started working on the screen UI.
+	* scr/common.h: Added the screen declerations.
