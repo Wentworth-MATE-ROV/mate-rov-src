@@ -9,6 +9,7 @@
 
 #include <ncurses.h>
 #include <pthread.h>
+#include <stdbool.h>
 
 // The color pairs for printing and attributes.
 #define DEFAULT_PAIR 0
@@ -18,10 +19,14 @@
 #define MAGENTA_PAIR COLOR_PAIR(4)
 
 // Initializes the screen structure and enters ncurses mode.
-void init_screen(rov_screen*);
+void init_screen(rov_screen*,rov_arduino*,FILE*);
+
+void init_logmsg(rov_logmsg*,char*,int);
 
 // Destroys (unitializes) the screen structure and leaves ncurses mode.
 void destroy_screen(rov_screen*);
+
+void destroy_logmsg(rov_logmsg*);
 
 // Refreshes the screen elements.
 void refresh_screen(rov_screen*);
@@ -40,3 +45,5 @@ void writeln(rov_screen*,const char*);
 
 // Handles the resizing of the terminal.
 void handle_resize(rov_screen*);
+
+#endif

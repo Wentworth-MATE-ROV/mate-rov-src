@@ -6,6 +6,6 @@ set(MATEROV_VERSION_MAJOR 0)
 set(MATEROV_VERSION_MINOR 1)
 
 set(CMAKE_C_FLAGS
-"-std=gnu11 -Wall")
+"-std=gnu11 -Wall -lpthread -lncurses -g")
 
 add_subdirectory(src)

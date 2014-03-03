@@ -6,8 +6,10 @@
 #define ROV_COMMON_H
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <ncurses.h>
 
 // The type of a pin on the arduino. Range: [0,63]
 typedef unsigned char rov_pin;
@@ -81,6 +83,7 @@ typedef struct{
     rov_arduino    *arduino; // The arduino to pull stats from.
     int             mr;      // Max rows
     int             mc;      // Max columns
+    int             lmc;     // Log max columns
     WINDOW         *logw;    // The message log window.
     WINDOW         *statw;   // The stat window.
     WINDOW         *ctlw;    // The control window.

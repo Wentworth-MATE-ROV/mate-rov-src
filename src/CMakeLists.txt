@@ -3,6 +3,7 @@
 set(MATEROV_FILES comm/comm.c
                   comm/msgqueue.c
                   motor/motor.c
+                  ui/screen.c
                   ui/main.c)
 
 set(EXECUTABLE_OUTPUT_PATH ${MATEROV_BINARY_DIR})

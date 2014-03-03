@@ -32,7 +32,7 @@ void init_queue(rov_msgqueue *q,rov_arduino *a,useconds_t sleep_time,
 
 // Frees the message queue's mesages and mutex.
 void destroy_queue(rov_msgqueue *q){
-    rov_node n;
+    rov_node *n;
     for (n = q->head;n;n = q->head->tail){
         free(n);
     }
