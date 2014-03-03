@@ -74,8 +74,8 @@ typedef struct rov_arduino{
 
 // A message and its attribute.
 typedef struct{
-    char *txt;
-    int   attr;
+    char txt[81]; // The actual message (Up to 80 chars plus null terminator).
+    int  attr;    // The message attributes as defined by ncurses or screen.h
 } rov_logmsg;
 
 // The screen structure that manages the entire UI.

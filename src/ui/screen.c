@@ -32,40 +32,31 @@ void init_screen(rov_screen *scr,rov_arduino *a,FILE *logf){
     scr->arduino = a;
     scr->logf    = logf;
     scr->logc    = scr->mr - 2;
-    scr->lmc     = 4 * scr->mc / 5;
     scr->logv    = malloc(scr->logc * sizeof(rov_logmsg));
+    scr->lmc     = 4 * scr->mc / 5;
     scr->statw   = newwin(12,6,3,10);
     scr->ctlw    = newwin(scr->mr - 8,scr->mc / 5,scr->mr - 8,0);
     scr->logw    = newwin(scr->logc,scr->lmc,2,scr->mc / 5 + 1);
     pthread_mutex_init(&scr->mutex,NULL);
     for (n = 0;n < scr->logc;n++){
-        scr->logv[n].txt  = calloc(81,scr->lmc);
+        memset(scr->logv[n].txt,0,81);
         scr->logv[n].attr = DEFAULT_PAIR;
     }
 }
 
 // Initializes a log message with the text and attribute sections.
 void init_logmsg(rov_logmsg *msg,char *txt,int attr){
-    memcpy(msg->txt,txt,80);
+    memcpy(msg->txt,txt,81);
     msg->attr = attr;
 }
 
 // Exits ncurses mode and clears the message queue. Also closes the logfile.
 void destroy_screen(rov_screen *scr){
-    int n;
-    for (n = 0;n < scr->logc;n++){
-        destroy_logmsg(&scr->logv[n]);
-    }
     pthread_mutex_destroy(&scr->mutex);
     free(scr->logv);
     fclose(scr->logf);
     echo();
     endwin();
-}
-
-// Frees the text portion of the message.
-void destroy_logmsg(rov_logmsg *msg){
-    free(msg->txt);
 }
 
 // Refreshes the screen.
@@ -87,19 +78,27 @@ void update_stats(rov_screen *scr){
 }
 
 // Writes a string to the log with the default attributes.
-void writeln(rov_screen *scr,const char *str){
-    writeln_attr(scr,str,DEFAULT_PAIR);
+void screen_print(rov_screen *scr,const char *str){
+    screen_printattr(scr,DEFAULT_PAIR,str);
+}
+
+void screen_printf(rov_screen *scr,const char *fmt,...){
+    va_list ap;
+    char buf[81];
+    va_start(ap,fmt);
+    vsnprintf(buf,81,fmt,ap);
+    screen_printattr(scr,DEFAULT_PAIR,buf);
+    va_end(ap);
 }
 
 // Writes a string to the console with a given attribute.
-void writeln_attr(rov_screen *scr,const char *str,int attr){
+void screen_printattr(rov_screen *scr,int attr,const char *str){
     time_t t;
     struct tm ti;
     char *buffer;
     int n;
     pthread_mutex_lock(&scr->mutex);
-    destroy_logmsg(&scr->logv[scr->logc - 1]);
-    for (n = scr->logc;n > 0;n--){
+    for (n = scr->logc - 1;n > 0;n--){
         init_logmsg(&scr->logv[n],scr->logv[n - 1].txt,scr->logv[n - 1].attr);
     }
     time(&t);
@@ -110,9 +109,8 @@ void writeln_attr(rov_screen *scr,const char *str,int attr){
     init_logmsg(&scr->logv[0],buffer,attr);
     free(buffer);
     fputs(scr->logv[0].txt,scr->logf);
+    wclear(scr->logw);
     for (n = scr->logc;n >= 0;n--){
-        wmove(scr->logw,n,0);
-	wclrtoeol(scr->logw);
 	wattron(scr->logw,scr->logv[n].attr);
 	mvwprintw(scr->logw,scr->logc - n - 1,0,"%s",scr->logv[n].txt);
 	wattroff(scr->logw,scr->logv[n].attr);
@@ -120,6 +118,15 @@ void writeln_attr(rov_screen *scr,const char *str,int attr){
 
     pthread_mutex_unlock(&scr->mutex);
     refresh_screen(scr);
+}
+
+void screen_printfattr(rov_screen *scr,int attr,const char *fmt,...){
+    va_list ap;
+    char buf[81];
+    va_start(ap,fmt);
+    vsnprintf(buf,81,fmt,ap);
+    screen_printattr(scr,attr,buf);
+    va_end(ap);
 }
 
 // Prints the basic UI features, they will be populated by the poll thread.

@@ -20,11 +20,13 @@ int main(void){
     init_screen(&scr,&a,fopen("/dev/null","w"));
     print_staticui(&scr);
     getch();
-    writeln(&scr,"test message");
+    screen_print(&scr,"test message");
     getch();
-    writeln_attr(&scr,"test bold",A_BOLD);
+    screen_printattr(&scr,A_BOLD,"test bold");
     getch();
-    writeln_attr(&scr,"test red",RED_PAIR);
+    screen_printattr(&scr,RED_PAIR,"test red");
+    getch();
+    screen_printfattr(&scr,RED_PAIR | A_BOLD,"number %d",10);
     getch();
     destroy_screen(&scr);
     destroy_arduino(&a);

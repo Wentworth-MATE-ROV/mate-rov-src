@@ -10,6 +10,7 @@
 #include <ncurses.h>
 #include <pthread.h>
 #include <stdbool.h>
+#include <stdarg.h>
 
 // The color pairs for printing and attributes.
 #define DEFAULT_PAIR 0
@@ -26,8 +27,6 @@ void init_logmsg(rov_logmsg*,char*,int);
 // Destroys (unitializes) the screen structure and leaves ncurses mode.
 void destroy_screen(rov_screen*);
 
-void destroy_logmsg(rov_logmsg*);
-
 // Refreshes the screen elements.
 void refresh_screen(rov_screen*);
 
@@ -37,11 +36,17 @@ void update_stats(rov_screen*);
 // Prints the static UI elements.
 void print_staticui(rov_screen*);
 
-// Writes a string to the screen with a set of attributes.
-void writeln_attr(rov_screen*,const char*,int);
-
 // Writes a line to the screen with the default attributes.
-void writeln(rov_screen*,const char*);
+void screen_print(rov_screen*,const char*);
+
+// Writes a formatted line to the screen with the default attributes.
+void screen_printf(rov_screen*,const char*,...);
+
+// Writes a string to the screen with a set of attributes.
+void screen_printattr(rov_screen*,int,const char*);
+
+// Writes a formatted string to the screen with a set of attributes.
+void screen_printfattr(rov_screen*,int,const char*,...);
 
 // Handles the resizing of the terminal.
 void handle_resize(rov_screen*);
