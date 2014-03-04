@@ -1,5 +1,4 @@
 TODO:
-    * Implement message passing queue / thread.
-    * ncurses work should begin soon.
+    * finish multithreading
     * Get joystick control working
     * Camera data streams

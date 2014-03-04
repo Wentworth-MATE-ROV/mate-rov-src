@@ -95,7 +95,7 @@ void screen_printf(rov_screen *scr,const char *fmt,...){
 void screen_printattr(rov_screen *scr,int attr,const char *str){
     time_t t;
     struct tm ti;
-    char *buffer;
+    char buffer[81];
     int n;
     pthread_mutex_lock(&scr->mutex);
     for (n = scr->logc - 1;n > 0;n--){
@@ -103,23 +103,23 @@ void screen_printattr(rov_screen *scr,int attr,const char *str){
     }
     time(&t);
     localtime_r(&t,&ti);
-    buffer = calloc(81,sizeof(char));
+    memset(buffer,0,81);
     strftime(buffer,80,"[%H:%M:%S]:",&ti);
     strncat(buffer,str,(80 - strlen(buffer)) * sizeof(char));
     init_logmsg(&scr->logv[0],buffer,attr);
-    free(buffer);
     fputs(scr->logv[0].txt,scr->logf);
     wclear(scr->logw);
     for (n = scr->logc;n >= 0;n--){
 	wattron(scr->logw,scr->logv[n].attr);
-	mvwprintw(scr->logw,scr->logc - n - 1,0,"%s",scr->logv[n].txt);
+	mvwprintw(scr->logw,scr->logc - n - 1,0,"%.*s",
+                  (scr->lmc > 80) ? 80 : scr->lmc,scr->logv[n].txt);
 	wattroff(scr->logw,scr->logv[n].attr);
     }
 
     pthread_mutex_unlock(&scr->mutex);
     refresh_screen(scr);
 }
-
+// Writes a formatted line to the screen with the default attributes.
 void screen_printfattr(rov_screen *scr,int attr,const char *fmt,...){
     va_list ap;
     char buf[81];
@@ -136,17 +136,27 @@ void print_staticui(rov_screen *scr){
     pthread_mutex_lock(&scr->mutex);
     attron(YELLOW_PAIR | A_BOLD);
     mvprintw(0,scr->mc - 7,"Bot Six");
-    attron(A_BOLD);
     for (n = 2;n < scr->mr;n++){
 	mvprintw(n,c,"|");
     }
     for (n = 0;n < scr->mc;n++){
 	mvprintw(1,n,"_");
     }
-    attron(A_UNDERLINE | A_BOLD);
+    attron(A_UNDERLINE);
     mvprintw(1,0,"ROV Status:");
     mvprintw(1,c + 1,"Log:");
     attroff(A_UNDERLINE | A_BOLD);
+    mvprintw(3,0,"Motors:");
+    mvprintw(4,1,"Motor 1:");
+    mvprintw(5,1,"Motor 2:");
+    mvprintw(6,1,"Motor 3:");
+    mvprintw(7,1,"Motor 4:");
+    mvprintw(8,1,"Servo:");
+    mvprintw(10,0,"Sensors:");
+    mvprintw(11,1,"Depth:");
+    mvprintw(12,1,"Temp:");
+    mvprintw(13,1,"Accel:");
+    mvprintw(14,1,"Coduct:");
     attroff(YELLOW_PAIR);
     pthread_mutex_unlock(&scr->mutex);
     refresh_screen(scr);

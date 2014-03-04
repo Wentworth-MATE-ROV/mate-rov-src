@@ -20,7 +20,8 @@ void init_servo(rov_servo*,rov_pin,int);
 int m_setpower(rov_arduino*,size_t,char);
 
 // Procedure to run in a pthread to manage the message queue.
-// Accepts the rov_msgqueue* as a void*.
+// This automagically scales [0,max degrees] -> [0,1023].
+// return: 0 on success, non-zero on failure.
 int s_setangle(rov_arduino*,size_t,int);
 
 #endif
