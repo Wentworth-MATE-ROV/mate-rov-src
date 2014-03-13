@@ -1,0 +1,40 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/joejev/compsci/mate-rov-src/src/common.h
+stdlib.h
+-
+stdio.h
+-
+stdbool.h
+-
+unistd.h
+-
+ncurses.h
+-
+
+/home/joejev/compsci/mate-rov-src/src/controls/controls.h
+../common.h
+/home/joejev/compsci/mate-rov-src/src/common.h
+unistd.h
+-
+string.h
+-
+stdbool.h
+-
+
+/home/joejev/compsci/mate-rov-src/src/controls/keybinds.c
+keybinds.h
+/home/joejev/compsci/mate-rov-src/src/controls/keybinds.h
+
+/home/joejev/compsci/mate-rov-src/src/controls/keybinds.h
+controls.h
+/home/joejev/compsci/mate-rov-src/src/controls/controls.h
+stdbool.h
+-
+

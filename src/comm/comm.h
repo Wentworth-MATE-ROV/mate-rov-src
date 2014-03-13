@@ -22,6 +22,7 @@
 // Initializes an arduino.
 // Parameters: the arduino pointer
 //             the device the arduino is connected to
+//             the device the joystick is connected to
 //             the number of motors
 //             the array of motors
 //             the number of servos
@@ -30,7 +31,8 @@
 //             the accelerometer
 //             the laser
 // return: 0 on success, non-zero on failure.
-int init_arduino(rov_arduino*,char*,size_t,rov_motor**,size_t,rov_servo**,
+int init_arduino(rov_arduino*,const char*,const char*,
+                 size_t,rov_motor**,size_t,rov_servo**,
                  rov_therm*,rov_accel*,rov_laser*);
 
 // Closes the file descripotr to the arduino.

@@ -59,9 +59,38 @@ typedef struct rov_msgqueue{
                                      // message if it fails.
 } rov_msgqueue;
 
+// A joystick state.
+typedef struct{
+    short              x;            // The joystick's x pos.  (left < 0)
+    short              y;            // The joystick's y pos.  (up   < 0)
+    short              twist;        // The joystick's twist.  (left < 0)
+    short              slider;       // The slider's position. (up   < 0)
+    short              hat_x;        // The hat's x position.  (left < 0)
+    short              hat_y;        // The hat's y position.  (up   < 0)
+    union{
+        struct{
+            bool       trigger  : 1; // Button 1 (Trigger)
+            bool       button2  : 1; // Button 2
+            bool       button3  : 1; // Button 3
+            bool       button4  : 1; // Button 4
+            bool       button5  : 1; // Button 5
+            bool       button6  : 1; // Button 6
+            bool       button7  : 1; // Button 7
+            bool       button8  : 1; // Button 8
+            bool       button9  : 1; // Button 9
+            bool       button10 : 1; // Button 10
+            bool       button11 : 1; // Button 11
+            bool       button12 : 1; // Button 12
+        };
+        unsigned short buttons;      // The set of buttons.
+    };
+} rov_joystick;
+
 // A complete arduino.
 typedef struct rov_arduino{
     int           fd;          // A file descriptor to the /dev/tty_ channel.
+    int           jsfd;        // A file descriptor to the /dev/input/js_.
+    rov_joystick  joystick;    // The joystick state.
     rov_msgqueue *queue;       // The message queue.
     size_t        motorc;      // The number of motors connected.
     rov_motor   **motorv;      // The array of motors.
@@ -93,5 +122,11 @@ typedef struct{
     pthread_t       statt;   // Stat Thread
     pthread_mutex_t mutex;   // The mutex for screen writing
 } rov_screen;
+
+// A structure to pass to the process joystick thread.
+typedef struct{
+    rov_screen *scr; // The screen structure.
+    useconds_t  hz;  // The Hz of the refresh rate.
+}rov_pjs_param;
 
 #endif

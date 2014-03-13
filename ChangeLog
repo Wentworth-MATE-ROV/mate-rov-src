@@ -31,3 +31,7 @@
 2014-3-3 Joe Jevnik <joejev@gmail.com>
 	* src/ui/screen.h, src/ui/screen.c: Got message log and static UI frame.
 	* TODO: Updated TODO
+
+2014-3-13 Joe Jevnik <joejev@gmail.com>
+	* src/controls/keybinds.h, src/controls/keybinds.c: started keybinds.
+	* build/.keybinds: example keybinds file.

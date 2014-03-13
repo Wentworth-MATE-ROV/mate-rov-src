@@ -156,7 +156,7 @@ void print_staticui(rov_screen *scr){
     mvprintw(11,1,"Depth:");
     mvprintw(12,1,"Temp:");
     mvprintw(13,1,"Accel:");
-    mvprintw(14,1,"Coduct:");
+    mvprintw(14,1,"Cndct:");
     attroff(YELLOW_PAIR);
     pthread_mutex_unlock(&scr->mutex);
     refresh_screen(scr);

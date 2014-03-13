@@ -2,6 +2,8 @@
 
 set(MATEROV_FILES comm/comm.c
                   comm/msgqueue.c
+                  controls/controls.c
+                  controls/keybinds.c
                   motor/motor.c
                   ui/screen.c
                   ui/main.c)

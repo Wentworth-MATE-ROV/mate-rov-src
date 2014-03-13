@@ -7,6 +7,7 @@
 // Initializes an arduino.
 // Parameters: the arduino pointer
 //             the device the arduino is connected to
+//             the device the joystick is connected to
 //             the number of motors
 //             the array of motors
 //             the number of servos
@@ -15,12 +16,17 @@
 //             the accelerometer
 //             the laser
 // return: 0 on success, non-zero on failure.
-int init_arduino(rov_arduino *a,char *f,size_t motorc,rov_motor **motorv,
+int init_arduino(rov_arduino *a,const char *af,const char *jf,
+                 size_t motorc,rov_motor **motorv,
                  size_t servoc,rov_servo **servov,rov_therm *therm,
                  rov_accel *accel,rov_laser *laser){
     struct termios topts;
-    if ((a->fd = open(f,O_RDWR | O_NONBLOCK)) == -1){
-        perror("init_arduino: could not open f");
+    if ((a->fd = open(af,O_RDWR | O_NONBLOCK)) == -1){
+        perror("init_arduino: could not open af");
+        return -1;
+    }
+    if ((a->jsfd = open(jf,O_RDONLY | O_NONBLOCK)) == -1){
+        perror("init_arduino: could not open jf");
         return -1;
     }
     if (tcgetattr(a->fd,&topts) < 0){
@@ -45,6 +51,7 @@ int init_arduino(rov_arduino *a,char *f,size_t motorc,rov_motor **motorv,
         perror("init_arduino: could not set term attributes");
         return -1;
     }
+    memset(&a->joystick,0,sizeof(rov_joystick));
     a->motorc = motorc;
     a->motorv = motorv;
     a->servoc = servoc;
@@ -59,6 +66,7 @@ int init_arduino(rov_arduino *a,char *f,size_t motorc,rov_motor **motorv,
 // Closes the file descripotr to the arduino.
 void destroy_arduino(rov_arduino *a){
     close(a->fd);
+    close(a->jsfd);
 }
 
 // Writes a single byte to the arduino.

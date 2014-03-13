@@ -1,0 +1,24 @@
+;;; Joe Jevnik
+;;; 2014.3.13
+;;; Keybinding layout for the robot.
+
+;; Defining symbolic names to the axis and trigger.
+(def
+ (trigger 1)
+ (x       0)
+ (y       1)
+ (twist   2)
+ (slider  3)
+ (hat-x   4)
+ (hat-y   5))
+
+;; Assigning operations to their keys.
+;; To create an axis out of two buttons, use the (pair a b) command.
+(assign
+ (claw-open  5)
+ (claw-close 6)
+ (rotate-x   twist)
+ (rotate-y   (pair 3 4))
+ (transpose  y)
+ (turn       x)
+ (thrust-mod slider))
