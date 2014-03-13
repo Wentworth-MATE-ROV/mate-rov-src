@@ -1,1 +1,0 @@
-/usr/bin/cc  -std=gnu11 -Wall -lpthread -lncurses -g    CMakeFiles/rov.dir/comm/comm.c.o CMakeFiles/rov.dir/comm/msgqueue.c.o CMakeFiles/rov.dir/controls/controls.c.o CMakeFiles/rov.dir/controls/keybinds.c.o CMakeFiles/rov.dir/motor/motor.c.o CMakeFiles/rov.dir/ui/screen.c.o CMakeFiles/rov.dir/ui/main.c.o  -o ../rov -rdynamic 
