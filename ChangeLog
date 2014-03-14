@@ -46,3 +46,18 @@
 	defualt keybinds to test that parsing is done correctly.
 	* src/ui/main.c: Added a test main that shows the output of the parsed
 	.keybinds file.
+
+2014-3-14 Joe Jevnik <joejev@gmail.com>
+	* src/controls/keybinds.h, src/control.keybinds.c: Added more operations
+	and fixed button/axis lists.
+	* src/controls/keybinds-parser.scm: Added support for more operations,
+	and made (axis-pair a b) subtract 1 from a and b to give the button
+	number like (button n). Also made it verify the length of the arg lists
+	at this stage as opposed to the C-step.
+	* build/.keybinds, build/.keybinds_rand: Added new examples that reflect
+	the new operations.
+	* src/common.h: Change the joystick processing param struct to have a
+	send AND poll rate.
+	* src/controls/controls.c: Changed the process_joystick() loop to look
+	at the poll rate.
+	* src/ui/main.c: Added a new main that reflects the new operations.

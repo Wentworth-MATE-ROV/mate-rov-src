@@ -5,67 +5,94 @@
 #include "keybinds.h"
 #include "controls.h"
 
-rov_jsaxis x_axis;
-rov_jsaxis y_axis;
-rov_jsaxis twist_axis;
-rov_jsaxis slider_axis;
-rov_jsaxis hat_x_axis;
-rov_jsaxis hat_y_axis;
+rov_jsaxis x_axis;            // Joystick's x axis.
+rov_jsaxis y_axis;            // Joystick's y axis.
+rov_jsaxis twist_axis;        // Joystick's twisting axis.
+rov_jsaxis slider_axis;       // Joystick's slider.
+rov_jsaxis hat_x_axis;        // Hat switch x axis.
+rov_jsaxis hat_y_axis;        // Hat switch y axis.
 
-rov_jsaxis test_pair_axis;
+rov_jsaxis trans_y_pair_axis; // Axis pair to translate y;
+rov_jsaxis rot_z_pair_axis;   // Axis to rotate about the z.
 
 // The default set of keybinds.
 rov_keybinds default_keybinds;
 
-const char* const claw_open_str  = "claw-open";
-const char* const claw_close_str = "claw-close";
-const char* const rotate_x_str   = "rotate-x";
-const char* const rotate_y_str   = "rotate-y";
-const char* const transpose_str  = "transpose";
-const char* const turn_str       = "turn";
-const char* const thrust_mod_str = "thrust-mod";
+const char* const claw_open_str    = "claw-open";
+const char* const claw_close_str   = "claw-close";
+const char* const claw_x_str       = "claw-x";
+const char* const claw_y_str       = "claw-y";
+const char* const rotate_z_str     = "rotate-z";
+const char* const rotate_y_str     = "rotate-y";
+const char* const transpose_x_str  = "transpose-x";
+const char* const transpose_y_str  = "transpose-y";
+const char* const turn_y_str       = "turn-y";
+const char* const thrust_mod_str   = "thrust-mod";
+const char* const laser_on_str     = "laser-on";
+const char* const laser_off_str    = "laser-off";
+const char* const laser_toggle_str = "laser-toggle";
 
 // Sets up the initial default keybind values, call before parsing!
 void init_keybinds(){
     // The default 6 axis that exist on the joystick.
-    x_axis.is_pair              = false;
-    x_axis.axis                 = ROV_JS_X;
-    y_axis.is_pair              = false;
-    y_axis.axis                 = ROV_JS_Y;
-    twist_axis.is_pair          = false;
-    twist_axis.axis             = ROV_JS_T;
-    slider_axis.is_pair         = false;
-    slider_axis.axis            = ROV_JS_S;
-    hat_x_axis.is_pair          = false;
-    hat_x_axis.axis             = ROV_JS_HX;
-    hat_y_axis.is_pair          = false;
-    hat_y_axis.axis             = ROV_JS_HY;
+    x_axis.is_pair                    = false;
+    x_axis.axis                       = ROV_JS_X;
+    y_axis.is_pair                    = false;
+    y_axis.axis                       = ROV_JS_Y;
+    twist_axis.is_pair                = false;
+    twist_axis.axis                   = ROV_JS_T;
+    slider_axis.is_pair               = false;
+    slider_axis.axis                  = ROV_JS_S;
+    hat_x_axis.is_pair                = false;
+    hat_x_axis.axis                   = ROV_JS_HX;
+    hat_y_axis.is_pair                = false;
+    hat_y_axis.axis                   = ROV_JS_HY;
 
-    test_pair_axis.is_pair      = true;
-    test_pair_axis.pos          = 3;
-    test_pair_axis.neg          = 4;
+    trans_y_pair_axis.is_pair         = true;
+    trans_y_pair_axis.pos             = 3;
+    trans_y_pair_axis.neg             = 2;
+
+    rot_z_pair_axis.is_pair           = true;
+    rot_z_pair_axis.pos               = 5;
+    rot_z_pair_axis.neg               = 4;
 
     // The default set of keybinds.
-    default_keybinds.claw_openc   = 1;
-    *default_keybinds.claw_openv  = 5;
+    default_keybinds.claw_openc       = 1;
+    *default_keybinds.claw_openv      = 0;
 
-    default_keybinds.claw_closec  = 1;
-    *default_keybinds.claw_closev = 6;
+    default_keybinds.claw_closec      = 1;
+    *default_keybinds.claw_closev     = 1;
 
-    default_keybinds.rotate_xc    = 1;
-    *default_keybinds.rotate_xv   = twist_axis;
+    default_keybinds.claw_xc          = 1;
+    *default_keybinds.claw_xv         = hat_x_axis;
 
-    default_keybinds.rotate_yc    = 1;
-    *default_keybinds.rotate_yv   = test_pair_axis;
+    default_keybinds.claw_yc          = 1;
+    *default_keybinds.claw_yv         = hat_y_axis;
 
-    default_keybinds.transposec   = 1;
-    *default_keybinds.transposev  = y_axis;
+    default_keybinds.rotate_yc        = 1;
+    *default_keybinds.rotate_yv       = twist_axis;
 
-    default_keybinds.turnc        = 1;
-    *default_keybinds.turnv       = x_axis;
+    default_keybinds.rotate_zc        = 1;
+    *default_keybinds.rotate_zv       = rot_z_pair_axis;
 
-    default_keybinds.thrust_modc  = 1;
-    *default_keybinds.thrust_modv = slider_axis;
+    default_keybinds.transpose_xc     = 1;
+    *default_keybinds.transpose_xv    = y_axis;
+
+    default_keybinds.turn_yc          = 1;
+    *default_keybinds.turn_yv         = x_axis;
+
+    default_keybinds.thrust_modc      = 1;
+    *default_keybinds.thrust_modv     = slider_axis;
+
+    default_keybinds.laser_onc        = 1;
+    *default_keybinds.laser_onv       = 6;
+
+    default_keybinds.laser_offc       = 1;
+    *default_keybinds.laser_offv      = 7;
+
+    default_keybinds.laser_togglec    = 2;
+    default_keybinds.laser_togglev[0] = 10;
+    default_keybinds.laser_togglev[1] = 11;
 }
 
 // Frees the key lists.
@@ -79,15 +106,45 @@ int read_scm_line(rov_keybinds *kbs,char *str){
     char         *op;
     int           n;
     int           b = 0;
-    const char*   ops[7]  = { claw_open_str,claw_close_str,rotate_x_str,
-                              rotate_y_str,transpose_str,turn_str,
+    const char*   ops[13] = { claw_open_str,
+                              claw_close_str,
+                              laser_on_str,
+                              laser_off_str,
+                              laser_toggle_str,
+                              claw_x_str,
+                              claw_y_str,
+                              rotate_z_str,
+                              rotate_y_str,
+                              transpose_x_str,
+                              transpose_y_str,
+                              turn_y_str,
                               thrust_mod_str };
-    unsigned char* bvs[2] = { kbs->claw_openv,kbs->claw_closev };
-    rov_jsaxis*    avs[5] = { kbs->rotate_xv,kbs->rotate_yv,kbs->transposev,
-                              kbs->turnv,kbs->thrust_modv };
-    size_t*        cs[7]  = { &kbs->claw_openc,&kbs->claw_closec,
-                              &kbs->rotate_xc,&kbs->rotate_yc,
-                              &kbs->transposec,&kbs->turnc,&kbs->thrust_modc };
+    unsigned char* bvs[5] = { kbs->claw_openv,
+                              kbs->claw_closev,
+                              kbs->laser_onv,
+                              kbs->laser_offv,
+                              kbs->laser_togglev };
+    rov_jsaxis*    avs[8] = { kbs->claw_xv,
+                              kbs->claw_yv,
+                              kbs->rotate_zv,
+                              kbs->rotate_yv,
+                              kbs->transpose_xv,
+                              kbs->transpose_yv,
+                              kbs->turn_yv,
+                              kbs->thrust_modv };
+    size_t*        cs[13] = { &kbs->claw_openc,
+                              &kbs->claw_closec,
+                              &kbs->laser_onc,
+                              &kbs->laser_offc,
+                              &kbs->laser_togglec,
+                              &kbs->claw_xc,
+                              &kbs->claw_yc,
+                              &kbs->rotate_zc,
+                              &kbs->rotate_yc,
+                              &kbs->transpose_xc,
+                              &kbs->transpose_yc,
+                              &kbs->turn_yc,
+                              &kbs->thrust_modc };
     if (str[0] == ';'){
         return 0;
     }
@@ -95,18 +152,18 @@ int read_scm_line(rov_keybinds *kbs,char *str){
         return -1;
     }
     op = strtok(&str[1]," ");
-    for (n = 0;n < 7;n++){
+    for (n = 0;n < 13;n++){
         b += !strcmp(op,ops[n]);
     }
     if (!b){
         return -2;
     }
     len = strtol(strtok(NULL," "),NULL,10);
-    for (n = 0;n < 2;n++){
+    for (n = 0;n < 5;n++){
         parse_scm_params(kbs,op,ops[n],len,bvs[n],cs[n],true);
     }
-    for (n = 0;n < 5;n++){
-        parse_scm_params(kbs,op,ops[n + 2],len,avs[n],cs[n + 2],false);
+    for (n = 0;n < 8;n++){
+        parse_scm_params(kbs,op,ops[n + 5],len,avs[n],cs[n + 5],false);
     }
     return 0;
 }
@@ -124,21 +181,21 @@ void parse_scm_params(rov_keybinds *kbs,char *op,const char *cstr,size_t len,
         if (is_button){
             for (n = 0;n < len;n++){
                 strtok(NULL," ");
-                *bv = atoi(strtok(NULL,")"));
+                bv[n] = atoi(strtok(NULL,")"));
             }
         }else{ // Branch if it is an axis param.
             for (n = 0;n < len;n++){
                 strtok(NULL," ");
-                a = strtok(NULL," ");;
+                a = strtok(NULL," ");
                 if (a[0] == '('){ // Checks if this is an axis-pair.
                     b = strtok(NULL,")");
-                    jv->is_pair = true;
-                    jv->pos  = atoi(&a[1]);
-                    jv->neg  = atoi(b);
+                    jv[n].is_pair = true;
+                    jv[n].pos     = atoi(&a[1]);
+                    jv[n].neg     = atoi(b);
                     continue;
                 }
-                jv->is_pair = false;
-                jv->axis    = atoi(a);
+                jv[n].is_pair = false;
+                jv[n].axis    = atoi(a);
             }
         }
     }

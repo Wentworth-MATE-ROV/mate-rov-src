@@ -36,9 +36,19 @@ int main(void){
         printf("%u ",kbs.claw_closev[n]);
     }
     putchar('\n');
-    printf("rotate-x: ");
-    for (n = 0;n < kbs.rotate_xc;n++){
-        print_jsaxis(&kbs.rotate_xv[n]);
+    printf("claw-x: ");
+    for (n = 0;n < kbs.claw_xc;n++){
+        print_jsaxis(&kbs.claw_xv[n]);
+    }
+    putchar('\n');
+    printf("claw-y: ");
+    for (n = 0;n < kbs.claw_yc;n++){
+        print_jsaxis(&kbs.claw_yv[n]);
+    }
+    putchar('\n');
+    printf("rotate-z: ");
+    for (n = 0;n < kbs.rotate_zc;n++){
+        print_jsaxis(&kbs.rotate_zv[n]);
     }
     putchar('\n');
     printf("rotate-y: ");
@@ -46,19 +56,39 @@ int main(void){
         print_jsaxis(&kbs.rotate_yv[n]);
     }
     putchar('\n');
-    printf("transpose: ");
-    for (n = 0;n < kbs.transposec;n++){
-        print_jsaxis(&kbs.transposev[n]);
+    printf("transpose-x: ");
+    for (n = 0;n < kbs.transpose_xc;n++){
+        print_jsaxis(&kbs.transpose_xv[n]);
     }
     putchar('\n');
-    printf("turn: ");
-    for (n = 0;n < kbs.turnc;n++){
-        print_jsaxis(&kbs.turnv[n]);
+    printf("transpose-y: ");
+    for (n = 0;n < kbs.transpose_yc;n++){
+        print_jsaxis(&kbs.transpose_yv[n]);
+    }
+    putchar('\n');
+    printf("turn-y: ");
+    for (n = 0;n < kbs.turn_yc;n++){
+        print_jsaxis(&kbs.turn_yv[n]);
     }
     putchar('\n');
     printf("thrust-mod: ");
     for (n = 0;n < kbs.thrust_modc;n++){
         print_jsaxis(&kbs.thrust_modv[n]);
+    }
+    putchar('\n');
+    printf("laser-on: ");
+    for (n = 0;n < kbs.laser_onc;n++){
+        printf("%u ",kbs.laser_onv[n]);
+    }
+    putchar('\n');
+    printf("laser-off: ");
+    for (n = 0;n < kbs.laser_offc;n++){
+        printf("%u ",kbs.laser_offv[n]);
+    }
+    putchar('\n');
+    printf("laser-toggle: ");
+    for (n = 0;n < kbs.laser_togglec;n++){
+        printf("%u ",kbs.laser_togglev[n]);
     }
     putchar('\n');
     return 0;
@@ -77,7 +107,7 @@ int main(void){
         return -1;
     }
     init_screen(&scr,&a,fopen("/dev/null","w"));
-    pthread_create(&pt,NULL,process_joystick,&scr);
+    pthread_create(&pt,NULL,process_joystick, // struct );
     print_staticui(&scr);
     getch();
     pthread_cancel(pt);

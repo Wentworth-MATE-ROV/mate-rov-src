@@ -64,7 +64,7 @@ void *process_joystick(void *vscr_hz){
     rov_screen *scr       = p->scr;
     rov_arduino *a        = scr->arduino;
     rov_joystick old      = a->joystick;
-    useconds_t sleep_time = 1000000 / p->hz;
+    useconds_t sleep_time = 1000000 / p->phz;
     for (;;){
         read_jsevent(a);
         if (memcmp(&a->joystick,&old,sizeof(rov_joystick))){

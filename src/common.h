@@ -126,7 +126,8 @@ typedef struct{
 // A structure to pass to the process joystick thread.
 typedef struct{
     rov_screen *scr; // The screen structure.
-    useconds_t  hz;  // The Hz of the refresh rate.
+    useconds_t  phz; // The Hz of the polling.
+    useconds_t  shz; // The Hz of the sending.
 }rov_pjs_param;
 
 #endif
