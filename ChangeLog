@@ -35,3 +35,14 @@
 2014-3-13 Joe Jevnik <joejev@gmail.com>
 	* src/controls/keybinds.h, src/controls/keybinds.c: started keybinds.
 	* build/.keybinds: example keybinds file.
+
+2014-3-14 Joe Jevnik <joejev@gmail.com>
+	* src/controls/keybinds.h, src/controls/keybinds.c: Finished first round
+	keybinds implementation.
+	* src/controls/keybinds-parser.scm: Added a scheme program to parse
+	the .keybinds file into usable data.
+	* build/.keybinds: Final version of example .keybinds file added.
+	* build/.keybinds_rand: A file with random keybinds that varies from the
+	defualt keybinds to test that parsing is done correctly.
+	* src/ui/main.c: Added a test main that shows the output of the parsed
+	.keybinds file.

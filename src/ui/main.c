@@ -6,10 +6,65 @@
 #include "../comm/comm.h"
 #include "screen.h"
 #include "../controls/controls.h"
+#include "../controls/keybinds.h"
 
 #include <stdio.h>
 #include <pthread.h>
 
+// Test print for an axis.
+void print_jsaxis(rov_jsaxis *j){
+    if (j->is_pair){
+        printf("axis-pair: (%u %u) ",j->pos,j->neg);
+    }else{
+        printf("axis: %u ",j->axis);
+    }
+}
+
+// Test main for the keybinds parsing.
+int main(void){
+    int n;
+    rov_keybinds kbs;
+    init_keybinds();
+    parse_keybinds(&kbs,".keybinds_rand");
+    printf("claw-open: ");
+    for (n = 0;n < kbs.claw_openc;n++){
+        printf("%u ",kbs.claw_openv[n]);
+    }
+    putchar('\n');
+    printf("claw-close: ");
+    for (n = 0;n < kbs.claw_closec;n++){
+        printf("%u ",kbs.claw_closev[n]);
+    }
+    putchar('\n');
+    printf("rotate-x: ");
+    for (n = 0;n < kbs.rotate_xc;n++){
+        print_jsaxis(&kbs.rotate_xv[n]);
+    }
+    putchar('\n');
+    printf("rotate-y: ");
+    for (n = 0;n < kbs.rotate_yc;n++){
+        print_jsaxis(&kbs.rotate_yv[n]);
+    }
+    putchar('\n');
+    printf("transpose: ");
+    for (n = 0;n < kbs.transposec;n++){
+        print_jsaxis(&kbs.transposev[n]);
+    }
+    putchar('\n');
+    printf("turn: ");
+    for (n = 0;n < kbs.turnc;n++){
+        print_jsaxis(&kbs.turnv[n]);
+    }
+    putchar('\n');
+    printf("thrust-mod: ");
+    for (n = 0;n < kbs.thrust_modc;n++){
+        print_jsaxis(&kbs.thrust_modv[n]);
+    }
+    putchar('\n');
+    return 0;
+}
+
+/*
 int main(void){
     rov_arduino a;
     rov_screen scr;
@@ -30,3 +85,4 @@ int main(void){
     destroy_arduino(&a);
     return 0;
 }
+*/

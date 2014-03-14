@@ -12,11 +12,11 @@
 (define hat-y   (axis   5))
 
 ;; Assigning operations to their keys.
-;; To create an axis out of two buttons, use the (axis-pair a b) command.
-(claw-open  (button 5))
-(claw-close (button  6))
-(rotate-x   twist)
-(rotate-y   (axis-pair 3 4))
-(transpose  y-axis)
-(turn       x-axis)
-(thrust-mod slider)
+;; To create an axis out of two buttons, use the (pair a b) command.
+(claw-open  (button 7))
+(claw-close (button 3))
+(rotate-x   hat-y)
+(rotate-y   (axis-pair 1 2))
+(transpose  hat-x)
+(turn       y-axis)
+(thrust-mod x-axis)
