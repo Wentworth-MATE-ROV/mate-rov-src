@@ -61,3 +61,8 @@
 	* src/controls/controls.c: Changed the process_joystick() loop to look
 	at the poll rate.
 	* src/ui/main.c: Added a new main that reflects the new operations.
+2014-3-15 Joe Jevnik <joejev@gmail.com>
+	* src/controls/keybinds-parser.scm: Added a gen-op macro that will let
+	me more quickly add operations in the future, while assuring they are
+	correct. Also made all-buttons? and all-axis? check for length to
+	simplify the macro. Thanks to Jack Pugmire for the scheme help.

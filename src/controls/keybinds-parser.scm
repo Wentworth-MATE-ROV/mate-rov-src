@@ -5,142 +5,74 @@
 ;;; Parser of the .keybinds file.
 
 ;; Generates the button number in the form of a list of 'b and the number.
+;; n -- the number of the button on the joystick: (button 2) is button 2.
 (define (button n)
   (list 'b (- n 1)))
 
+;; Defines a constant for no button, expanding to (b -1) or 255 on the c end.
 (define no-button (button 0))
 
 ;; Generates the axis number in the form of a list of 'a and the number or pair.
+;; n -- the axis number.
 (define (axis n)
   (list 'a n))
 
-;; Generates a pair that will represent an axis
+;; Generates a pair that will represent an axis.
 (define (axis-pair a b)
   (axis (list (- a 1) (- b 1))))
 
 (define no-axis (axis -1))
 
-;; Lazily folds func over list
-(define (list-and func list)
+;; Lazily folds func over list.
+;; f -- the function to fold.
+;; ns -- the list to fold over.
+(define (list-and f ns)
   (cond
-   ((null? list) #t)
-   ((func (car list)) (list-and func (cdr list)))
+   ((null? ns) #t)
+   ((f (car ns)) (list-and f (cdr ns)))
    (else #f)))
 
 ;; Are all the elements buttons?
+;; n -- the list to check.
 (define (all-buttons? n)
-  (list-and (lambda (m) (eq? 'b (car m))) n))
+  (and
+   (>= 12 (length n))
+   (list-and (lambda (m) (eq? 'b (car m))) n)))
 
 ;; Are all the elements axis?
+;; n -- the list to check.
 (define (all-axis? n)
-  (list-and (lambda (m) (eq? 'a (car m))) n))
+  (and
+   (>= 6 (length n))
+   (list-and (lambda (m) (eq? 'a (car m))) n)))
 
 
-;; Functions that create the appropriate output of the defines.
-;; Buttons that open the claw.
-(define (claw-open . n)
-  (let ((l (length n)))
-    (display (if (and (<= l 12) (all-buttons? n))
-                 (append (list 'claw-open l) n)
-                 "claw-open")))
-  (newline))
+;; Create a handler for an operation.
+;; name -- the name of the operation.
+;; p -- the predicate used to test the list of arguments.
+(define-syntax gen-op
+  (syntax-rules ()
+    ((gen-op name p)
+     (define (name . n)
+       (display (if (p n)
+                    `(name ,(length n) ,@n)
+                    'name))
+       (newline)))))
 
-;; Buttons that close the claw.
-(define (claw-close . n)
-  (let ((l (length n)))
-    (display (if (and (<= l 12) (all-buttons? n))
-                 (append (list 'claw-close l) n)
-                 "claw-close")))
-  (newline))
-
-;; Axes that rotate the claw about the x axis.
-(define (claw-x . n)
-  (let ((l (length n)))
-    (display (if (and (<= l 6) (all-axis? n))
-                 (append (list 'claw-x l n))
-                 "claw-x")))
-  (newline))
-
-;; Axes that rotate the claw about the y axis.
-(define (claw-y . n)
-  (let ((l (length n)))
-    (display (if (and (<= l 6) (all-axis? n))
-                 (append (list 'claw-y l n))
-                 "claw-y")))
-  (newline))
-
-;; Axes that rotate ABOUT the y axis.
-(define (rotate-y . n)
-  (let ((l (length n)))
-    (display (if (and (<= l 6) (all-axis? n))
-                 (append (list 'rotate-y l n))
-                 "rotate-y")))
-  (newline))
-
-;; Axes that rotate ABOUT the z axis.
-(define (rotate-z . n)
-  (let ((l (length n)))
-    (display (if (and (<= l 6) (all-axis? n))
-                 (append (list 'rotate-z l n))
-                 "rotate-z")))
-  (newline))
-
-;; Axes that turn ABOUT the y axis.
-(define (turn-y . n)
-  (let ((l (length n)))
-    (display (if (and (<= l 6) (all-axis? n))
-                 (append (list 'turn-y l n))
-                 "turn-y")))
-  (newline))
-
-;; Axes that transpose the robot in x direction.
-(define (transpose-x . n)
-  (let ((l (length n)))
-    (display (if (and (<= l 6) (all-axis? n))
-                 (append (list 'transpose-x l n))
-                 "transpose-x")))
-  (newline))
-
-;; Axes that transpose the robot in the y direction.
-(define (transpose-y . n)
-  (let ((l (length n)))
-    (display (if (and (<= l 6) (all-axis? n))
-                 (append (list 'transpose-y l n))
-                 "transpose-y")))
-  (newline))
-
-;; Axes that control the thrust modifier.
-(define (thrust-mod . n)
-  (let ((l (length n)))
-    (display (if (and (<= l 6) (all-axis? n))
-                 (append (list 'thrust-mod l n))
-                 "thrust-mod")))
-  (newline))
-
-;; Buttons that turn the laser device on.
-(define (laser-on . n)
-  (let ((l (length n)))
-    (display (if (and (<= l 12) (all-buttons? n))
-                 (append (list 'laser-on l) n)
-                 "laser-on")))
-  (newline))
-
-;; Buttons that turn the laser device off.
-(define (laser-off . n)
-  (let ((l (length n)))
-    (display (if (and (<= l 12) (all-buttons? n))
-                 (append (list 'laser-off l) n)
-                 "laser-off")))
-  (newline))
-
-;; Buttons that toggle the state of the laser device.
-(define (laser-toggle . n)
-  (let ((l (length n)))
-    (display (if (and (<= l 12) (all-buttons? n))
-                 (append (list 'laser-toggle l) n)
-                 "laser-toggle")))
-  (newline))
-
+;; Generate the operations.
+(gen-op claw-open    all-buttons?)
+(gen-op claw-close   all-buttons?)
+(gen-op claw-x       all-axis?)
+(gen-op claw-y       all-axis?)
+(gen-op rotate-y     all-axis?)
+(gen-op rotate-z     all-axis?)
+(gen-op turn-y       all-axis?)
+(gen-op transpose-x  all-axis?)
+(gen-op transpose-y  all-axis?)
+(gen-op thrust-mod   all-axis?)
+(gen-op laser-on     all-buttons?)
+(gen-op laser-off    all-buttons?)
+(gen-op laser-toggle all-buttons?)
 
 ;; Loads and evals argv[1], the config file.
 (load (cadr (command-line)))
