@@ -6,6 +6,9 @@
 #define ROV_CONTROLS_H
 
 #include "../common.h"
+#include "keybinds.h"
+#include "../comm/comm.h"
+#include "../ui/screen.h"
 
 #include <unistd.h>
 #include <string.h>
@@ -37,8 +40,8 @@ bool is_button(rov_arduino*,unsigned char);
 // return: true iff the all the bits in f are true in v.
 bool checkbits(unsigned char,unsigned char);
 
-// Set the value of a given axis on the joystick.
-void setaxis(rov_joystick*,unsigned char,short);
+// Sends the state of the axis to the arduino by setting the appropriate motors.
+void send_axisstate(rov_arduino*);
 
 // Process joystick input forever.
 void *process_joystick(void*);

@@ -11,6 +11,11 @@
 #include <unistd.h>
 #include <ncurses.h>
 
+#define LEFT_THRUSTER  0
+#define RIGHT_THRUSTER 1
+#define FRONT_THRUSTER 2
+#define BACK_TRHRUSTER 3
+
 // The type of a pin on the arduino. Range: [0,63]
 typedef unsigned char rov_pin;
 
@@ -61,12 +66,17 @@ typedef struct rov_msgqueue{
 
 // A joystick state.
 typedef struct{
-    short              x;            // The joystick's x pos.  (left < 0)
-    short              y;            // The joystick's y pos.  (up   < 0)
-    short              twist;        // The joystick's twist.  (left < 0)
-    short              slider;       // The slider's position. (up   < 0)
-    short              hat_x;        // The hat's x position.  (left < 0)
-    short              hat_y;        // The hat's y position.  (up   < 0)
+    union{
+        struct{
+            short      x;            // The joystick's x pos.  (left < 0)
+            short      y;            // The joystick's y pos.  (up   < 0)
+            short      twist;        // The joystick's twist.  (left < 0)
+            short      slider;       // The slider's position. (up   < 0)
+            short      hat_x;        // The hat's x position.  (left < 0)
+            short      hat_y;        // The hat's y position.  (up   < 0)
+        };
+        short          axes[6];      // Allows acces through axis number.
+    };
     union{
         struct{
             bool       trigger  : 1; // Button 1 (Trigger)

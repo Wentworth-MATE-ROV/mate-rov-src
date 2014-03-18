@@ -84,7 +84,7 @@ extern const char* const laser_on_str;
 extern const char* const laser_off_str;
 extern const char* const laser_toggle_str;
 // Sets up the initial default keybind values, call before parsing!
-void init_keybinds();
+void init_keybinds(void);
 
 // Frees the key lists.
 void destroy_keybinds(rov_keybinds*);

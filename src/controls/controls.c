@@ -3,15 +3,14 @@
 // Joystick control implementations.
 
 #include "controls.h"
-#include "../ui/screen.h"
 
-// read a joystick event of the joystick.
+// Read a joystick event off the joystick.
 // return: 0 on success, non-zero on failure.
 int read_jsevent(rov_arduino *a){
     unsigned char b[8];
     read(a->jsfd,b,9);
     if (checkbits(b[6],ROV_JSAXIS)){
-        setaxis(&a->joystick,b[7],*((short*) &b[4]));
+        a->joystick[b[7]] = *((short*) &b[4]);
     }else if (checkbits(b[6],ROV_JSBUTTON)){
         a->joystick.buttons = (b[4] == ROV_JSPRESSED)
             ? a->joystick.buttons | (1 << (b[7]))
@@ -20,7 +19,7 @@ int read_jsevent(rov_arduino *a){
     return 0;
 }
 
-//return: is button number b being pressed (trigger = 1).
+// return: is button number b being pressed (trigger = 1).
 bool is_button(rov_arduino *a,unsigned char b){
     if (b < 1 || b > 12){
         return false;
@@ -31,31 +30,6 @@ bool is_button(rov_arduino *a,unsigned char b){
 // return: true iff the all the bits in f are true in v.
 bool checkbits(unsigned char v,unsigned char f){
     return (v & f) == f;
-}
-
-// Set the value of a given axis on the joystick.
-void setaxis(rov_joystick *js,unsigned char a,short v){
-    switch(a){
-    case ROV_JS_X:
-        js->x = v;
-        return;
-    case ROV_JS_Y:
-        js->y = v;
-        return;
-    case ROV_JS_T:
-        js->twist = v;
-        return;
-    case ROV_JS_S:
-        js->slider = v;
-        return;
-    case ROV_JS_HX:
-        js->hat_x = v;
-        return;
-    case ROV_JS_HY:
-        js->hat_y = v;
-        return;
-    }
-    return;
 }
 
 // Process joystick input forever.
