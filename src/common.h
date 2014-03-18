@@ -39,10 +39,10 @@ typedef struct{
 
 // A node in the queue.
 struct rov_node{
-    unsigned char   *msg;  // The message to send.
-    size_t           len;  // The length of the message.
+    unsigned char   *msg;         // The message to send.
+    size_t           len;         // The length of the message.
     volatile bool    is_blocking; // Is this node blocking the main thread.
-    struct rov_node *tail; // The next node in the list.
+    struct rov_node *tail;        // The next node in the list.
 };
 typedef struct rov_node rov_node;
 
@@ -63,6 +63,48 @@ typedef struct rov_msgqueue{
     size_t              r_attempts;  // The number of times to try to resend a
                                      // message if it fails.
 } rov_msgqueue;
+
+// An axis structure that is either a pair of buttons or an actual axis.
+typedef struct{
+    bool is_pair;              // Is this axis created out of (pair a b).
+    union{
+        struct{
+            unsigned char pos; // Button relating to the postive dir.
+            unsigned char neg; // Button relating to the negative dir.
+        };
+        unsigned char axis;    // The axis that this relates to.
+    };
+}rov_jsaxis;
+
+// A structure to hold all the keybindings in memory.
+typedef struct{
+    size_t        claw_openc;        // The amount of bindings to claw_open.
+    unsigned char claw_openv[12];    // Buttons to open the claw.
+    size_t        claw_closec;       // The amount of bindings to claw_close.
+    unsigned char claw_closev[12];   // Buttons to close the claw.
+    size_t        claw_xc;           // The amounf of bindings to claw_x;
+    rov_jsaxis    claw_xv[6];        // Axes that move the claw along the x.
+    size_t        claw_yc;           // The amount of bindings to claw_y.
+    rov_jsaxis    claw_yv[6];        // Axes that move the claw along the y.
+    size_t        rotate_zc;         // The amount of bindings to rotate_z.
+    rov_jsaxis    rotate_zv[6];      // Axes to rotate about the z.
+    size_t        rotate_yc;         // The amount of bindings to rotate_y.
+    rov_jsaxis    rotate_yv[6];      // Axes to rotate about the y.
+    size_t        transpose_xc;      // The amount of bindings to transpose_x.
+    rov_jsaxis    transpose_xv[6];   // Axes to transpose the robot along the x.
+    size_t        transpose_yc;      // The amount of bindings to transpose_y.
+    rov_jsaxis    transpose_yv[6];   // Axes to transpose the robot along the y.
+    size_t        turn_yc;           // The amount of bindings to turn around y.
+    rov_jsaxis    turn_yv[6];        // Axes to turn the robot without rotating.
+    size_t        thrust_modc;       // The amount of bindings to thrus_mod
+    rov_jsaxis    thrust_modv[6];    // Axes to adjust the thrust power.
+    size_t        laser_onc;         // The amount of bindings to laser_on.
+    unsigned char laser_onv[12];     // Buttons that turn the lasers on.
+    size_t        laser_offc;        // The amount of bindings to laser_off.
+    unsigned char laser_offv[12];    // Buttons that turn the lasers off.
+    size_t        laser_togglec;     // The amount of bindings to laser_toggle.
+    unsigned char laser_togglev[12]; // Buttons that toggle the laser's state.
+}rov_keybinds;
 
 // A joystick state.
 typedef struct{
@@ -101,6 +143,7 @@ typedef struct rov_arduino{
     int           fd;          // A file descriptor to the /dev/tty_ channel.
     int           jsfd;        // A file descriptor to the /dev/input/js_.
     rov_joystick  joystick;    // The joystick state.
+    rov_keybinds  keybinds;    // The set of keybinds on the joystick.
     rov_msgqueue *queue;       // The message queue.
     size_t        motorc;      // The number of motors connected.
     rov_motor   **motorv;      // The array of motors.
@@ -130,6 +173,7 @@ typedef struct{
     rov_logmsg     *logv;    // Log values
     FILE           *logf;    // Log File
     pthread_t       statt;   // Stat Thread
+    pthread_t       kbt;     // Keyboard thread
     pthread_mutex_t mutex;   // The mutex for screen writing
 } rov_screen;
 

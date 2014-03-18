@@ -78,6 +78,9 @@ void init_keybinds(){
     default_keybinds.transpose_xc     = 1;
     *default_keybinds.transpose_xv    = y_axis;
 
+    default_keybinds.transpose_yc     = 1;
+    *default_keybinds.transpose_yv    = trans_y_pair_axis;
+
     default_keybinds.turn_yc          = 1;
     *default_keybinds.turn_yv         = x_axis;
 
@@ -93,10 +96,6 @@ void init_keybinds(){
     default_keybinds.laser_togglec    = 2;
     default_keybinds.laser_togglev[0] = 10;
     default_keybinds.laser_togglev[1] = 11;
-}
-
-// Frees the key lists.
-void destroy_keybinds(rov_keybinds *kbs){
 }
 
 // Reads sexpr, updating the keybinds as needed.
@@ -160,17 +159,17 @@ int read_scm_line(rov_keybinds *kbs,char *str){
     }
     len = strtol(strtok(NULL," "),NULL,10);
     for (n = 0;n < 5;n++){
-        parse_scm_params(kbs,op,ops[n],len,bvs[n],cs[n],true);
+        parse_scm_params(op,ops[n],len,bvs[n],cs[n],true);
     }
     for (n = 0;n < 8;n++){
-        parse_scm_params(kbs,op,ops[n + 5],len,avs[n],cs[n + 5],false);
+        parse_scm_params(op,ops[n + 5],len,avs[n],cs[n + 5],false);
     }
     return 0;
 }
 
 // Parses the params from a sexpr.
 // For param info, see: keybinds.h
-void parse_scm_params(rov_keybinds *kbs,char *op,const char *cstr,size_t len,
+void parse_scm_params(char *op,const char *cstr,size_t len,
                       void *v,size_t *c,bool is_button){
     int n;
     unsigned char *bv = v;
@@ -209,9 +208,15 @@ void parse_scm_params(rov_keybinds *kbs,char *op,const char *cstr,size_t len,
 int parse_keybinds(rov_keybinds *kbs,const char *kfl){
     char  cmd[128];
     FILE *scm;
+    char path[256];
     memcpy(kbs,&default_keybinds,sizeof(rov_keybinds));
     if (!kfl){
         return 0;
+    }
+    getcwd(path,256);
+    strncat(path,kfl,256 - strlen(path));
+    if (!access(path,F_OK)){
+        return -1;
     }
     strcpy(cmd,"./keybinds-parser.scm");
     cmd[21] = ' ';
@@ -221,7 +226,7 @@ int parse_keybinds(rov_keybinds *kbs,const char *kfl){
     scm = popen(cmd,"r");
     while (fgets(cmd,128,scm) != NULL){
         if (read_scm_line(kbs,cmd)){
-            kbs = &default_keybinds;
+            memcpy(kbs,&default_keybinds,sizeof(rov_keybinds));
             return -1;
         }
     }

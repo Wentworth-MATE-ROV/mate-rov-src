@@ -66,3 +66,15 @@
 	me more quickly add operations in the future, while assuring they are
 	correct. Also made all-buttons? and all-axis? check for length to
 	simplify the macro. Thanks to Jack Pugmire for the scheme help.
+
+2014-3-18 Joe Jevnik <joejev@gmail.com>
+	* src/controls/keybinds.c: Shortened the call to read_jsevent by
+	unioning the axis name with an array of axes where the name and number
+	relate.
+	* src/common.h, src/controls/keybinds.h: Moved the definiton of
+	rov_jsaxis and rov_joystick to common, and added the union as described.
+	Also made rov_arduino contain an rov_keybinds structure.
+	* src/ui/keyboard.h, src/ui/keyboard.c: Added these to handle keyboard
+	interaction with the ROV program. Currently support 'l': reload the
+	.keybinds file at runtime.
+	* TODO: Updated TODO.

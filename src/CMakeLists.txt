@@ -6,6 +6,7 @@ set(MATEROV_FILES comm/comm.c
                   controls/keybinds.c
                   motor/motor.c
                   ui/screen.c
+                  ui/keyboard.c
                   ui/main.c)
 
 set(EXECUTABLE_OUTPUT_PATH ${MATEROV_BINARY_DIR})

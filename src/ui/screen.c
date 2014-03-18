@@ -3,6 +3,7 @@
 // Implementation of Screen.
 
 #include "screen.h"
+#include "keyboard.h"
 
 #define _GNU_SOURCE
 #include <stdlib.h>

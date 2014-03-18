@@ -10,7 +10,7 @@ int read_jsevent(rov_arduino *a){
     unsigned char b[8];
     read(a->jsfd,b,9);
     if (checkbits(b[6],ROV_JSAXIS)){
-        a->joystick[b[7]] = *((short*) &b[4]);
+        a->joystick.axes[b[7]] = *((short*) &b[4]);
     }else if (checkbits(b[6],ROV_JSBUTTON)){
         a->joystick.buttons = (b[4] == ROV_JSPRESSED)
             ? a->joystick.buttons | (1 << (b[7]))
