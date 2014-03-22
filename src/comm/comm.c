@@ -25,10 +25,6 @@ int init_arduino(rov_arduino *a,const char *af,const char *jf,
         perror("init_arduino: could not open af");
         return -1;
     }
-    if ((a->jsfd = open(jf,O_RDONLY | O_NONBLOCK)) == -1){
-        perror("init_arduino: could not open jf");
-        return -1;
-    }
     if (tcgetattr(a->fd,&topts) < 0){
         perror("init_arduino: could not get term attr");
         return -1;
@@ -51,7 +47,7 @@ int init_arduino(rov_arduino *a,const char *af,const char *jf,
         perror("init_arduino: could not set term attributes");
         return -1;
     }
-    memset(&a->joystick,0,sizeof(rov_joystick));
+    init_joystick(&a->joystick,jf);
     a->motorc = motorc;
     a->motorv = motorv;
     a->servoc = servoc;
@@ -66,7 +62,7 @@ int init_arduino(rov_arduino *a,const char *af,const char *jf,
 // Closes the file descripotr to the arduino.
 void destroy_arduino(rov_arduino *a){
     close(a->fd);
-    close(a->jsfd);
+    destroy_joystick(&a->joystick);
 }
 
 // Writes a single byte to the arduino.

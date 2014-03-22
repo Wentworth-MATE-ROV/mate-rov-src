@@ -78,3 +78,12 @@
 	interaction with the ROV program. Currently support 'l': reload the
 	.keybinds file at runtime.
 	* TODO: Updated TODO.
+
+2014-3-22 Joe Jevnik <joejev@gmail.com>
+	* lib/*: Moved screen and library functions into their own libraries to
+	be linked with the main project.
+	* src/ui/main: Made the changes for the libraries.
+	* src/ui/controls.c: Removed all library functions.
+	* src/common.h: Removed the structures defined by my new libraries.
+	* src/CMakeLists.txt: Added the static linking of the 2 libraries.
+	* src/librov/*: Added headers for librov.

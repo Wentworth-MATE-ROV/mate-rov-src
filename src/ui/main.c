@@ -4,7 +4,6 @@
 
 #include "../common.h"
 #include "../comm/comm.h"
-#include "screen.h"
 #include "../controls/controls.h"
 #include "../controls/keybinds.h"
 #include "keyboard.h"
@@ -23,9 +22,9 @@ int main(void){
         fputs("Could not initialize the arduino\n",stderr);
         return -1;
     }
-    init_screen(&scr,&a,fopen("/dev/null","w"));
+    init_screen(&scr,fopen("/dev/null","w"),NULL,0,process_keyboard,&scr);
     print_staticui(&scr);
-    screen_reload_keybinds(&scr,false);
+    screen_reload_keybinds(&scr,&a,false);
     process_keyboard(&scr);
     destroy_screen(&scr);
     destroy_arduino(&a);

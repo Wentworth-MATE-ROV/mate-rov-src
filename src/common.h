@@ -5,6 +5,9 @@
 #ifndef ROV_COMMON_H
 #define ROV_COMMON_H
 
+#include "librov/joystick.h"
+#include "librov/screen.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -106,42 +109,9 @@ typedef struct{
     unsigned char laser_togglev[12]; // Buttons that toggle the laser's state.
 }rov_keybinds;
 
-// A joystick state.
-typedef struct{
-    union{
-        struct{
-            short      x;            // The joystick's x pos.  (left < 0)
-            short      y;            // The joystick's y pos.  (up   < 0)
-            short      twist;        // The joystick's twist.  (left < 0)
-            short      slider;       // The slider's position. (up   < 0)
-            short      hat_x;        // The hat's x position.  (left < 0)
-            short      hat_y;        // The hat's y position.  (up   < 0)
-        };
-        short          axes[6];      // Allows acces through axis number.
-    };
-    union{
-        struct{
-            bool       trigger  : 1; // Button 1 (Trigger)
-            bool       button2  : 1; // Button 2
-            bool       button3  : 1; // Button 3
-            bool       button4  : 1; // Button 4
-            bool       button5  : 1; // Button 5
-            bool       button6  : 1; // Button 6
-            bool       button7  : 1; // Button 7
-            bool       button8  : 1; // Button 8
-            bool       button9  : 1; // Button 9
-            bool       button10 : 1; // Button 10
-            bool       button11 : 1; // Button 11
-            bool       button12 : 1; // Button 12
-        };
-        unsigned short buttons;      // The set of buttons.
-    };
-} rov_joystick;
-
 // A complete arduino.
 typedef struct rov_arduino{
     int           fd;          // A file descriptor to the /dev/tty_ channel.
-    int           jsfd;        // A file descriptor to the /dev/input/js_.
     rov_joystick  joystick;    // The joystick state.
     rov_keybinds  keybinds;    // The set of keybinds on the joystick.
     rov_msgqueue *queue;       // The message queue.
@@ -154,34 +124,17 @@ typedef struct rov_arduino{
     rov_laser    *laser;       // The laser mechanism.
 } rov_arduino;
 
-// A message and its attribute.
-typedef struct{
-    char txt[81]; // The actual message (Up to 80 chars plus null terminator).
-    int  attr;    // The message attributes as defined by ncurses or screen.h
-} rov_logmsg;
-
-// The screen structure that manages the entire UI.
-typedef struct{
-    rov_arduino    *arduino; // The arduino to pull stats from.
-    int             mr;      // Max rows
-    int             mc;      // Max columns
-    int             lmc;     // Log max columns
-    WINDOW         *logw;    // The message log window.
-    WINDOW         *statw;   // The stat window.
-    WINDOW         *ctlw;    // The control window.
-    size_t          logc;    // Log count
-    rov_logmsg     *logv;    // Log values
-    FILE           *logf;    // Log File
-    pthread_t       statt;   // Stat Thread
-    pthread_t       kbt;     // Keyboard thread
-    pthread_mutex_t mutex;   // The mutex for screen writing
-} rov_screen;
-
 // A structure to pass to the process joystick thread.
 typedef struct{
-    rov_screen *scr; // The screen structure.
-    useconds_t  phz; // The Hz of the polling.
-    useconds_t  shz; // The Hz of the sending.
+    rov_screen  *scr; // The screen structure.
+    rov_arduino *a;   // The arduino that this joystick thread must act on.
+    useconds_t   phz; // The Hz of the polling.
+    useconds_t   shz; // The Hz of the sending.
 }rov_pjs_param;
+
+typedef struct{
+    rov_screen  *scr; // The screen structure.
+    rov_arduino *a;   // The arduino.
+} rov_pkb_param;
 
 #endif

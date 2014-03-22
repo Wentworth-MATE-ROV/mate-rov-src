@@ -11,9 +11,10 @@
 #define RELOAD_KEYBINDS 'l'
 
 // Reloads the keybinds from the .keybinds file.
-void screen_reload_keybinds(rov_screen*,bool);
+void screen_reload_keybinds(rov_screen*,rov_arduino*,bool);
 
 // Handles all keyboard presses.
-void process_keyboard(rov_screen*);
+// Pass the screen.
+void *process_keyboard(void*);
 
 #endif

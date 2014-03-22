@@ -1,22 +1,25 @@
-// Joe Jevnik
-// 2014.3.2
-// Implementation of Screen.
+/* screen.c --- Implementation for librov_screen.
+   Copyright (c) Joe Jevnik
+
+   This program is free software; you can redistribute it and/or modify it
+   under the terms of the GNU General Public License as published by the Free
+   Software Foundation; either version 2 of the License, or (at your option)
+   any later version.
+
+   This program is distributed in the hope that it will be useful, but WITHOUT
+   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+   more details.
+
+   You should have received a copy of the GNU General Public License along with
+   this program; if not, write to the Free Software Foundation, Inc., 51
+   Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA. */
 
 #include "screen.h"
-#include "keyboard.h"
-
-#define _GNU_SOURCE
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <time.h>
-#include <assert.h>
-#include <sched.h>
-#include <unistd.h>
-#include <ncurses.h>
 
 // Initializes a screen with a given arduino to pull from and a logfile.
-void init_screen(rov_screen *scr,rov_arduino *a,FILE *logf){
+void init_screen(rov_screen *scr,FILE *logf,char **statv,size_t statc,
+                 void *(f)(void*),void *p){
     int n;
     initscr();
     getmaxyx(stdscr,scr->mr,scr->mc);
@@ -30,12 +33,16 @@ void init_screen(rov_screen *scr,rov_arduino *a,FILE *logf){
     keypad(stdscr,TRUE);
     curs_set(0);
     noecho();
-    scr->arduino = a;
     scr->logf    = logf;
     scr->logc    = scr->mr - 2;
     scr->logv    = malloc(scr->logc * sizeof(rov_logmsg));
     scr->lmc     = 4 * scr->mc / 5;
     scr->statw   = newwin(12,6,3,10);
+    scr->statc   = statc;
+    scr->statv   = malloc(statc * sizeof(char*));
+    for (n = 0;n < statc;n++){
+        scr->statv[n] = strdup(statv[n]);
+    }
     scr->ctlw    = newwin(scr->mr - 8,scr->mc / 5,scr->mr - 8,0);
     scr->logw    = newwin(scr->logc,scr->lmc,2,scr->mc / 5 + 1);
     pthread_mutex_init(&scr->mutex,NULL);
@@ -43,6 +50,7 @@ void init_screen(rov_screen *scr,rov_arduino *a,FILE *logf){
         memset(scr->logv[n].txt,0,81);
         scr->logv[n].attr = DEFAULT_PAIR;
     }
+    pthread_create(&scr->kbt,NULL,f,p);
 }
 
 // Initializes a log message with the text and attribute sections.
@@ -53,6 +61,7 @@ void init_logmsg(rov_logmsg *msg,char *txt,int attr){
 
 // Exits ncurses mode and clears the message queue. Also closes the logfile.
 void destroy_screen(rov_screen *scr){
+    pthread_cancel(scr->kbt);
     pthread_mutex_destroy(&scr->mutex);
     free(scr->logv);
     fclose(scr->logf);
@@ -71,10 +80,14 @@ void refresh_screen(rov_screen *scr){
 }
 
 // Updates the stats panel.
-void update_stats(rov_screen *scr){
+void update_stat(rov_screen *scr,size_t n,const char *fmt,...){
+    va_list ap;
+    va_start(ap,fmt);
     pthread_mutex_lock(&scr->mutex);
-    // TODO
+    wmove(scr->statw,n,0);
+    vwprintw(scr->statw,fmt,ap);
     pthread_mutex_unlock(&scr->mutex);
+    va_end(ap);
     refresh_screen(scr);
 }
 
@@ -90,6 +103,7 @@ void screen_printf(rov_screen *scr,const char *fmt,...){
     vsnprintf(buf,81,fmt,ap);
     screen_printattr(scr,DEFAULT_PAIR,buf);
     va_end(ap);
+    wrefresh(scr->statw);
 }
 
 // Writes a string to the console with a given attribute.
@@ -118,7 +132,7 @@ void screen_printattr(rov_screen *scr,int attr,const char *str){
     }
 
     pthread_mutex_unlock(&scr->mutex);
-    refresh_screen(scr);
+    wrefresh(scr->logw);
 }
 // Writes a formatted line to the screen with the default attributes.
 void screen_printfattr(rov_screen *scr,int attr,const char *fmt,...){

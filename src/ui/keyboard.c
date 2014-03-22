@@ -2,7 +2,6 @@
 // 2014.3.18
 // Main screen operations.
 
-#include "screen.h"
 #include "keyboard.h"
 
 // Quick macro to faclitate printing a string to scr as boldgreen.
@@ -37,10 +36,10 @@ static void print_jsaxis(rov_screen *scr,rov_jsaxis *j){
     }
 
 // Reloads the keybinds from the .keybinds file.
-void screen_reload_keybinds(rov_screen *scr,bool diff){
+void screen_reload_keybinds(rov_screen *scr,rov_arduino *a,bool diff){
     int n,c = 0;
-    rov_keybinds  old = scr->arduino->keybinds;
-    rov_keybinds *kbs = &scr->arduino->keybinds;
+    rov_keybinds  old = a->keybinds;
+    rov_keybinds *kbs = &a->keybinds;
     char line[81];
     if (parse_keybinds(kbs,".keybinds")){
         screen_printattr(scr,RED_PAIR,"Failed to reload keybinds!");
@@ -68,13 +67,18 @@ void screen_reload_keybinds(rov_screen *scr,bool diff){
 }
 
 // Handles all keyboard presses.
-void process_keyboard(rov_screen *scr){
+// Pass the screen.
+void *process_keyboard(void *vp){
+    rov_pkb_param *p   = vp;
+    rov_screen    *scr = p->scr;
+    rov_arduino   *a   = p->a;
     int c;
     while ((c = getch())){
         switch(c){
         case RELOAD_KEYBINDS:
-            screen_reload_keybinds(scr,true);
+            screen_reload_keybinds(scr,a,true);
             break;
         }
     }
+    return NULL;
 }
