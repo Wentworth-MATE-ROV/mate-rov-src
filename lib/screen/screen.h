@@ -58,12 +58,11 @@ typedef struct{
     rov_logmsg     *logv;    // Log values
     FILE           *logf;    // Log File
     pthread_t       statt;   // Stat Thread
-    pthread_t       kbt;     // Keyboard thread
     pthread_mutex_t mutex;   // The mutex for screen writing
 } rov_screen;
 
 // Initializes the screen structure and enters ncurses mode.
-void init_screen(rov_screen*,FILE*,char**,size_t,void*(*f)(void*),void*);
+void init_screen(rov_screen*,FILE*,char**,size_t);
 
 // Destroys (unitializes) the screen structure and leaves ncurses mode.
 void destroy_screen(rov_screen*);

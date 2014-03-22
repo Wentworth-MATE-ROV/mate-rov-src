@@ -18,8 +18,7 @@
 #include "screen.h"
 
 // Initializes a screen with a given arduino to pull from and a logfile.
-void init_screen(rov_screen *scr,FILE *logf,char **statv,size_t statc,
-                 void *(f)(void*),void *p){
+void init_screen(rov_screen *scr,FILE *logf,char **statv,size_t statc){
     int n;
     initscr();
     getmaxyx(stdscr,scr->mr,scr->mc);
@@ -50,7 +49,6 @@ void init_screen(rov_screen *scr,FILE *logf,char **statv,size_t statc,
         memset(scr->logv[n].txt,0,81);
         scr->logv[n].attr = DEFAULT_PAIR;
     }
-    pthread_create(&scr->kbt,NULL,f,p);
 }
 
 // Initializes a log message with the text and attribute sections.
@@ -61,7 +59,6 @@ void init_logmsg(rov_logmsg *msg,char *txt,int attr){
 
 // Exits ncurses mode and clears the message queue. Also closes the logfile.
 void destroy_screen(rov_screen *scr){
-    pthread_cancel(scr->kbt);
     pthread_mutex_destroy(&scr->mutex);
     free(scr->logv);
     fclose(scr->logf);
