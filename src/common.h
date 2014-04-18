@@ -127,7 +127,8 @@ typedef struct rov_arduino{
     int           fd;          // A file descriptor to the /dev/tty_ channel.
     rov_joystick  joystick;    // The joystick state.
     rov_keybinds  keybinds;    // The set of keybinds on the joystick.
-    rov_msgqueue *queue;       // The message queue.
+    rov_msgqueue  queue;       // The message queue.
+    pthread_t     qt;          // The queue thread.
     size_t        motorc;      // The number of motors connected.
     rov_motor   **motorv;      // The array of motors.
     size_t        servoc;      // The number of servos.

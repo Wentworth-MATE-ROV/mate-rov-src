@@ -158,17 +158,6 @@ void print_staticui(rov_screen *scr){
     mvprintw(1,0,"ROV Status:");
     mvprintw(1,c + 1,"Log:");
     attroff(A_UNDERLINE | A_BOLD);
-    mvprintw(3,0,"Motors:");
-    mvprintw(4,1,"Motor 1:");
-    mvprintw(5,1,"Motor 2:");
-    mvprintw(6,1,"Motor 3:");
-    mvprintw(7,1,"Motor 4:");
-    mvprintw(8,1,"Servo:");
-    mvprintw(10,0,"Sensors:");
-    mvprintw(11,1,"Depth:");
-    mvprintw(12,1,"Temp:");
-    mvprintw(13,1,"Accel:");
-    mvprintw(14,1,"Cndct:");
     attroff(YELLOW_PAIR);
     pthread_mutex_unlock(&scr->mutex);
     refresh_screen(scr);

@@ -25,9 +25,11 @@
 #include <pthread.h>
 
 int main(void){
-    rov_arduino a;
-    rov_screen scr;
-    size_t motorc,servoc;
+    rov_arduino   a;
+    rov_screen    scr;
+    size_t        motorc,servoc;
+    pthread_t     jst;
+    rov_pjs_param p;
     init_keybinds();
     motorc = servoc = 0;
     if (init_arduino(&a,"/dev/ttyACM0","/dev/input/js0",
@@ -36,8 +38,13 @@ int main(void){
         return -1;
     }
     init_screen(&scr,fopen("/dev/null","w"),NULL,0);
+    p.a   = &a;
+    p.scr = &scr;
+    p.phz = 1000;
+    p.shz = 200;
+    pthread_create(&jst,NULL,process_joystick,&p);
     print_staticui(&scr);
-    screen_reload_keybinds(&scr,&a,false);
+    //screen_reload_keybinds(&scr,&a,false);
     process_keyboard(&scr,&a);
     destroy_screen(&scr);
     destroy_arduino(&a);

@@ -42,8 +42,8 @@ int init_arduino(rov_arduino *a,const char *af,const char *jf,
         perror("init_arduino: could not get term attr");
         return -1;
     }
-    cfsetispeed(&topts,B57600);
-    cfsetospeed(&topts,B57600);
+    cfsetispeed(&topts,B9600);
+    cfsetospeed(&topts,B9600);
     topts.c_cflag     &= ~PARENB;
     topts.c_cflag     &= ~CSTOPB;
     topts.c_cflag     &= ~CSIZE;
@@ -60,7 +60,10 @@ int init_arduino(rov_arduino *a,const char *af,const char *jf,
         perror("init_arduino: could not set term attributes");
         return -1;
     }
-    init_joystick(&a->joystick,jf);
+    if (!init_joystick(&a->joystick,jf)){
+        perror("init_arduino: could not read joystick file");
+        return -1;
+    }
     a->motorc = motorc;
     a->motorv = motorv;
     a->servoc = servoc;
@@ -68,12 +71,15 @@ int init_arduino(rov_arduino *a,const char *af,const char *jf,
     a->therm  = therm;
     a->accel  = accel;
     a->laser  = laser;
+    init_queue(&a->queue,a,200,100);
+    pthread_create(&a->qt,NULL,process_queue,&a->queue);
     sleep(2);
     return 0;
 }
 
 // Closes the file descripotr to the arduino.
 void destroy_arduino(rov_arduino *a){
+    pthread_cancel(a->qt);
     close(a->fd);
     destroy_joystick(&a->joystick);
 }
@@ -93,7 +99,7 @@ int write_str(rov_arduino *a,unsigned char *str,size_t s){
             break;
         }
     }
-    return !(s - n);
+    return s - n;
 }
 
 // Writes a short as a string of bytes.
@@ -105,7 +111,7 @@ int write_short(rov_arduino *a,unsigned short v){
 // Sets a digital pin on or off.
 void digital_write(rov_arduino *a,rov_pin p,bool v){
     unsigned char msg[] = { (v) ? OP_DIGITAL_ON : OP_DIGITAL_OFF,p };
-    enqueue(a->queue,msg,2 * sizeof(unsigned char));
+    enqueue(&a->queue,msg,2 * sizeof(unsigned char));
 }
 
 // Sends a value to a pin in the range of [0,1023]
@@ -121,14 +127,14 @@ void analog_write(rov_arduino *a,rov_pin p,unsigned short v){
     msg[0] = OP_ANALOG_WRITE;
     msg[1] = b[0];
     msg[2] = b[1];
-    enqueue(a->queue,msg,3 * sizeof(unsigned char));
+    enqueue(&a->queue,msg,3 * sizeof(unsigned char));
 }
 
 // Reads an analog value in the range of [0,1023] off of a pin.
 // return: The value of the pin.
 unsigned short analog_read(rov_arduino *a,rov_pin p){
     unsigned char msg[] = { OP_ANALOG_READ,p };
-    return enqueue_blocking(a->queue,msg,2 * sizeof(unsigned char));
+    return enqueue_blocking(&a->queue,msg,2 * sizeof(unsigned char));
 }
 
 // Polls the arduino to check if it should stop sending messages.

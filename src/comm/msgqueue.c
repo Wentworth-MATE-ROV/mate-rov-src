@@ -83,13 +83,14 @@ unsigned short enqueue_blocking(rov_msgqueue *q,unsigned char *msg,size_t len){
 // Dequeues the next message and sends it.
 // return: the staus of the underlying write call.
 int dequeue(rov_msgqueue *q){
-    rov_node *n;
+    rov_node      *n;
     unsigned short res;
-    int r,c;
+    int            r,c;
     pthread_mutex_lock(&q->mutex);
     assert(q->size > 0);
     n = q->head;
     r = write_str(q->arduino,n->msg,n->len);
+    fprintf(fopen("fl","w+"),"%x %x\n",n->msg[0],n->msg[1]);
     for (c = 0;r && c < q->r_attempts;c++){
         ++q->miswrites;
         r = write_str(q->arduino,n->msg,n->len);

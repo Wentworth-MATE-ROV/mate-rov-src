@@ -21,7 +21,7 @@
 // return: 0 on success, non-zero on failure.
 int init_joystick(rov_joystick *js,const char *dev){
     memset(js,0,sizeof(rov_joystick)); // zero the struct.
-    return (js->fd = open(dev,O_RDONLY | O_NONBLOCK)) == -1;
+    return (js->fd = open(dev,O_RDONLY | O_NONBLOCK)) != -1;
 }
 
 void destroy_joystick(rov_joystick *js){
