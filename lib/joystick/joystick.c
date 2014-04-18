@@ -53,5 +53,5 @@ bool is_button(rov_joystick *js,unsigned char b){
     if (b < 1 || b > 12){
         return false;
     }
-    return (1 << (b - 1)) & js->buttons;
+    return (1 << b) & js->buttons;
 }

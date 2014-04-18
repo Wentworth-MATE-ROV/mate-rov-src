@@ -20,6 +20,22 @@
 
 #include "../common.h"
 
+// The states we can be in.
+typedef struct{
+    bool  clawopen;     // The state of the claw being open or closed.
+    bool  laser;        // The state of the laser.
+    bool  headlight;    // Are the headlights on or off.
+    bool  sideligh;     // Are the sidelights on or off.
+    char  clawposition; // The positions of the claw.
+    short powerleft;    // Power to the left motor.
+    short powerright;   // Power to the right motor.
+    short powerfront;   // Power to the front motor.
+    short powerback;    // Power to the back motor.
+}rov_ctrlstate;
+
+
+void compose_ctrlstate(rov_controlstate*,rov_joystick*,keybinds*);
+
 // Process joystick input forever.
 void *process_joystick(void*);
 

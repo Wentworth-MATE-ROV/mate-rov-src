@@ -19,6 +19,19 @@
 #include "../comm/comm.h"
 #include "../librov/screen.h"
 
+void read_ctrlstate(rov_ctrlstate *ctrl,rov_joystick *js,rov_keybinds *kbs){
+    size_t n;
+    for (n = 0;n < kbs->claw_openc;n++){
+        ctrl->clawopen |= is_button(js,kbs->claw_openv[n]);
+    }
+    for (n = 0;n < kbs->claw_closec;n++){
+        ctrl->clawopen &= !is_button(js,kbs->clawopen[n]);
+    }
+
+void compose_ctrlstate(rov_ctrlstate *ctrl,rov_joystick *js,rov_keybinds *kbs){
+}
+
+
 // Process joystick input forever.
 void *process_joystick(void *vscr_hz){
     rov_pjs_param *p          = vscr_hz;
@@ -26,18 +39,16 @@ void *process_joystick(void *vscr_hz){
     rov_arduino   *a          = p->a;
     rov_joystick   old        = a->joystick;
     useconds_t     sleep_time = 1000000 / p->phz;
+    rov_ctrlstate  ctrl;
+    memset(&ctrl,0,sizeof(rov_ctrlstate));
     screen_print(scr,"lil b is my friend");
     for (;;){
         read_jsevent(&a->joystick);
         if (memcmp(&a->joystick,&old,sizeof(rov_joystick))){
-            if (a->joystick.trigger){
-                digital_write(a,12,true);
-                screen_print(scr,"test");
-            }else{
-            }
+            // stuff.
         }
         old = a->joystick;
-        usleep(sleep_time); // Sleep the thread (fixes the polling rate).
+        usleep(sleep_time); // Sleep the thread (quantizes the polling rate).
     }
     return NULL;
 }
