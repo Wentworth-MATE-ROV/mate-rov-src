@@ -44,7 +44,7 @@ int main(void){
     p.shz = 200;
     pthread_create(&jst,NULL,process_joystick,&p);
     print_staticui(&scr);
-    //screen_reload_keybinds(&scr,&a,false);
+    screen_reload_keybinds(&scr,&a,false);
     process_keyboard(&scr,&a);
     destroy_screen(&scr);
     destroy_arduino(&a);

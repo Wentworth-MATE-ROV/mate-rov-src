@@ -71,9 +71,9 @@ void screen_reload_keybinds(rov_screen *scr,rov_arduino *a,bool diff){
     diffcmpaxis("transpose-y: ",transpose_yv,transpose_yc);
     diffcmpaxis("turn-y: ",turn_yv,turn_yc);
     diffcmpaxis("thrust-mod: ",thrust_modv,thrust_modc);
-    diffcmpbutton("laser-on: ",laser_onv,laser_onc);
-    diffcmpbutton("laser-off: ",laser_offv,laser_offc);
     diffcmpbutton("laser-toggle: ",laser_togglev,laser_togglec);
+    diffcmpbutton("headlight-toggle",headlight_togglev,headlight_togglec);
+    diffcmpbutton("sidelight-toggle",sidelight_togglev,sidelight_togglec);
     if (!c){
         screen_printattr(scr,GREEN_PAIR | A_BOLD,"Nothing to reload!");
     }

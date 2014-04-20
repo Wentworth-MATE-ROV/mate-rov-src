@@ -72,7 +72,7 @@ typedef struct{
         };
         unsigned short buttons;      // The set of buttons.
     };
-} rov_joystick;
+}rov_joystick;
 
 // Initializes a new joystick structure that is linked with the given device.
 // return: 0 on success, non-zero on failure.

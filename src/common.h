@@ -94,32 +94,32 @@ typedef struct{
 
 // A structure to hold all the keybindings in memory.
 typedef struct{
-    size_t        claw_openc;        // The amount of bindings to claw_open.
-    unsigned char claw_openv[12];    // Buttons to open the claw.
-    size_t        claw_closec;       // The amount of bindings to claw_close.
-    unsigned char claw_closev[12];   // Buttons to close the claw.
-    size_t        claw_xc;           // The amounf of bindings to claw_x;
-    rov_jsaxis    claw_xv[6];        // Axes that move the claw along the x.
-    size_t        claw_yc;           // The amount of bindings to claw_y.
-    rov_jsaxis    claw_yv[6];        // Axes that move the claw along the y.
-    size_t        rotate_zc;         // The amount of bindings to rotate_z.
-    rov_jsaxis    rotate_zv[6];      // Axes to rotate about the z.
-    size_t        rotate_yc;         // The amount of bindings to rotate_y.
-    rov_jsaxis    rotate_yv[6];      // Axes to rotate about the y.
-    size_t        transpose_xc;      // The amount of bindings to transpose_x.
-    rov_jsaxis    transpose_xv[6];   // Axes to transpose the robot along the x.
-    size_t        transpose_yc;      // The amount of bindings to transpose_y.
-    rov_jsaxis    transpose_yv[6];   // Axes to transpose the robot along the y.
-    size_t        turn_yc;           // The amount of bindings to turn around y.
-    rov_jsaxis    turn_yv[6];        // Axes to turn the robot without rotating.
-    size_t        thrust_modc;       // The amount of bindings to thrus_mod
-    rov_jsaxis    thrust_modv[6];    // Axes to adjust the thrust power.
-    size_t        laser_onc;         // The amount of bindings to laser_on.
-    unsigned char laser_onv[12];     // Buttons that turn the lasers on.
-    size_t        laser_offc;        // The amount of bindings to laser_off.
-    unsigned char laser_offv[12];    // Buttons that turn the lasers off.
-    size_t        laser_togglec;     // The amount of bindings to laser_toggle.
-    unsigned char laser_togglev[12]; // Buttons that toggle the laser's state.
+    size_t        claw_openc;            // The amount of bindings to claw_open.
+    unsigned char claw_openv[12];        // Buttons to open the claw.
+    size_t        claw_closec;           // The amount of bindings to claw_close.
+    unsigned char claw_closev[12];       // Buttons to close the claw.
+    size_t        claw_xc;               // The amounf of bindings to claw_x;
+    rov_jsaxis    claw_xv[6];            // Axes that move the claw along the x.
+    size_t        claw_yc;               // The amount of bindings to claw_y.
+    rov_jsaxis    claw_yv[6];            // Axes that move the claw along the y.
+    size_t        rotate_zc;             // The amount of bindings to rotate_z.
+    rov_jsaxis    rotate_zv[6];          // Axes to rotate about the z.
+    size_t        rotate_yc;             // The amount of bindings to rotate_y.
+    rov_jsaxis    rotate_yv[6];          // Axes to rotate about the y.
+    size_t        transpose_xc;          // The amount of bindings transpose_x.
+    rov_jsaxis    transpose_xv[6];       // Axes to transpose along the x.
+    size_t        transpose_yc;          // The amount of bindings transpose_y.
+    rov_jsaxis    transpose_yv[6];       // Axes to transpose along the y.
+    size_t        turn_yc;               // The bindings to turn about y.
+    rov_jsaxis    turn_yv[6];            // Axes to turn without rotating.
+    size_t        thrust_modc;           // The amount of bindings to thrus_mod
+    rov_jsaxis    thrust_modv[6];        // Axes to adjust the thrust power.
+    size_t        laser_togglec;         // The amount of bindings laser_toggle.
+    unsigned char laser_togglev[12];     // Buttons that toggle the lasers.
+    size_t        headlight_togglec;     // The amount of bindings headlights.
+    unsigned char headlight_togglev[12]; // Buttons that toggle the headlights.
+    size_t        sidelight_togglec;     // The amount of bindings sidelights.
+    unsigned char sidelight_togglev[12]; // Buttons that toggle to sidelights.
 }rov_keybinds;
 
 // A complete arduino.

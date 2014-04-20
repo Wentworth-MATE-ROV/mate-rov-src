@@ -114,7 +114,7 @@ void digital_write(rov_arduino *a,rov_pin p,bool v){
     enqueue(&a->queue,msg,2 * sizeof(unsigned char));
 }
 
-// Sends a value to a pin in the range of [0,1023]
+// Sends a value to a pin in the range of [0,1024)
 // Data is formatted as so: byte 0 = opcode
 //                          byte 1 = lsb of v.
 //          first 2 bits of byte 2 = 2 last bits in v.
@@ -122,11 +122,9 @@ void digital_write(rov_arduino *a,rov_pin p,bool v){
 void analog_write(rov_arduino *a,rov_pin p,unsigned short v){
     unsigned char *b = (unsigned char*) &v;
     unsigned char msg[3];
-    b[1] <<= 6;
-    b[1] |=  p;
     msg[0] = OP_ANALOG_WRITE;
     msg[1] = b[0];
-    msg[2] = b[1];
+    msg[2] = (b[1] << 6) | (p & 0x3f);
     enqueue(&a->queue,msg,3 * sizeof(unsigned char));
 }
 

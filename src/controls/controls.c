@@ -19,18 +19,24 @@
 #include "../comm/comm.h"
 #include "../librov/screen.h"
 
-void read_ctrlstate(rov_ctrlstate *ctrl,rov_joystick *js,rov_keybinds *kbs){
-    size_t n;
-    for (n = 0;n < kbs->claw_openc;n++){
-        ctrl->clawopen |= is_button(js,kbs->claw_openv[n]);
-    }
-    for (n = 0;n < kbs->claw_closec;n++){
-        ctrl->clawopen &= !is_button(js,kbs->clawopen[n]);
-    }
-
-void compose_ctrlstate(rov_ctrlstate *ctrl,rov_joystick *js,rov_keybinds *kbs){
+// return: scales the value from the range of shorts to [0,1024).
+unsigned short scale_axisval(short v){
+    return ((32767 + v) / 65534.0) * 1023;
 }
 
+void build_ctrlstate(rov_joystick *js,rov_keybinds *kbs,rov_ctrlstate *st){
+    size_t n;
+    for (n = 0;n < kbs->headlight_togglec;n++){
+        if (is_button(js,kbs->headlight_togglev[n])){
+            st->headlights = !st->headlights;
+            break;
+        }
+    }
+}
+
+void write_ctrlstate(rov_ctrlstate *st,rov_arduino *a){
+    digital_write(a,HEADLIGHT_PIN,st->headlights);
+}
 
 // Process joystick input forever.
 void *process_joystick(void *vscr_hz){
@@ -41,11 +47,11 @@ void *process_joystick(void *vscr_hz){
     useconds_t     sleep_time = 1000000 / p->phz;
     rov_ctrlstate  ctrl;
     memset(&ctrl,0,sizeof(rov_ctrlstate));
-    screen_print(scr,"lil b is my friend");
     for (;;){
         read_jsevent(&a->joystick);
         if (memcmp(&a->joystick,&old,sizeof(rov_joystick))){
-            // stuff.
+            build_ctrlstate(&a->joystick,&a->keybinds,&ctrl);
+            write_ctrlstate(&ctrl,a);
         }
         old = a->joystick;
         usleep(sleep_time); // Sleep the thread (quantizes the polling rate).

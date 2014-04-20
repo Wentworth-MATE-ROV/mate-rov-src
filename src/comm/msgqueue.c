@@ -27,7 +27,6 @@ void init_node(rov_node* n,unsigned char* msg,size_t len){
     n->tail        = NULL;
 }
 
-
 // Initializes an empty queue.
 void init_queue(rov_msgqueue *q,rov_arduino *a,useconds_t sleep_time,
                 size_t r_attempts){

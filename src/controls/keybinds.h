@@ -39,9 +39,9 @@ extern const char* const transpose_x_str;
 extern const char* const transpose_y_str;
 extern const char* const turn_y_str;
 extern const char* const thrust_mod_str;
-extern const char* const laser_on_str;
-extern const char* const laser_off_str;
 extern const char* const laser_toggle_str;
+extern const char* const headlight_toggle_str;
+extern const char* const sidelight_toggle_str;
 
 // Sets up the initial default keybind values, call before parsing!
 void init_keybinds(void);
