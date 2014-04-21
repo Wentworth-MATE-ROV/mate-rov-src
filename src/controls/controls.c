@@ -24,7 +24,8 @@ unsigned short scale_axisval(short v){
     return ((32767 + v) / 65534.0) * 1023;
 }
 
-void build_ctrlstate(rov_joystick *js,rov_keybinds *kbs,rov_ctrlstate *st){
+// Builds a control state from the joystick and keybinds.
+void init_ctrlstate(rov_joystick *js,rov_keybinds *kbs,rov_ctrlstate *st){
     size_t n;
     for (n = 0;n < kbs->headlight_togglec;n++){
         if (is_button(js,kbs->headlight_togglev[n])){
@@ -32,10 +33,33 @@ void build_ctrlstate(rov_joystick *js,rov_keybinds *kbs,rov_ctrlstate *st){
             break;
         }
     }
+    for (n = 0;n < kbs->sidelight_togglec;n++){
+        if (is_button(js,kbs->sidelight_togglev[n])){
+            st->sidelights = !st->sidelights;
+            break;
+        }
+    }
+    for (n = 0;n < kbs->laser_togglec;n++){
+        if (is_button(js,kbs->headlight_togglev[n])){
+            st->lasers = !st->lasers;
+            break;
+        }
+    }
+    for (n = 0;n < kbs->claw_openc;n++){
+        if (is_button(js,kbs->claw_openv[n])){
+            st->clawgrip = false;
+            break;
+        }
+    }
+    for (n = 0;n < kbs->claw_closec;n++){
+        if (is_button(js,kbs->claw_openv[n])){
+            st->clawgrip = true;
+            break;
+        }
+    }
 }
 
 void write_ctrlstate(rov_ctrlstate *st,rov_arduino *a){
-    digital_write(a,HEADLIGHT_PIN,st->headlights);
 }
 
 // Process joystick input forever.
@@ -50,7 +74,7 @@ void *process_joystick(void *vscr_hz){
     for (;;){
         read_jsevent(&a->joystick);
         if (memcmp(&a->joystick,&old,sizeof(rov_joystick))){
-            build_ctrlstate(&a->joystick,&a->keybinds,&ctrl);
+            init_ctrlstate(&a->joystick,&a->keybinds,&ctrl);
             write_ctrlstate(&ctrl,a);
         }
         old = a->joystick;

@@ -87,3 +87,10 @@
 	* src/common.h: Removed the structures defined by my new libraries.
 	* src/CMakeLists.txt: Added the static linking of the 2 libraries.
 	* src/librov/*: Added headers for librov.
+
+2014-4-21 Joe Jevnik <joejev@gmail.com>
+	* src/controls/pinlayout.h, src/controls/pinlayout.c: Added a
+	configurable pin layout parsing mechanism.
+	* src/ui/main.c: Added the sections to read from the .pins file.
+	* src/controls/controls.c: Started sending the proper signals to the
+	arduino.

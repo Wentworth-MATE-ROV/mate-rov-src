@@ -122,11 +122,19 @@ typedef struct{
     unsigned char sidelight_togglev[12]; // Buttons that toggle to sidelights.
 }rov_keybinds;
 
+// A structure to hold the pinlayout of the robot.
+typedef struct{
+    unsigned char lasers;     // The pin the lasers are on.
+    unsigned char headlights; // The pin the headlights are on.
+    unsigned char sidelights; // THe pin the sidelights are on.
+}rov_pinlayout;
+
 // A complete arduino.
 typedef struct rov_arduino{
     int           fd;          // A file descriptor to the /dev/tty_ channel.
     rov_joystick  joystick;    // The joystick state.
     rov_keybinds  keybinds;    // The set of keybinds on the joystick.
+    rov_pinlayout layout;      // The set of pin mappings on the arduino.
     rov_msgqueue  queue;       // The message queue.
     pthread_t     qt;          // The queue thread.
     size_t        motorc;      // The number of motors connected.

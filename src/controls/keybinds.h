@@ -48,15 +48,15 @@ void init_keybinds(void);
 
 // Reads sexpr, updating the keybinds as needed.
 // return: 0 on success, non-zero on failure.
-int read_scm_line(rov_keybinds*,char*);
+int keybinds_read_scm_line(rov_keybinds*,char*);
 
 // Parses the params from a sexpr.
-void parse_scm_params(char*,         // The operation
-                      const char*,   // The operation to check against.
-                      size_t,        // The amount of params.
-                      void*,         // A pointer to the list of params.
-                      size_t*,       // A pointer to the size of that op's size.
-                      bool);         // Is this param a button?
+void keybinds_parse_scm_params(char*,         // The operation
+                               const char*,   // The operation to check against.
+                               size_t,        // The amount of params.
+                               void*,         // A pointer to list of params.
+                               size_t*,       // A pointer to the op's size.
+                               bool);         // Is this param a button?
 
 // Parse a keybinds config out of a file (pass the path).
 // If the file is NULL, or there is an error, returns a pointer to the default

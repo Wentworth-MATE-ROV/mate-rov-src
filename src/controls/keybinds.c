@@ -99,7 +99,7 @@ void init_keybinds(){
 
 // Reads sexpr, updating the keybinds as needed.
 // return: 0 on success, non-zero on failure.
-int read_scm_line(rov_keybinds *kbs,char *str){
+int keybinds_read_scm_line(rov_keybinds *kbs,char *str){
     size_t        len;
     char         *op;
     int           n;
@@ -158,18 +158,18 @@ int read_scm_line(rov_keybinds *kbs,char *str){
     }
     len = strtol(strtok(NULL," "),NULL,10);
     for (n = 0;n < 5;n++){
-        parse_scm_params(op,ops[n],len,bvs[n],cs[n],true);
+        keybinds_parse_scm_params(op,ops[n],len,bvs[n],cs[n],true);
     }
     for (n = 0;n < 8;n++){
-        parse_scm_params(op,ops[n + 5],len,avs[n],cs[n + 5],false);
+        keybinds_parse_scm_params(op,ops[n + 5],len,avs[n],cs[n + 5],false);
     }
     return 0;
 }
 
 // Parses the params from a sexpr.
 // For param info, see: keybinds.h
-void parse_scm_params(char *op,const char *cstr,size_t len,
-                      void *v,size_t *c,bool is_button){
+void keybinds_parse_scm_params(char *op,const char *cstr,size_t len,
+                               void *v,size_t *c,bool is_button){
     int n;
     unsigned char *bv = v;
     rov_jsaxis    *jv = v;
@@ -207,7 +207,7 @@ void parse_scm_params(char *op,const char *cstr,size_t len,
 int parse_keybinds(rov_keybinds *kbs,const char *kfl){
     char  cmd[128];
     FILE *scm;
-    char path[256];
+    char  path[256];
     memcpy(kbs,&default_keybinds,sizeof(rov_keybinds));
     if (!kfl){
         return 0;
@@ -224,7 +224,7 @@ int parse_keybinds(rov_keybinds *kbs,const char *kfl){
     strncat(cmd," 2> /dev/null",128 - strlen(cmd));
     scm = popen(cmd,"r");
     while (fgets(cmd,128,scm) != NULL){
-        if (read_scm_line(kbs,cmd)){
+        if (keybinds_read_scm_line(kbs,cmd)){
             memcpy(kbs,&default_keybinds,sizeof(rov_keybinds));
             return -1;
         }

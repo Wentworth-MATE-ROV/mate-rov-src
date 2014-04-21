@@ -72,6 +72,7 @@
 (gen-op thrust-mod       all-axis?)
 (gen-op laser-toggle     all-buttons?)
 (gen-op sidelight-toggle all-buttons?)
+(gen-op headlight-toggle all-buttons?)
 
 ;; Loads and evals argv[1], the config file.
 (load (cadr (command-line)))

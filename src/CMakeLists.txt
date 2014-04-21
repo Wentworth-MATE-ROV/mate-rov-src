@@ -4,6 +4,7 @@ set(MATEROV_FILES comm/comm.c
                   comm/msgqueue.c
                   controls/keybinds.c
                   controls/controls.c
+                  controls/pinlayout.c
                   motor/motor.c
                   ui/keyboard.c
                   ui/main.c)

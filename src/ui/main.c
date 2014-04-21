@@ -20,6 +20,7 @@
 #include "../controls/controls.h"
 #include "../controls/keybinds.h"
 #include "keyboard.h"
+#include "../controls/pinlayout.h"
 
 #include <stdio.h>
 #include <pthread.h>
@@ -42,9 +43,11 @@ int main(void){
     p.scr = &scr;
     p.phz = 1000;
     p.shz = 200;
-    pthread_create(&jst,NULL,process_joystick,&p);
     print_staticui(&scr);
     screen_reload_keybinds(&scr,&a,false);
+    init_pinlayout(&a.layout);
+    parse_pinlayout(&a.layout,".pins");
+    pthread_create(&jst,NULL,process_joystick,&p);
     process_keyboard(&scr,&a);
     destroy_screen(&scr);
     destroy_arduino(&a);

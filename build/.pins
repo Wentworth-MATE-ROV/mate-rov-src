@@ -1,0 +1,7 @@
+;;; Joe Jevnik
+;;; 2014.4.21
+;;; Keybinding layout for the robot.
+
+(lasers     12)
+(headlights 9)
+(sidelights 10)
