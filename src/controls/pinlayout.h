@@ -19,6 +19,7 @@
 #define ROV_PINLAYOUT_H
 
 #include "../common.h"
+#include "../comm/comm.h"
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -31,6 +32,10 @@
 extern const char* const pin_laser_str;
 extern const char* const pin_headlight_str;
 extern const char* const pin_sidelight_str;
+extern const char* const pin_leftmotor_str;
+extern const char* const pin_rightmotor_str;
+extern const char* const pin_frontmotor_str;
+extern const char* const pin_backmotor_str;
 
 // Zeros the pinlayout.
 void init_pinlayout(rov_pinlayout*);
@@ -45,5 +50,8 @@ int pin_read_scm_line(rov_pinlayout*,char*);
 // IO WARNING: Calls out to './pin-parser.scm' which requires guile.
 // return: 0 on success, non-zero on failure.
 int parse_pinlayout(rov_pinlayout*,const char*);
+
+// Sets the pinmodes for the needed pins.
+void pinmode_sync(rov_arduino*);
 
 #endif

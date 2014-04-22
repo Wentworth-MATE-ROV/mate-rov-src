@@ -19,6 +19,7 @@
 #define ROV_COMM_H
 
 #include "../common.h"
+#include "../controls/pinlayout.h"
 #include "opcode.h"
 
 #include <stdlib.h>
@@ -87,6 +88,9 @@ int dequeue(rov_msgqueue*);
 // Procedure to run in a pthread to manage the message queue.
 // Accepts the rov_msgqueue* as a void*.
 void *process_queue(void*);
+
+// Set the state of the pin to output if true, or input if false.
+void set_pinstate(rov_arduino*,rov_pin,bool);
 
 // Enqueues a message that sets a digital pin on or off.
 void digital_write(rov_arduino*,rov_pin,bool);

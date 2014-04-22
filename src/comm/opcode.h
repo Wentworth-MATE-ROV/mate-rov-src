@@ -26,4 +26,6 @@
 #define OP_ANALOG_WRITE  0x30
 #define OP_ANALOG_READ   0x40
 
+#define OP_SET_PINSTATE  0x70
+
 #endif

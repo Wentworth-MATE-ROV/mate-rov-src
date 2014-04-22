@@ -19,12 +19,17 @@
 #define ROV_KEYBOARD_H
 
 #include "../controls/keybinds.h"
+#include "../controls/pinlayout.h"
 
 // Macros for the keys:
 #define RELOAD_KEYBINDS 'l'
+#define RELOAD_PINS     'p'
 
-// Reloads the keybinds from the .keybinds file.
+// Reloads the keybinds from the .keybinds file and prints differences.
 void screen_reload_keybinds(rov_screen*,rov_arduino*,bool);
+
+// Reloads the pinlayout from the .pins file and prints differences.
+void screen_reload_pinlayout(rov_screen*,rov_arduino*,bool);
 
 // Handles all keyboard presses.
 // Pass the screen.

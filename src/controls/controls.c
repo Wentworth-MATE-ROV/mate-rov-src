@@ -40,7 +40,7 @@ void init_ctrlstate(rov_joystick *js,rov_keybinds *kbs,rov_ctrlstate *st){
         }
     }
     for (n = 0;n < kbs->laser_togglec;n++){
-        if (is_button(js,kbs->headlight_togglev[n])){
+        if (is_button(js,kbs->laser_togglev[n])){
             st->lasers = !st->lasers;
             break;
         }
@@ -60,6 +60,16 @@ void init_ctrlstate(rov_joystick *js,rov_keybinds *kbs,rov_ctrlstate *st){
 }
 
 void write_ctrlstate(rov_ctrlstate *st,rov_arduino *a){
+    size_t n;
+    for (n = 0;n < a->layout.laserc;n++){
+        digital_write(a,a->layout.laserv[n],st->lasers);
+    }
+    for (n = 0;n < a->layout.headlightc;n++){
+        digital_write(a,a->layout.headlightv[n],st->headlights);
+    }
+    for (n = 0;n < a->layout.sidelightc;n++){
+        digital_write(a,a->layout.sidelightv[n],st->sidelights);
+    }
 }
 
 // Process joystick input forever.
@@ -76,6 +86,7 @@ void *process_joystick(void *vscr_hz){
         if (memcmp(&a->joystick,&old,sizeof(rov_joystick))){
             init_ctrlstate(&a->joystick,&a->keybinds,&ctrl);
             write_ctrlstate(&ctrl,a);
+            screen_printf(scr,"%d",ctrl.lasers);
         }
         old = a->joystick;
         usleep(sleep_time); // Sleep the thread (quantizes the polling rate).

@@ -111,13 +111,16 @@ int dequeue(rov_msgqueue *q){
 
 // Procedure to run in a pthread to manage the message queue.
 // Accepts the rov_msgqueue* as a void*.
-void *process_queue(void *v_q){
-    rov_msgqueue *q = v_q;
-    char w;
+void *process_queue(void *pqp){
+    rov_pq_param *ps  = pqp;
+    rov_msgqueue *q   = ps->q;
+    rov_screen   *scr = ps->scr;
+    char          w;
     for (;;){
         if (q->size > 0 && !q->is_waiting){
             if (dequeue(q)){
-                fputs("Unable to sends a command, ignoring!",stderr);
+                screen_printattr(scr,COLOR_RED,"Unable to send command"
+                                 ", ignoring!");
             }
         }
         w = poll_wait(q->arduino);

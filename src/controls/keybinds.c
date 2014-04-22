@@ -97,6 +97,11 @@ void init_keybinds(){
     *default_keybinds.sidelight_togglev = 10;
 }
 
+// Length constants
+#define OPCOUNT     13
+#define BUTTONCOUNT 5
+#define AXESCOUNT   8
+
 // Reads sexpr, updating the keybinds as needed.
 // return: 0 on success, non-zero on failure.
 int keybinds_read_scm_line(rov_keybinds *kbs,char *str){
@@ -104,45 +109,45 @@ int keybinds_read_scm_line(rov_keybinds *kbs,char *str){
     char         *op;
     int           n;
     int           b = 0;
-    const char   *ops[13] = { claw_open_str,
-                              claw_close_str,
-                              laser_toggle_str,
-                              claw_x_str,
-                              claw_y_str,
-                              rotate_z_str,
-                              rotate_y_str,
-                              transpose_x_str,
-                              transpose_y_str,
-                              turn_y_str,
-                              thrust_mod_str,
-                              headlight_toggle_str,
-                              sidelight_toggle_str };
-    unsigned char *bvs[5] = { kbs->claw_openv,
-                              kbs->claw_closev,
-                              kbs->laser_togglev,
-                              kbs->headlight_togglev,
-                              kbs->sidelight_togglev };
-    rov_jsaxis    *avs[8] = { kbs->claw_xv,
-                              kbs->claw_yv,
-                              kbs->rotate_zv,
-                              kbs->rotate_yv,
-                              kbs->transpose_xv,
-                              kbs->transpose_yv,
-                              kbs->turn_yv,
-                              kbs->thrust_modv };
-    size_t        *cs[13] = { &kbs->claw_openc,
-                              &kbs->claw_closec,
-                              &kbs->laser_togglec,
-                              &kbs->claw_xc,
-                              &kbs->claw_yc,
-                              &kbs->rotate_zc,
-                              &kbs->rotate_yc,
-                              &kbs->transpose_xc,
-                              &kbs->transpose_yc,
-                              &kbs->turn_yc,
-                              &kbs->thrust_modc,
-                              &kbs->headlight_togglec,
-                              &kbs->sidelight_togglec };
+    const char   *ops[OPCOUNT]      = { claw_open_str,
+                                        claw_close_str,
+                                        laser_toggle_str,
+                                        claw_x_str,
+                                        claw_y_str,
+                                        rotate_z_str,
+                                        rotate_y_str,
+                                        transpose_x_str,
+                                        transpose_y_str,
+                                        turn_y_str,
+                                        thrust_mod_str,
+                                        headlight_toggle_str,
+                                        sidelight_toggle_str };
+    unsigned char *bvs[BUTTONCOUNT] = { kbs->claw_openv,
+                                        kbs->claw_closev,
+                                        kbs->laser_togglev,
+                                        kbs->headlight_togglev,
+                                        kbs->sidelight_togglev };
+    rov_jsaxis    *avs[AXESCOUNT]   = { kbs->claw_xv,
+                                        kbs->claw_yv,
+                                        kbs->rotate_zv,
+                                        kbs->rotate_yv,
+                                        kbs->transpose_xv,
+                                        kbs->transpose_yv,
+                                        kbs->turn_yv,
+                                        kbs->thrust_modv };
+    size_t        *cs[OPCOUNT]      = { &kbs->claw_openc,
+                                        &kbs->claw_closec,
+                                        &kbs->laser_togglec,
+                                        &kbs->claw_xc,
+                                        &kbs->claw_yc,
+                                        &kbs->rotate_zc,
+                                        &kbs->rotate_yc,
+                                        &kbs->transpose_xc,
+                                        &kbs->transpose_yc,
+                                        &kbs->turn_yc,
+                                        &kbs->thrust_modc,
+                                        &kbs->headlight_togglec,
+                                        &kbs->sidelight_togglec };
     if (str[0] == ';'){
         return 0;
     }
@@ -150,18 +155,19 @@ int keybinds_read_scm_line(rov_keybinds *kbs,char *str){
         return -1;
     }
     op = strtok(&str[1]," ");
-    for (n = 0;n < 13;n++){
+    for (n = 0;n < OPCOUNT;n++){
         b += !strcmp(op,ops[n]);
     }
     if (!b){
         return -2;
     }
     len = strtol(strtok(NULL," "),NULL,10);
-    for (n = 0;n < 5;n++){
+    for (n = 0;n < BUTTONCOUNT;n++){
         keybinds_parse_scm_params(op,ops[n],len,bvs[n],cs[n],true);
     }
-    for (n = 0;n < 8;n++){
-        keybinds_parse_scm_params(op,ops[n + 5],len,avs[n],cs[n + 5],false);
+    for (n = 0;n < AXESCOUNT;n++){
+        keybinds_parse_scm_params(op,ops[n + BUTTONCOUNT],len,
+                                  avs[n],cs[n + BUTTONCOUNT],false);
     }
     return 0;
 }

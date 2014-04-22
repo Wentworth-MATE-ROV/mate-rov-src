@@ -30,8 +30,8 @@ static void print_jsaxis(rov_screen *scr,rov_jsaxis *j){
     }
 }
 
-// Quick macros to compare if diff'd.
-#define diffcmpbutton(str,val,count)                                    \
+// Quick macros to print if values differ.
+#define DIFFCMPBUTTON(str,val,count)                                    \
     if (!diff || memcmp(&old.val,kbs->val,6)){                          \
         boldgreenprint(scr,str);                                        \
         for (n = 0;n < kbs->count;n++){                                 \
@@ -39,7 +39,7 @@ static void print_jsaxis(rov_screen *scr,rov_jsaxis *j){
         }                                                               \
         ++c;                                                            \
     }
-#define diffcmpaxis(str,val,count)                                      \
+#define DIFFCMPAXIS(str,val,count)                                      \
     if (!diff || memcmp(&old.val,kbs->val,12 * sizeof(rov_jsaxis))){    \
         boldgreenprint(scr,str);                                        \
         for (n = 0;n < kbs->count;n++){                                 \
@@ -50,10 +50,10 @@ static void print_jsaxis(rov_screen *scr,rov_jsaxis *j){
 
 // Reloads the keybinds from the .keybinds file.
 void screen_reload_keybinds(rov_screen *scr,rov_arduino *a,bool diff){
-    int n,c = 0;
+    int           n,c = 0;
     rov_keybinds  old = a->keybinds;
     rov_keybinds *kbs = &a->keybinds;
-    char line[81];
+    char          line[81];
     if (parse_keybinds(kbs,".keybinds")){
         screen_printattr(scr,RED_PAIR,"Failed to reload keybinds!");
         return;
@@ -61,22 +61,53 @@ void screen_reload_keybinds(rov_screen *scr,rov_arduino *a,bool diff){
     memset(line,'-',80);
     line[81] = '\0';
     screen_printattr(scr,GREEN_PAIR,line);
-    diffcmpbutton("claw-open: ",claw_openv,claw_openc);
-    diffcmpbutton("claw-close: ",claw_closev,claw_closec);
-    diffcmpaxis("claw-x: ",claw_xv,claw_xc);
-    diffcmpaxis("claw-y: ",claw_yv,claw_yc);
-    diffcmpaxis("rotate-z: ",rotate_zv,rotate_zc);
-    diffcmpaxis("rotate-y: ",rotate_yv,rotate_yc);
-    diffcmpaxis("transpose-x: ",transpose_xv,transpose_xc);
-    diffcmpaxis("transpose-y: ",transpose_yv,transpose_yc);
-    diffcmpaxis("turn-y: ",turn_yv,turn_yc);
-    diffcmpaxis("thrust-mod: ",thrust_modv,thrust_modc);
-    diffcmpbutton("laser-toggle: ",laser_togglev,laser_togglec);
-    diffcmpbutton("headlight-toggle",headlight_togglev,headlight_togglec);
-    diffcmpbutton("sidelight-toggle",sidelight_togglev,sidelight_togglec);
+    DIFFCMPBUTTON("claw-open: ",claw_openv,claw_openc);
+    DIFFCMPBUTTON("claw-close: ",claw_closev,claw_closec);
+    DIFFCMPAXIS("claw-x: ",claw_xv,claw_xc);
+    DIFFCMPAXIS("claw-y: ",claw_yv,claw_yc);
+    DIFFCMPAXIS("rotate-z: ",rotate_zv,rotate_zc);
+    DIFFCMPAXIS("rotate-y: ",rotate_yv,rotate_yc);
+    DIFFCMPAXIS("transpose-x: ",transpose_xv,transpose_xc);
+    DIFFCMPAXIS("transpose-y: ",transpose_yv,transpose_yc);
+    DIFFCMPAXIS("turn-y: ",turn_yv,turn_yc);
+    DIFFCMPAXIS("thrust-mod: ",thrust_modv,thrust_modc);
+    DIFFCMPBUTTON("laser-toggle: ",laser_togglev,laser_togglec);
+    DIFFCMPBUTTON("headlight-toggle",headlight_togglev,headlight_togglec);
+    DIFFCMPBUTTON("sidelight-toggle",sidelight_togglev,sidelight_togglec);
     if (!c){
         screen_printattr(scr,GREEN_PAIR | A_BOLD,"Nothing to reload!");
     }
+}
+
+// Quick macro to print only if two pin value differ.
+#define DIFFCMPPIN(str,val,count)                                       \
+    if (!diff || memcmp(&old.val,l->val,52)){                           \
+        boldgreenprint(scr,str);                                        \
+        for (n = 0;n < l->count;n++){                                   \
+            screen_printfattr(scr,GREEN_PAIR,"%u ",l->val[n]);          \
+        }                                                               \
+        ++c;                                                            \
+    }
+
+void screen_reload_pinlayout(rov_screen *scr,rov_arduino *a,bool diff){
+    int            n,c = 0;
+    rov_pinlayout  old = a->layout;
+    rov_pinlayout *l   = &a->layout;
+    char           line[81];
+    if (parse_pinlayout(l,".pins")){
+        screen_printattr(scr,RED_PAIR,"Failed to reload pin layout!");
+        return;
+    }
+    memset(line,'-',80);
+    line[81] = '\0';
+    screen_printattr(scr,GREEN_PAIR,line);
+    DIFFCMPPIN("lasers: ",laserv,laserc);
+    DIFFCMPPIN("headlights: ",headlightv,headlightc);
+    DIFFCMPPIN("sidelights: ",sidelightv,sidelightc);
+    DIFFCMPPIN("left-motor: ",leftmotorv,leftmotorc);
+    DIFFCMPPIN("right-motor: ",rightmotorv,rightmotorc);
+    DIFFCMPPIN("front-motor: ",frontmotorv,frontmotorc);
+    DIFFCMPPIN("back-motor: ",backmotorv,backmotorc);
 }
 
 // Handles all keyboard presses.
@@ -87,6 +118,10 @@ void process_keyboard(rov_screen *scr,rov_arduino *a){
         switch(c){
         case RELOAD_KEYBINDS:
             screen_reload_keybinds(scr,a,true);
+            break;
+        case RELOAD_PINS:
+            screen_reload_pinlayout(scr,a,true);
+            pinmode_sync(a);
             break;
         }
     }

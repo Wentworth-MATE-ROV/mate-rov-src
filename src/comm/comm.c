@@ -71,8 +71,8 @@ int init_arduino(rov_arduino *a,const char *af,const char *jf,
     a->therm  = therm;
     a->accel  = accel;
     a->laser  = laser;
+    init_pinlayout(&a->layout);
     init_queue(&a->queue,a,200,100);
-    pthread_create(&a->qt,NULL,process_queue,&a->queue);
     sleep(2);
     return 0;
 }
@@ -106,6 +106,12 @@ int write_str(rov_arduino *a,unsigned char *str,size_t s){
 // return: 0 on success, non-zero on failure.
 int write_short(rov_arduino *a,unsigned short v){
     return write_str(a,(unsigned char*) &v,sizeof(unsigned short));
+}
+
+// Set the state of the pin to output if true, or input if false.
+void set_pinstate(rov_arduino *a,rov_pin p,bool b){
+    unsigned char msg[2] = { OP_SET_PINSTATE, (b << 7) | p };
+    enqueue(&a->queue,msg,2 * sizeof(unsigned char));
 }
 
 // Sets a digital pin on or off.

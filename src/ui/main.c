@@ -17,8 +17,6 @@
 
 #include "../common.h"
 #include "../comm/comm.h"
-#include "../controls/controls.h"
-#include "../controls/keybinds.h"
 #include "keyboard.h"
 #include "../controls/pinlayout.h"
 
@@ -30,7 +28,8 @@ int main(void){
     rov_screen    scr;
     size_t        motorc,servoc;
     pthread_t     jst;
-    rov_pjs_param p;
+    rov_pjs_param pjp;
+    rov_pq_param  pqp;
     init_keybinds();
     motorc = servoc = 0;
     if (init_arduino(&a,"/dev/ttyACM0","/dev/input/js0",
@@ -39,15 +38,18 @@ int main(void){
         return -1;
     }
     init_screen(&scr,fopen("/dev/null","w"),NULL,0);
-    p.a   = &a;
-    p.scr = &scr;
-    p.phz = 1000;
-    p.shz = 200;
+    pqp.scr = &scr;
+    pqp.q   = &a.queue;
+    pthread_create(&a.qt,NULL,process_queue,&pqp);
+    pjp.a   = &a;
+    pjp.scr = &scr;
+    pjp.phz = 1000;
+    pjp.shz = 200;
     print_staticui(&scr);
     screen_reload_keybinds(&scr,&a,false);
-    init_pinlayout(&a.layout);
-    parse_pinlayout(&a.layout,".pins");
-    pthread_create(&jst,NULL,process_joystick,&p);
+    screen_reload_pinlayout(&scr,&a,false);
+    pinmode_sync(&a);
+    pthread_create(&jst,NULL,process_joystick,&pjp);
     process_keyboard(&scr,&a);
     destroy_screen(&scr);
     destroy_arduino(&a);

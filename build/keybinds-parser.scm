@@ -23,7 +23,7 @@
 
 (define no-axis (axis -1))
 
-;; Lazily folds func over list.
+;; Lazily folds a function over list.
 ;; f -- the function to fold.
 ;; ns -- the list to fold over.
 (define (list-and f ns)

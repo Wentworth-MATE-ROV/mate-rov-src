@@ -94,3 +94,11 @@
 	* src/ui/main.c: Added the sections to read from the .pins file.
 	* src/controls/controls.c: Started sending the proper signals to the
 	arduino.
+
+2014-4-21 Joe Jevnik <joejev@gmail.com>
+	* src/ui/keyboard.h, src/ui/keyboard.c: Added a feature to load the
+	pin layout at runtime.
+	* src/comm/opcode.h: Added the pinstate opcode.
+	* src/comm/comm.h, src/comm/comm.c: Added the set_pinstate() functions
+	to set a pin to input or output.
+	* src/arduino.c: Added src/arduino.c

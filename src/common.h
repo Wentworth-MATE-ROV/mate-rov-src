@@ -124,9 +124,20 @@ typedef struct{
 
 // A structure to hold the pinlayout of the robot.
 typedef struct{
-    unsigned char lasers;     // The pin the lasers are on.
-    unsigned char headlights; // The pin the headlights are on.
-    unsigned char sidelights; // THe pin the sidelights are on.
+    size_t        laserc;          // The number of pins for the lasers.
+    unsigned char laserv[54];      // The pins the lasers are on.
+    size_t        headlightc;      // The number of pins for the headlights
+    unsigned char headlightv[54];  // The pins the headlights are on.
+    size_t        sidelightc;      // The number of pins for the sidelights.
+    unsigned char sidelightv[54];  // The pins the sidelights are on.
+    size_t        leftmotorc;      // The number of pins for the left motor.
+    unsigned char leftmotorv[54];  // The pins the left motor is on.
+    size_t        rightmotorc;     // The number of pins for the right motor.
+    unsigned char rightmotorv[54]; // The pins the right motor is on.
+    size_t        frontmotorc;     // The number of pins for the front motor.
+    unsigned char frontmotorv[54]; // The pins the front motor is on.
+    size_t        backmotorc;      // The number of pins for the back motor.
+    unsigned char backmotorv[54];  // The pins the back motor is on.
 }rov_pinlayout;
 
 // A complete arduino.
@@ -153,5 +164,11 @@ typedef struct{
     useconds_t   phz; // The Hz of the polling.
     useconds_t   shz; // The Hz of the sending.
 }rov_pjs_param;
+
+// A structure to pass to the process queue thread.
+typedef struct{
+    rov_msgqueue *q;   // The queue.
+    rov_screen   *scr; // The screen.
+}rov_pq_param;
 
 #endif
