@@ -123,6 +123,8 @@ void process_keyboard(rov_screen *scr,rov_arduino *a){
             screen_reload_pinlayout(scr,a,true);
             pinmode_sync(a);
             break;
+        case QUIT_PROG:
+            return;
         }
     }
 }

@@ -20,20 +20,11 @@
 
 #include "../common.h"
 
-#define HEADLIGHT_PIN 50
+// Re-reads the state from the joystick and keybinds.
+void read_ctrlstate(rov_arduino*);
 
-// The states we can be in.
-typedef struct{
-    bool  clawgrip;     // The state of the claw's grip.
-    bool  lasers;       // The state of the lasers.
-    bool  headlights;   // The state of the headlights.
-    bool  sidelights;   // The the state of the side lights.
-    char  clawpos;      // The claw's position.
-    short powerleft;    // Power to the left motor.
-    short powerright;   // Power to the right motor.
-    short powerfront;   // Power to the front motor.
-    short powerback;    // Power to the back motor.
-}rov_ctrlstate;
+// Syncs the local state to the machine.
+void sync_ctrlstate(rov_arduino*);
 
 // Process joystick input forever.
 void *process_joystick(void*);

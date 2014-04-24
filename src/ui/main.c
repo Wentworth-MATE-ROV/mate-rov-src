@@ -26,14 +26,11 @@
 int main(void){
     rov_arduino   a;
     rov_screen    scr;
-    size_t        motorc,servoc;
     pthread_t     jst;
     rov_pjs_param pjp;
     rov_pq_param  pqp;
     init_keybinds();
-    motorc = servoc = 0;
-    if (init_arduino(&a,"/dev/ttyACM0","/dev/input/js0",
-                      motorc,NULL,servoc,NULL,NULL,NULL,NULL)){
+    if (init_arduino(&a,"/dev/ttyACM0","/dev/input/js0")){
         fputs("Could not initialize the arduino\n",stderr);
         return -1;
     }
@@ -43,7 +40,7 @@ int main(void){
     pthread_create(&a.qt,NULL,process_queue,&pqp);
     pjp.a   = &a;
     pjp.scr = &scr;
-    pjp.phz = 1000;
+    pjp.phz = 100;
     pjp.shz = 200;
     print_staticui(&scr);
     screen_reload_keybinds(&scr,&a,false);

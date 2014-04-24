@@ -5,7 +5,7 @@
 (lasers      '(11))
 (headlights  '(9))
 (sidelights  '(10))
-(left-motor  '(20))
+(left-motor  '(11))
 (right-motor '(21))
 (front-motor '(22))
 (back-motor  '(23))

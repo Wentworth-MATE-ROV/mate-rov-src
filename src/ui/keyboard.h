@@ -24,6 +24,7 @@
 // Macros for the keys:
 #define RELOAD_KEYBINDS 'l'
 #define RELOAD_PINS     'p'
+#define QUIT_PROG       ']'
 
 // Reloads the keybinds from the .keybinds file and prints differences.
 void screen_reload_keybinds(rov_screen*,rov_arduino*,bool);

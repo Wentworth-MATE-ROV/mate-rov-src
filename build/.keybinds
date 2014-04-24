@@ -4,8 +4,8 @@
 
 ;; Defining symbolic names to the axis and trigger.
 (define trigger (button 1))
-(define x-axis  (axis   0))
-(define y-axis  (axis   1))
+(define x-axis  (axis   1))
+(define y-axis  (axis   0))
 (define twist   (axis   2))
 (define slider  (axis   3))
 (define hat-x   (axis   4))
@@ -18,10 +18,9 @@
 (claw-x           hat-x)
 (claw-y           hat-y)
 (rotate-z         (axis-pair 5 6))
-(rotate-y         twist)
-(turn-y           x-axis)
+(rotate-y         x-axis)
 (transpose-x      y-axis)
-(transpose-y      (axis-pair 3 4))
+(transpose-y      twist)
 (thrust-mod       slider)
 (laser-toggle     (button 12))
 (headlight-toggle (button 9))

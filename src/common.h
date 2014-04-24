@@ -36,22 +36,14 @@
 typedef unsigned char rov_pin;
 
 // PLACEHOLDER:
-typedef int rov_laser;
 typedef int rov_therm;
 typedef int rov_accel;
 
-// A struct representing a motor controller attached to the arduino.
-typedef struct{
-    rov_pin  pin;   // The pin this motor is connected to.
-    char     power; // The power that is currently being supplied. [-100,100]
-} rov_motor;
+// The lights on the arduino.
+typedef bool rov_light;
 
-// A struct representing a servo attached to the arduino.
-typedef struct{
-    rov_pin pin;
-    int     loc;
-    int     max;
-} rov_servo;
+// A type representing a motor controller attached to the arduino.
+typedef unsigned char rov_motor;
 
 // A node in the queue.
 struct rov_node{
@@ -78,17 +70,17 @@ typedef struct rov_msgqueue{
     pthread_mutex_t     mutex;       // The mutex for this structure.
     size_t              r_attempts;  // The number of times to try to resend a
                                      // message if it fails.
-} rov_msgqueue;
+}rov_msgqueue;
 
 // An axis structure that is either a pair of buttons or an actual axis.
 typedef struct{
-    bool is_pair;              // Is this axis created out of (pair a b).
+    bool                  is_pair; // Is this axis created out of (pair a b).
     union{
         struct{
-            unsigned char pos; // Button relating to the postive dir.
-            unsigned char neg; // Button relating to the negative dir.
+            unsigned char pos;     // Button relating to the postive dir.
+            unsigned char neg;     // Button relating to the negative dir.
         };
-        unsigned char axis;    // The axis that this relates to.
+        unsigned char     axis;    // The axis that this relates to.
     };
 }rov_jsaxis;
 
@@ -142,19 +134,25 @@ typedef struct{
 
 // A complete arduino.
 typedef struct rov_arduino{
-    int           fd;          // A file descriptor to the /dev/tty_ channel.
-    rov_joystick  joystick;    // The joystick state.
-    rov_keybinds  keybinds;    // The set of keybinds on the joystick.
-    rov_pinlayout layout;      // The set of pin mappings on the arduino.
-    rov_msgqueue  queue;       // The message queue.
-    pthread_t     qt;          // The queue thread.
-    size_t        motorc;      // The number of motors connected.
-    rov_motor   **motorv;      // The array of motors.
-    size_t        servoc;      // The number of servos.
-    rov_servo   **servov;      // The array of servos.
-    rov_therm    *therm;       // The electrical cabinent temperature.
-    rov_accel    *accel;       // The accelerometer on the robot.
-    rov_laser    *laser;       // The laser mechanism.
+    int               fd;         // A file descriptor to the /dev/tty_ channel.
+    rov_joystick      joystick;   // The joystick state.
+    rov_keybinds      keybinds;   // The set of keybinds on the joystick.
+    rov_pinlayout     layout;     // The set of pin mappings on the arduino.
+    rov_msgqueue      queue;      // The message queue.
+    pthread_t         qt;         // The queue thread.
+    union{
+        struct{
+            rov_motor leftmotor;  // The left motor.
+            rov_motor rightmotor; // The right motor.
+            rov_motor frontmotor; // The front motor.
+            rov_motor backmotor;  // The back motor.
+        };
+        rov_motor     motorv[4];  // The array of motors.
+    };
+    rov_light         headlights; // The headlights.
+    rov_light         sidelights; // The lights on the side cameras.
+    rov_light         lasers;     // The laser mechanism.
+    bool              clawgrip;   // Is the claw closed?
 } rov_arduino;
 
 // A structure to pass to the process joystick thread.

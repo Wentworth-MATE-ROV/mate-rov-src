@@ -21,18 +21,8 @@
 // Parameters: the arduino pointer
 //             the device the arduino is connected to
 //             the device the joystick is connected to
-//             the number of motors
-//             the array of motors
-//             the number of servos
-//             the array of servos
-//             the thermometer
-//             the accelerometer
-//             the laser
 // return: 0 on success, non-zero on failure.
-int init_arduino(rov_arduino *a,const char *af,const char *jf,
-                 size_t motorc,rov_motor **motorv,
-                 size_t servoc,rov_servo **servov,rov_therm *therm,
-                 rov_accel *accel,rov_laser *laser){
+int init_arduino(rov_arduino *a,const char *af,const char *jf){
     struct termios topts;
     if ((a->fd = open(af,O_RDWR | O_NONBLOCK)) == -1){
         perror("init_arduino: could not open af");
@@ -64,13 +54,10 @@ int init_arduino(rov_arduino *a,const char *af,const char *jf,
         perror("init_arduino: could not read joystick file");
         return -1;
     }
-    a->motorc = motorc;
-    a->motorv = motorv;
-    a->servoc = servoc;
-    a->servov = servov;
-    a->therm  = therm;
-    a->accel  = accel;
-    a->laser  = laser;
+    memset(a->motorv,0,4 * sizeof(rov_motor));
+    a->headlights = false;
+    a->sidelights = false;
+    a->lasers     = false;
     init_pinlayout(&a->layout);
     init_queue(&a->queue,a,200,100);
     sleep(2);
@@ -120,17 +107,12 @@ void digital_write(rov_arduino *a,rov_pin p,bool v){
     enqueue(&a->queue,msg,2 * sizeof(unsigned char));
 }
 
-// Sends a value to a pin in the range of [0,1024)
+// Sends a value to a pin in the range of [0,256)
 // Data is formatted as so: byte 0 = opcode
-//                          byte 1 = lsb of v.
-//          first 2 bits of byte 2 = 2 last bits in v.
-//           last 6 bits of byte 2 = the pin number.
-void analog_write(rov_arduino *a,rov_pin p,unsigned short v){
-    unsigned char *b = (unsigned char*) &v;
-    unsigned char msg[3];
-    msg[0] = OP_ANALOG_WRITE;
-    msg[1] = b[0];
-    msg[2] = (b[1] << 6) | (p & 0x3f);
+//                          byte 1 = pin number
+//                          byte 2 = value
+void analog_write(rov_arduino *a,rov_pin p,unsigned char v){
+    unsigned char msg[3] = { OP_ANALOG_WRITE, p, v };
     enqueue(&a->queue,msg,3 * sizeof(unsigned char));
 }
 

@@ -102,3 +102,14 @@
 	* src/comm/comm.h, src/comm/comm.c: Added the set_pinstate() functions
 	to set a pin to input or output.
 	* src/arduino.c: Added src/arduino.c
+
+2014-4-24 Joe Jevnik <joejev@gmail.com>
+	* src/micro/arduino.c, src/micro/recv.c: Added a directory for the
+	code on microcontrollers.
+	* src/controls/controls.c: Changed the joystick behavior for button
+	* build/.pins: Added a sample pin config file.
+	* src/motor/motor.c, src/motor/motor.h: Removed these files.
+	* src/controls/pinlayout.h, src/controls/pinlayout.c, src/common.h:
+	Removed motor structs and have the arduino hold it's own state, motors
+	are represented as unsigned char's and lights as bools.
+	* src/ui/main.c: Updated init_arduino() call.

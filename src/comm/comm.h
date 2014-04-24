@@ -37,17 +37,8 @@
 // Parameters: the arduino pointer
 //             the device the arduino is connected to
 //             the device the joystick is connected to
-//             the number of motors
-//             the array of motors
-//             the number of servos
-//             the array of servos
-//             the thermometer
-//             the accelerometer
-//             the laser
 // return: 0 on success, non-zero on failure.
-int init_arduino(rov_arduino*,const char*,const char*,
-                 size_t,rov_motor**,size_t,rov_servo**,
-                 rov_therm*,rov_accel*,rov_laser*);
+int init_arduino(rov_arduino*,const char*,const char*);
 
 // Closes the file descripotr to the arduino.
 void destroy_arduino(rov_arduino*);
@@ -95,11 +86,11 @@ void set_pinstate(rov_arduino*,rov_pin,bool);
 // Enqueues a message that sets a digital pin on or off.
 void digital_write(rov_arduino*,rov_pin,bool);
 
-// Enqueues a message that sends a value to a pin in the range of [0,1023]
-// Data is formatted as so: byte 1 = lsb of v.
-//          first 2 bits of byte 2 = 2 last bits in v.
-//           last 6 bits of byte 2 = the pin number.
-void analog_write(rov_arduino*,rov_pin,unsigned short);
+// Sends a value to a pin in the range of [0,256)
+// Data is formatted as so: byte 0 = opcode
+//                          byte 1 = pin number
+//                          byte 2 = value
+void analog_write(rov_arduino*,rov_pin,unsigned char);
 
 // Enqueues a message that reads an analog value in the range of [0,1023] off of
 // a pin.
