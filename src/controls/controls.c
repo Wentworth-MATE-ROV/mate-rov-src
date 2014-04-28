@@ -24,15 +24,15 @@ unsigned char scale_axisval(short v){
     return ((32767 + v) / 65534.0) * 255;
 }
 
-// return: truncates the power value in the range [-1024,1024].
+// return: truncates the power value in the range [0,256).
 unsigned char trunc_powerval(int v){
-    return (v > 255) ? 255 : (v < -255) ? -255 : v;
+    return (v > 255) ? 255 : (v < 0) ? 0 : v;
 }
 
 // Re-reads the state from the joystick and keybinds.
 void read_ctrlstate(rov_arduino *a){
     size_t n;
-    short  lx,rx,lr,rr;
+    int    lx,rx,lr,rr;
     for (n = 0;n < a->keybinds.headlight_togglec;n++){
         if (is_button(&a->joystick,a->keybinds.headlight_togglev[n])){
             a->headlights = !a->headlights;
@@ -66,9 +66,9 @@ void read_ctrlstate(rov_arduino *a){
     for (n = 0;n < a->keybinds.transpose_xc;n++){
         if (a->keybinds.transpose_xv[n].is_pair){
             if (is_button(&a->joystick,a->keybinds.transpose_xv[n].pos)){
-                lx += 1023;
+                lx += 255;
             }else if (is_button(&a->joystick,a->keybinds.transpose_xv[n].neg)){
-                lx -= 1023;
+                lx -= 255;
             }
         }else{
             lx += scale_axisval(a->joystick.axes[a->keybinds
@@ -80,9 +80,9 @@ void read_ctrlstate(rov_arduino *a){
     for (n = 0;n < a->keybinds.rotate_yc;n++){
         if (a->keybinds.rotate_yv[n].is_pair){
             if (is_button(&a->joystick,a->keybinds.rotate_yv[n].pos)){
-                lr += 1023;
+                lr += 255;
             }else if (is_button(&a->joystick,a->keybinds.rotate_yv[n].neg)){
-                lr -= 1023;
+                lr -= 255;
             }
         }else{
             lr += scale_axisval(a->joystick.axes[a->keybinds
