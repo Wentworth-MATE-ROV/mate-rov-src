@@ -16,7 +16,7 @@
 #  Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 CC=gcc
-CFLAGS=-Wall
+CFLAGS=-Wall -g
 SOURCES=joystick/joystick.c joystick/joystick.o screen/screen.c screen/screen.o
 
 all: librov_joystick.a librov_screen.a

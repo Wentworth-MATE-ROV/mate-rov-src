@@ -18,7 +18,7 @@
 #include "screen.h"
 
 // Initializes a screen with a given arduino to pull from and a logfile.
-void init_screen(rov_screen *scr,FILE *logf,char **statv,size_t statc){
+void init_screen(rov_screen *scr,FILE *logf,size_t statc,int attr,char **statv){
     int n;
     initscr();
     getmaxyx(stdscr,scr->mr,scr->mc);
@@ -36,13 +36,13 @@ void init_screen(rov_screen *scr,FILE *logf,char **statv,size_t statc){
     scr->logc    = scr->mr - 2;
     scr->logv    = malloc(scr->logc * sizeof(rov_logmsg));
     scr->lmc     = 4 * scr->mc / 5;
-    scr->statw   = newwin(12,6,3,10);
+    scr->statw   = newwin(scr->mr - 2,scr->mc / 5,2,0);
     scr->statc   = statc;
     scr->statv   = malloc(statc * sizeof(char*));
     for (n = 0;n < statc;n++){
-        scr->statv[n] = strdup(statv[n]);
+        scr->statv[n] = malloc(1);
+        update_statnameattr(scr,n,attr,statv[n]);
     }
-    scr->ctlw    = newwin(scr->mr - 8,scr->mc / 5,scr->mr - 8,0);
     scr->logw    = newwin(scr->logc,scr->lmc,2,scr->mc / 5 + 1);
     pthread_mutex_init(&scr->mutex,NULL);
     for (n = 0;n < scr->logc;n++){
@@ -69,23 +69,67 @@ void destroy_screen(rov_screen *scr){
 // Refreshes the screen.
 void refresh_screen(rov_screen *scr){
     pthread_mutex_lock(&scr->mutex);
-    wrefresh(scr->statw);
-    wrefresh(scr->ctlw);
-    wrefresh(scr->logw);
     refresh();
+    wrefresh(scr->logw);
+    wrefresh(scr->statw);
     pthread_mutex_unlock(&scr->mutex);
 }
 
-// Updates the stats panel.
-void update_stat(rov_screen *scr,size_t n,const char *fmt,...){
+// Updates the stat name.
+void update_statname(rov_screen *scr,size_t n,char *str){
+    wmove(scr->statw,n,0);
+    wclrtoeol(scr->statw);
+    mvwprintw(scr->statw,n,0,str);
+    free(scr->statv[n]);
+    scr->statv[n] = strdup(str);
+}
+
+// Updates the name of the stat value at index n.
+void update_statnameattr(rov_screen *scr,size_t n,int attr,char *str){
+    wmove(scr->statw,n,0);
+    wclrtoeol(scr->statw);
+    wattron(scr->statw,attr);
+    mvwprintw(scr->statw,n,0,str);
+    wattroff(scr->statw,attr);
+    free(scr->statv[n]);
+    scr->statv[n] = strdup(str);
+}
+
+// Updates the stat value with a format.
+void update_statvf(rov_screen *scr,size_t n,const char *fmt,...){
     va_list ap;
+    size_t  len = strlen(scr->statv[n]) + 1;
     va_start(ap,fmt);
     pthread_mutex_lock(&scr->mutex);
-    wmove(scr->statw,n,0);
+    wmove(scr->statw,n,len);
+    wclrtoeol(scr->statw);
+    wmove(scr->statw,n,len);
     vwprintw(scr->statw,fmt,ap);
     pthread_mutex_unlock(&scr->mutex);
     va_end(ap);
     refresh_screen(scr);
+}
+
+// Updates the stats panel.
+void update_statvfattr(rov_screen *scr,size_t n,int attr,const char *fmt,...){
+    va_list ap;
+    size_t  len = strlen(scr->statv[n]) + 1;
+    va_start(ap,fmt);
+    pthread_mutex_lock(&scr->mutex);
+    wmove(scr->statw,n,len);
+    wclrtoeol(scr->statw);
+    wmove(scr->statw,n,len);
+    wattron(scr->statw,attr);
+    vwprintw(scr->statw,fmt,ap);
+    wattroff(scr->statw,attr);
+    pthread_mutex_unlock(&scr->mutex);
+    va_end(ap);
+    refresh_screen(scr);
+}
+
+// Updates the statv with an attribute.
+void update_statvattr(rov_screen *scr,size_t n,int attr,char *str){
+    update_statvfattr(scr,n,attr,str);
 }
 
 // Writes a string to the log with the default attributes.
@@ -110,9 +154,7 @@ void screen_printattr(rov_screen *scr,int attr,const char *str){
     char buffer[81];
     int n;
     pthread_mutex_lock(&scr->mutex);
-    for (n = scr->logc - 1;n > 0;n--){
-        init_logmsg(&scr->logv[n],scr->logv[n - 1].txt,scr->logv[n - 1].attr);
-    }
+    memmove(&scr->logv[1],scr->logv,(scr->logc - 1) * sizeof(rov_logmsg));
     time(&t);
     localtime_r(&t,&ti);
     memset(buffer,0,81);

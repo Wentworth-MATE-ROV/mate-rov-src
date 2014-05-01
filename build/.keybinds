@@ -4,8 +4,8 @@
 
 ;; Defining symbolic names to the axis and trigger.
 (define trigger (button 1))
-(define x-axis  (axis   1))
-(define y-axis  (axis   0))
+(define x-axis  (axis   0))
+(define y-axis  (axis   1))
 (define twist   (axis   2))
 (define slider  (axis   3))
 (define hat-x   (axis   4))
@@ -13,8 +13,8 @@
 
 ;; Assigning operations to their keys.
 ;; To create an axis out of two buttons, use the (axis-pair a b) command.
-(claw-open        (button 2))
-(claw-close       trigger)
+(claw-open        (button 4))
+(claw-close       (button 3))
 (claw-x           hat-x)
 (claw-y           hat-y)
 (rotate-z         (axis-pair 5 6))
@@ -22,6 +22,6 @@
 (transpose-x      y-axis)
 (transpose-y      twist)
 (thrust-mod       slider)
-(laser-toggle     (button 12))
+(laser-toggle     (button 10))
 (headlight-toggle (button 9))
 (sidelight-toggle (button 11))

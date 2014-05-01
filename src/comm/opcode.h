@@ -25,6 +25,7 @@
 #define OP_DIGITAL_OFF   0x10
 #define OP_ANALOG_WRITE  0x30
 #define OP_ANALOG_READ   0x40
+#define OP_SERVO_WRITE   0x80
 
 #define OP_SET_PINSTATE  0x70
 

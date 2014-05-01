@@ -26,10 +26,15 @@
 (gen-pin lasers)
 (gen-pin headlights)
 (gen-pin sidelights)
+(gen-pin claw-grip)
 (gen-pin left-motor)
+(gen-pin left-motor-direction)
 (gen-pin right-motor)
+(gen-pin right-motor-direction)
 (gen-pin front-motor)
+(gen-pin front-motor-direction)
 (gen-pin back-motor)
+(gen-pin back-motor-direction)
 
 ;; Loads and evals argv[1], the config file.
 (load (cadr (command-line)))

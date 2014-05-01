@@ -35,7 +35,7 @@ static void print_jsaxis(rov_screen *scr,rov_jsaxis *j){
     if (!diff || memcmp(&old.val,kbs->val,6)){                          \
         boldgreenprint(scr,str);                                        \
         for (n = 0;n < kbs->count;n++){                                 \
-            screen_printfattr(scr,GREEN_PAIR,"%u ",kbs->val[n]);        \
+            screen_printfattr(scr,GREEN_PAIR,"%u ",kbs->val[n] + 1);    \
         }                                                               \
         ++c;                                                            \
     }
@@ -108,6 +108,9 @@ void screen_reload_pinlayout(rov_screen *scr,rov_arduino *a,bool diff){
     DIFFCMPPIN("right-motor: ",rightmotorv,rightmotorc);
     DIFFCMPPIN("front-motor: ",frontmotorv,frontmotorc);
     DIFFCMPPIN("back-motor: ",backmotorv,backmotorc);
+    if (!c){
+        screen_printattr(scr,GREEN_PAIR | A_BOLD,"Nothing to reload!");
+    }
 }
 
 // Handles all keyboard presses.

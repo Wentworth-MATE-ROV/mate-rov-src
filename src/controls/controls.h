@@ -23,8 +23,8 @@
 // Re-reads the state from the joystick and keybinds.
 void read_ctrlstate(rov_arduino*);
 
-// Syncs the local state to the machine.
-void sync_ctrlstate(rov_arduino*);
+// Syncs the local control state back to the arduino if it has changed.
+void sync_ctrlstate(rov_arduino*,rov_ctrlstate*);
 
 // Process joystick input forever.
 void *process_joystick(void*);

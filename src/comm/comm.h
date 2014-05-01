@@ -81,7 +81,7 @@ int dequeue(rov_msgqueue*);
 void *process_queue(void*);
 
 // Set the state of the pin to output if true, or input if false.
-void set_pinstate(rov_arduino*,rov_pin,bool);
+void set_pinstate(rov_arduino*,rov_pin,rov_pinstate);
 
 // Enqueues a message that sets a digital pin on or off.
 void digital_write(rov_arduino*,rov_pin,bool);
@@ -91,6 +91,12 @@ void digital_write(rov_arduino*,rov_pin,bool);
 //                          byte 1 = pin number
 //                          byte 2 = value
 void analog_write(rov_arduino*,rov_pin,unsigned char);
+
+// Sends a value to a pin in the range of [0,180]
+// Data is formatted as so: byte 0 = opcode
+//                          byte 1 = pin number
+//                          byte 2 = value
+void servo_write(rov_arduino*,rov_pin,unsigned char);
 
 // Enqueues a message that reads an analog value in the range of [0,1023] off of
 // a pin.

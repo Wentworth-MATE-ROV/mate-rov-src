@@ -116,3 +116,20 @@
 
 2014-4-27 Joe Jevnik <joejev@gmail.com>
 	* src/controls/controls.c: Changed the scaling from [0,1023] to [0,255]
+
+2014-5-1 Joe Jevnik <joejev@gmail.com>
+	* src/controls/controls.c: Changed the scaling to [-180,180]. Added the
+	new syncing to only sync when diff'd.
+	* lib/screen/screen.h, lib/screen/screen.c: Updated the stat logging
+	features for smooth logging functions that have the same style as
+	the console logging functions.
+	* src/ui/stats.h, src/ui/stats.c: Added functions to do the specifics
+	of the stat window printing with colored prints and such.
+	* src/comm/msgqueue.h, src/comm/msgqueue.c: Changed where and how
+	miswrites are counted, and added a writes to keep a ratio.
+	* src/controls/pinlayout.h, src/controls/pinlayout.c: Added new pins
+	for new things.
+	* src/CMakeLists.txt: Added the new stats.c file.
+	* src/common.h: Added an rov_ctrlstate struct to hold all the state
+	to make it easier to copy them in one shot to check for changes.
+	* TODO: updated TODO

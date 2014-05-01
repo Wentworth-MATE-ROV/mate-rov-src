@@ -54,13 +54,9 @@ int init_arduino(rov_arduino *a,const char *af,const char *jf){
         perror("init_arduino: could not read joystick file");
         return -1;
     }
-    memset(a->motorv,0,4 * sizeof(rov_motor));
-    a->headlights = false;
-    a->sidelights = false;
-    a->lasers     = false;
+    memset(&a->ctrl,0,sizeof(rov_ctrlstate));
     init_pinlayout(&a->layout);
-    init_queue(&a->queue,a,200,100);
-    sleep(2);
+    init_queue(&a->queue,a,2500,100);
     return 0;
 }
 
@@ -96,8 +92,8 @@ int write_short(rov_arduino *a,unsigned short v){
 }
 
 // Set the state of the pin to output if true, or input if false.
-void set_pinstate(rov_arduino *a,rov_pin p,bool b){
-    unsigned char msg[2] = { OP_SET_PINSTATE, (b << 7) | p };
+void set_pinstate(rov_arduino *a,rov_pin p,rov_pinstate s){
+    unsigned char msg[2] = { OP_SET_PINSTATE, (s << 6) | p };
     enqueue(&a->queue,msg,2 * sizeof(unsigned char));
 }
 
@@ -109,10 +105,19 @@ void digital_write(rov_arduino *a,rov_pin p,bool v){
 
 // Sends a value to a pin in the range of [0,256)
 // Data is formatted as so: byte 0 = opcode
-//                          byte 1 = pin number
+//                          byte 1 = pin number;p9
 //                          byte 2 = value
 void analog_write(rov_arduino *a,rov_pin p,unsigned char v){
-    unsigned char msg[3] = { OP_ANALOG_WRITE, p, v };
+    unsigned char msg[3] = { OP_ANALOG_WRITE,p,v };
+    enqueue(&a->queue,msg,3 * sizeof(unsigned char));
+}
+
+// Sends a value to a pin in the range of [0,180]
+// Data is formatted as so: byte 0 = opcode
+//                          byte 1 = pin number
+//                          byte 2 = value
+void servo_write(rov_arduino *a,rov_pin p,unsigned char v){
+    unsigned char msg[3] = { OP_SERVO_WRITE,p,v };
     enqueue(&a->queue,msg,3 * sizeof(unsigned char));
 }
 

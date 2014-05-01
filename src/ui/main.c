@@ -18,10 +18,13 @@
 #include "../common.h"
 #include "../comm/comm.h"
 #include "keyboard.h"
+#include "stats.h"
 #include "../controls/pinlayout.h"
 
 #include <stdio.h>
 #include <pthread.h>
+
+char *statv[STATC];
 
 int main(void){
     rov_arduino   a;
@@ -34,15 +37,17 @@ int main(void){
         fputs("Could not initialize the arduino\n",stderr);
         return -1;
     }
-    init_screen(&scr,fopen("/dev/null","w"),NULL,0);
+    init_screen(&scr,fopen("/dev/null","w"),STATC,YELLOW_PAIR,statv);
+    print_staticui(&scr);
+    screen_printattr(&scr,COLOR_GREEN,"Waiting 18s for startup...");
+    sleep(2);
     pqp.scr = &scr;
     pqp.q   = &a.queue;
     pthread_create(&a.qt,NULL,process_queue,&pqp);
     pjp.a   = &a;
     pjp.scr = &scr;
     pjp.phz = 100;
-    pjp.shz = 200;
-    print_staticui(&scr);
+    pjp.shz = 100;
     screen_reload_keybinds(&scr,&a,false);
     screen_reload_pinlayout(&scr,&a,false);
     pinmode_sync(&a);

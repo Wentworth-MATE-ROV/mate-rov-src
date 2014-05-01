@@ -112,6 +112,8 @@ int keybinds_read_scm_line(rov_keybinds *kbs,char *str){
     const char   *ops[OPCOUNT]      = { claw_open_str,
                                         claw_close_str,
                                         laser_toggle_str,
+                                        headlight_toggle_str,
+                                        sidelight_toggle_str,
                                         claw_x_str,
                                         claw_y_str,
                                         rotate_z_str,
@@ -119,9 +121,7 @@ int keybinds_read_scm_line(rov_keybinds *kbs,char *str){
                                         transpose_x_str,
                                         transpose_y_str,
                                         turn_y_str,
-                                        thrust_mod_str,
-                                        headlight_toggle_str,
-                                        sidelight_toggle_str };
+                                        thrust_mod_str };
     unsigned char *bvs[BUTTONCOUNT] = { kbs->claw_openv,
                                         kbs->claw_closev,
                                         kbs->laser_togglev,
@@ -138,6 +138,8 @@ int keybinds_read_scm_line(rov_keybinds *kbs,char *str){
     size_t        *cs[OPCOUNT]      = { &kbs->claw_openc,
                                         &kbs->claw_closec,
                                         &kbs->laser_togglec,
+                                        &kbs->headlight_togglec,
+                                        &kbs->sidelight_togglec,
                                         &kbs->claw_xc,
                                         &kbs->claw_yc,
                                         &kbs->rotate_zc,
@@ -145,9 +147,7 @@ int keybinds_read_scm_line(rov_keybinds *kbs,char *str){
                                         &kbs->transpose_xc,
                                         &kbs->transpose_yc,
                                         &kbs->turn_yc,
-                                        &kbs->thrust_modc,
-                                        &kbs->headlight_togglec,
-                                        &kbs->sidelight_togglec };
+                                        &kbs->thrust_modc };
     if (str[0] == ';'){
         return 0;
     }

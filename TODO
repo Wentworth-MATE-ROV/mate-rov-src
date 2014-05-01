@@ -1,6 +1,3 @@
-TODO:
-    * Test with Nate to make sure the send_* work properly.
-    * Get Keybinds mapped to functions that represent their actions.
-    * _possible_: create an rov_state struct that is part of the arduino that
-      will hold the state of all the bound data.
-    * Camera data streams
+* Read and synch the vertical thrusters.
+* Add default values for the pinlayouts (currently it will fail on defaults).
+* Look into stiching a picture or taking video with a hotkey.

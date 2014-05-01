@@ -27,11 +27,6 @@
 #include <unistd.h>
 #include <ncurses.h>
 
-#define LEFT_THRUSTER  0
-#define RIGHT_THRUSTER 1
-#define FRONT_THRUSTER 2
-#define BACK_TRHRUSTER 3
-
 // The type of a pin on the arduino. Range: [0,63]
 typedef unsigned char rov_pin;
 
@@ -43,7 +38,14 @@ typedef int rov_accel;
 typedef bool rov_light;
 
 // A type representing a motor controller attached to the arduino.
-typedef unsigned char rov_motor;
+typedef short rov_motor;
+
+// The states the pins may be in.
+typedef enum{
+    ROV_INPUT  = 0x00,
+    ROV_OUTPUT = 0x01,
+    ROV_SERVO  = 0x02
+}rov_pinstate;
 
 // A node in the queue.
 struct rov_node{
@@ -66,6 +68,7 @@ typedef struct rov_msgqueue{
     volatile bool       is_waiting;  // Is this queue waiting for the arduino.
     unsigned short      response;    // The response to grab for blockingcalls.
     size_t              miswrites;   // The number of miswrites.
+    size_t              writes;      // The number of writes.
     useconds_t          sleep_time;  // The number of microseconds to sleep for.
     pthread_mutex_t     mutex;       // The mutex for this structure.
     size_t              r_attempts;  // The number of times to try to resend a
@@ -116,30 +119,33 @@ typedef struct{
 
 // A structure to hold the pinlayout of the robot.
 typedef struct{
-    size_t        laserc;          // The number of pins for the lasers.
-    unsigned char laserv[54];      // The pins the lasers are on.
-    size_t        headlightc;      // The number of pins for the headlights
-    unsigned char headlightv[54];  // The pins the headlights are on.
-    size_t        sidelightc;      // The number of pins for the sidelights.
-    unsigned char sidelightv[54];  // The pins the sidelights are on.
-    size_t        leftmotorc;      // The number of pins for the left motor.
-    unsigned char leftmotorv[54];  // The pins the left motor is on.
-    size_t        rightmotorc;     // The number of pins for the right motor.
-    unsigned char rightmotorv[54]; // The pins the right motor is on.
-    size_t        frontmotorc;     // The number of pins for the front motor.
-    unsigned char frontmotorv[54]; // The pins the front motor is on.
-    size_t        backmotorc;      // The number of pins for the back motor.
-    unsigned char backmotorv[54];  // The pins the back motor is on.
+    size_t        clawgripc;        // The number of pins for the claw grip.
+    unsigned char clawgripv[54];    // The pins for the claw grip.
+    size_t        laserc;           // The number of pins for the lasers.
+    unsigned char laserv[54];       // The pins the lasers are on.
+    size_t        headlightc;       // The number of pins for the headlights
+    unsigned char headlightv[54];   // The pins the headlights are on.
+    size_t        sidelightc;       // The number of pins for the sidelights.
+    unsigned char sidelightv[54];   // The pins the sidelights are on.
+    size_t        leftmotorc;       // The number of pins for the left motor.
+    unsigned char leftmotorv[54];   // The pins the left motor is on.
+    size_t        leftmotordc;      // The number of pins to the left direction.
+    unsigned char leftmotordv[54];  // The pins the left motor direction is on.
+    size_t        rightmotorc;      // The number of pins for the right motor.
+    unsigned char rightmotorv[54];  // The pins the right motor is on.
+    size_t        rightmotordc;     // The number of pins to the rightmotor d.
+    unsigned char rightmotordv[54]; // The pins the right motor direction is on.
+    size_t        frontmotorc;      // The number of pins for the front motor.
+    unsigned char frontmotorv[54];  // The pins the front motor is on.
+    size_t        frontmotordc;     // The number of pins to the frontmotor d.
+    unsigned char frontmotordv[54]; // The pins the front motor direction is on.
+    size_t        backmotorc;       // The number of pins for the back motor.
+    unsigned char backmotorv[54];   // The pins the back motor is on.
+    size_t        backmotordc;      // The number of pins for the backmotor d.
+    unsigned char backmotordv[54];  // The pins the back motor direction is on.
 }rov_pinlayout;
 
-// A complete arduino.
-typedef struct rov_arduino{
-    int               fd;         // A file descriptor to the /dev/tty_ channel.
-    rov_joystick      joystick;   // The joystick state.
-    rov_keybinds      keybinds;   // The set of keybinds on the joystick.
-    rov_pinlayout     layout;     // The set of pin mappings on the arduino.
-    rov_msgqueue      queue;      // The message queue.
-    pthread_t         qt;         // The queue thread.
+typedef struct{
     union{
         struct{
             rov_motor leftmotor;  // The left motor.
@@ -153,7 +159,18 @@ typedef struct rov_arduino{
     rov_light         sidelights; // The lights on the side cameras.
     rov_light         lasers;     // The laser mechanism.
     bool              clawgrip;   // Is the claw closed?
-} rov_arduino;
+}rov_ctrlstate;
+
+// A complete arduino.
+typedef struct rov_arduino{
+    int               fd;         // A file descriptor to the /dev/tty_ channel.
+    rov_joystick      joystick;   // The joystick state.
+    rov_keybinds      keybinds;   // The set of keybinds on the joystick.
+    rov_pinlayout     layout;     // The set of pin mappings on the arduino.
+    rov_msgqueue      queue;      // The message queue.
+    pthread_t         qt;         // The queue thread.
+    rov_ctrlstate     ctrl;       // The entire control state.
+}rov_arduino;
 
 // A structure to pass to the process joystick thread.
 typedef struct{

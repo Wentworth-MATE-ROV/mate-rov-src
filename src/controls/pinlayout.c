@@ -18,21 +18,26 @@
 #include "pinlayout.h"
 
 // The strings used when parsing the pins.
-const char* const pin_laser_str      = "lasers";
-const char* const pin_headlight_str  = "headlights";
-const char* const pin_sidelight_str  = "sidelights";
-const char* const pin_leftmotor_str  = "left-motor";
-const char* const pin_rightmotor_str = "right-motor";
-const char* const pin_frontmotor_str = "front-motor";
-const char* const pin_backmotor_str  = "back-motor";
+const char* const pin_laser_str        = "lasers";
+const char* const pin_headlight_str    = "headlights";
+const char* const pin_sidelight_str    = "sidelights";
+const char* const pin_clawgrip_str     = "claw-grip";
+const char* const pin_leftmotor_str    = "left-motor";
+const char* const pin_leftmotor_d_str  = "left-motor-direction";
+const char* const pin_rightmotor_str   = "right-motor";
+const char* const pin_rightmotor_d_str = "right-motor-direction";
+const char* const pin_frontmotor_str   = "front-motor";
+const char* const pin_frontmotor_d_str = "front-motor-direction";
+const char* const pin_backmotor_str    = "back-motor";
+const char* const pin_backmotor_d_str  = "back-motor-direction";
 
 // Zeros the pinlayout.
 void init_pinlayout(rov_pinlayout *l){
-    memset(l,2,sizeof(rov_pinlayout));
+    memset(l,54,sizeof(rov_pinlayout));
 }
 
 // The count of the pin commands.
-#define PINCMDCOUNT 7
+#define PINCMDCOUNT 12
 
 // Reads a line of output from the pin-parser.
 // return: 0 on success, non-zero on failure.
@@ -43,24 +48,39 @@ int pin_read_scm_line(rov_pinlayout *l,char *str){
     const char    *cs[PINCMDCOUNT] = { pin_laser_str,
                                        pin_headlight_str,
                                        pin_sidelight_str,
+                                       pin_clawgrip_str,
                                        pin_leftmotor_str,
+                                       pin_leftmotor_d_str,
                                        pin_rightmotor_str,
+                                       pin_rightmotor_d_str,
                                        pin_frontmotor_str,
-                                       pin_backmotor_str };
+                                       pin_frontmotor_d_str,
+                                       pin_backmotor_str,
+                                       pin_backmotor_d_str };
     unsigned char *ar[PINCMDCOUNT] = { l->laserv,
                                        l->headlightv,
                                        l->sidelightv,
+                                       l->clawgripv,
                                        l->leftmotorv,
+                                       l->leftmotordv,
                                        l->rightmotorv,
+                                       l->rightmotordv,
                                        l->frontmotorv,
-                                       l->backmotorv };
+                                       l->frontmotordv,
+                                       l->backmotorv,
+                                       l->backmotordv };
     size_t        *ls[PINCMDCOUNT] = { &l->laserc,
                                        &l->headlightc,
                                        &l->sidelightc,
+                                       &l->clawgripc,
                                        &l->leftmotorc,
+                                       &l->leftmotordc,
                                        &l->rightmotorc,
+                                       &l->rightmotordc,
                                        &l->frontmotorc,
-                                       &l->backmotorc };
+                                       &l->frontmotordc,
+                                       &l->backmotorc,
+                                       &l->backmotordc };
     t = strtok(str," \n");
     if (t[0] != '('){
         return -1;
@@ -112,13 +132,17 @@ int parse_pinlayout(rov_pinlayout *l,const char *pfl){
 }
 
 // Macros to facilitate setting some pins.
-#define SETPINSTATEIN(count,val)                \
-    for (n = 0;n < a->layout.count;n++){        \
-        set_pinstate(a,a->layout.val[n],false); \
+#define SETPINSTATEIN(count,val)                    \
+    for (n = 0;n < a->layout.count;n++){            \
+        set_pinstate(a,a->layout.val[n],ROV_INPUT); \
     }
-#define SETPINSTATEOUT(count,val)               \
-    for (n = 0;n < a->layout.count;n++){        \
-        set_pinstate(a,a->layout.val[n],true);  \
+#define SETPINSTATEOUT(count,val)                       \
+    for (n = 0;n < a->layout.count;n++){                \
+        set_pinstate(a,a->layout.val[n],ROV_OUTPUT);    \
+    }
+#define SETPINSTATESERVO(count,val)                     \
+    for (n = 0;n < a->layout.count;n++){                \
+        set_pinstate(a,a->layout.val[n],ROV_SERVO);     \
     }
 
 // Sets the pinmodes for the needed pins.
@@ -127,8 +151,8 @@ void pinmode_sync(rov_arduino *a){
     SETPINSTATEOUT(laserc,laserv);
     SETPINSTATEOUT(headlightc,headlightv);
     SETPINSTATEOUT(sidelightc,sidelightv);
-    SETPINSTATEOUT(leftmotorc,leftmotorv);
-    SETPINSTATEOUT(rightmotorc,rightmotorv);
-    SETPINSTATEOUT(frontmotorc,frontmotorv);
-    SETPINSTATEOUT(backmotorc,backmotorv);
+    SETPINSTATESERVO(leftmotorc,leftmotorv);
+    SETPINSTATESERVO(rightmotorc,rightmotorv);
+    SETPINSTATESERVO(frontmotorc,frontmotorv);
+    SETPINSTATESERVO(backmotorc,backmotorv);
 }

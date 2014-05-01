@@ -18,57 +18,59 @@
 #include "controls.h"
 #include "../comm/comm.h"
 #include "../librov/screen.h"
+#include "../ui/stats.h"
 
-// return: scales the value from the range of unsigned char to [0,256).
-unsigned char scale_axisval(short v){
-    return ((32767 + v) / 65534.0) * 255;
+// return: scales the value from the range of unsigned char to [0,180].
+short scale_axisval(short v){
+    return (v / 32767.0) * 180;
 }
 
-// return: truncates the power value in the range [0,256).
-unsigned char trunc_powerval(int v){
-    return (v > 255) ? 255 : (v < 0) ? 0 : v;
+// return: truncates the power value in the range [-180,180].
+short trunc_powerval(short v){
+    return (v > 180) ? 180 : (v < -180) ? -180 : v;
 }
 
 // Re-reads the state from the joystick and keybinds.
 void read_ctrlstate(rov_arduino *a){
     size_t n;
     int    lx,rx,lr,rr;
+    lx = rx = lr = rr = 0;
     for (n = 0;n < a->keybinds.headlight_togglec;n++){
         if (is_button(&a->joystick,a->keybinds.headlight_togglev[n])){
-            a->headlights = !a->headlights;
+            a->ctrl.headlights = !a->ctrl.headlights;
             break;
         }
     }
     for (n = 0;n < a->keybinds.sidelight_togglec;n++){
         if (is_button(&a->joystick,a->keybinds.sidelight_togglev[n])){
-            a->sidelights = !a->sidelights;
+            a->ctrl.sidelights = !a->ctrl.sidelights;
             break;
         }
     }
     for (n = 0;n < a->keybinds.laser_togglec;n++){
         if (is_button(&a->joystick,a->keybinds.laser_togglev[n])){
-            a->lasers = !a->lasers;
+            a->ctrl.lasers = !a->ctrl.lasers;
             break;
         }
     }
     for (n = 0;n < a->keybinds.claw_openc;n++){
         if (is_button(&a->joystick,a->keybinds.claw_openv[n])){
-            a->clawgrip = false;
+            a->ctrl.clawgrip = false;
             break;
         }
     }
     for (n = 0;n < a->keybinds.claw_closec;n++){
-        if (is_button(&a->joystick,a->keybinds.claw_openv[n])){
-            a->clawgrip = true;
+        if (is_button(&a->joystick,a->keybinds.claw_closev[n])){
+            a->ctrl.clawgrip = true;
             break;
         }
     }
     for (n = 0;n < a->keybinds.transpose_xc;n++){
         if (a->keybinds.transpose_xv[n].is_pair){
             if (is_button(&a->joystick,a->keybinds.transpose_xv[n].pos)){
-                lx += 255;
+                lx += 180;
             }else if (is_button(&a->joystick,a->keybinds.transpose_xv[n].neg)){
-                lx -= 255;
+                lx -= 180;
             }
         }else{
             lx += scale_axisval(a->joystick.axes[a->keybinds
@@ -80,35 +82,57 @@ void read_ctrlstate(rov_arduino *a){
     for (n = 0;n < a->keybinds.rotate_yc;n++){
         if (a->keybinds.rotate_yv[n].is_pair){
             if (is_button(&a->joystick,a->keybinds.rotate_yv[n].pos)){
-                lr += 255;
+                lr += 180;
             }else if (is_button(&a->joystick,a->keybinds.rotate_yv[n].neg)){
-                lr -= 255;
+                lr -= 180;
             }
         }else{
             lr += scale_axisval(a->joystick.axes[a->keybinds
                                                  .rotate_yv[n].axis]);
         }
     }
-    lr            /= a->keybinds.rotate_yc;
-    rr            =  -lr;
-    a->leftmotor  =  trunc_powerval(lx + lr);
-    a->rightmotor =  trunc_powerval(rx + rr);
+    lr                 /= a->keybinds.rotate_yc;
+    rr                 =  -lr;
+    a->ctrl.leftmotor  =  trunc_powerval(lx + lr);
+    a->ctrl.rightmotor =  trunc_powerval(rx + rr);
 }
 
-
-void sync_ctrlstate(rov_arduino *a){
+// Syncs the local control state back to the arduino if it has changed.
+void sync_ctrlstate(rov_arduino *a,rov_ctrlstate *old){
     size_t n;
+    short  v;
+    bool   b;
     for (n = 0;n < a->layout.laserc;n++){
-        digital_write(a,a->layout.laserv[n],a->lasers);
+        digital_write(a,a->layout.laserv[n],a->ctrl.lasers);
     }
     for (n = 0;n < a->layout.headlightc;n++){
-        digital_write(a,a->layout.headlightv[n],a->headlights);
+        digital_write(a,a->layout.headlightv[n],a->ctrl.headlights);
     }
     for (n = 0;n < a->layout.sidelightc;n++){
-        digital_write(a,a->layout.sidelightv[n],a->sidelights);
+        digital_write(a,a->layout.sidelightv[n],a->ctrl.sidelights);
     }
+    for (n = 0;n < a->layout.clawgripc;n++){
+        digital_write(a,a->layout.clawgripv[n],a->ctrl.clawgrip);
+    }
+    if ((a->ctrl.leftmotor > 0) != (old->leftmotor > 0)){
+        b = a->ctrl.leftmotor > 0;
+        for (n = 0;n < a->layout.leftmotordc;n++){
+            digital_write(a,a->layout.leftmotordv[n],b);
+        }
+    }
+    v = abs(a->ctrl.leftmotor);
     for (n = 0;n < a->layout.leftmotorc;n++){
-        analog_write(a,a->layout.leftmotorv[n],a->leftmotor);
+        servo_write(a,a->layout.leftmotorv[n],v);
+    }
+    if ((a->ctrl.rightmotor > 0) != (old->rightmotor > 0)){
+        b = a->ctrl.rightmotor > 0;
+        for (n = 0;n < a->layout.rightmotordc;n++){
+            digital_write(a,a->layout.rightmotordv[n],b);
+        }
+    }
+    v = abs(a->ctrl.rightmotor);
+    for (n = 0;n < a->layout.rightmotorc;n++){
+        servo_write(a,a->layout.rightmotorv[n],v);
     }
 }
 
@@ -117,16 +141,19 @@ void *process_joystick(void *vscr_hz){
     rov_pjs_param *p          = vscr_hz;
     rov_screen    *scr        = p->scr;
     rov_arduino   *a          = p->a;
-    rov_joystick   old        = a->joystick;
+    rov_joystick   oldjs      = a->joystick;
+    rov_ctrlstate  oldctrl    = a->ctrl;
     useconds_t     sleep_time = p->phz / 1000000;
+    update_stats(scr,a);
     for (;;){
         read_jsevent(&a->joystick);
-        if (memcmp(&a->joystick,&old,sizeof(rov_joystick))){
+        if (memcmp(&a->joystick,&oldjs,sizeof(rov_joystick))){
+            oldctrl = a->ctrl;
             read_ctrlstate(a);
-            sync_ctrlstate(a);
-            screen_printf(scr,"%d",a->leftmotor);
+            sync_ctrlstate(a,&oldctrl);
+            diff_update_stats(scr,a,&oldctrl);
         }
-        old = a->joystick;
+        oldjs = a->joystick;
         usleep(sleep_time); // Sleep the thread (quantizes the polling rate).
     }
     return NULL;

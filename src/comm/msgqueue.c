@@ -37,6 +37,7 @@ void init_queue(rov_msgqueue *q,rov_arduino *a,useconds_t sleep_time,
     q->is_waiting = false;
     q->response   = 0;
     q->miswrites  = 0;
+    q->writes     = 0;
     q->sleep_time = sleep_time;
     q->r_attempts = r_attempts;
     pthread_mutex_init(&q->mutex,NULL);
@@ -90,7 +91,6 @@ int dequeue(rov_msgqueue *q){
     n = q->head;
     r = write_str(q->arduino,n->msg,n->len);
     for (c = 0;r && c < q->r_attempts;c++){
-        ++q->miswrites;
         r = write_str(q->arduino,n->msg,n->len);
     }
     if (n->is_blocking){
@@ -119,8 +119,9 @@ void *process_queue(void *pqp){
     for (;;){
         if (q->size > 0 && !q->is_waiting){
             if (dequeue(q)){
-                screen_printattr(scr,COLOR_RED,"Unable to send command"
-                                 ", ignoring!");
+                ++q->miswrites;
+            }else{
+                ++q->writes;
             }
         }
         w = poll_wait(q->arduino);

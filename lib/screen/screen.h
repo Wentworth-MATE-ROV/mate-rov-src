@@ -52,8 +52,7 @@ typedef struct{
     WINDOW         *logw;    // The message log window.
     WINDOW         *statw;   // The stat field window.
     size_t          statc;   // The stat field count.
-    char          **statv;   // The stat field values.
-    WINDOW         *ctlw;    // The control window.
+    char          **statv;   // The stat field names.
     size_t          logc;    // Log count
     rov_logmsg     *logv;    // Log values
     FILE           *logf;    // Log File
@@ -62,7 +61,7 @@ typedef struct{
 } rov_screen;
 
 // Initializes the screen structure and enters ncurses mode.
-void init_screen(rov_screen*,FILE*,char**,size_t);
+void init_screen(rov_screen*,FILE*,size_t,int,char**);
 
 // Destroys (unitializes) the screen structure and leaves ncurses mode.
 void destroy_screen(rov_screen*);
@@ -73,8 +72,20 @@ void init_logmsg(rov_logmsg*,char*,int);
 // Refreshes the screen elements.
 void refresh_screen(rov_screen*);
 
-// Updates the given stat field.
-void update_stat(rov_screen*,size_t,const char*,...);
+// Updates the stat name.
+void update_statname(rov_screen*,size_t,char*);
+
+// Updates the name of the stat value at index n.
+void update_statnameattr(rov_screen*,size_t,int,char*);
+
+// Updates the stat value with a format.
+void update_statvf(rov_screen*,size_t,const char*,...);
+
+// Updates the stats panel.
+void update_statvfattr(rov_screen*,size_t,int,const char*,...);
+
+// Updates the statv with an attribute.
+void update_statvattr(rov_screen*,size_t,int,char*);
 
 // Prints the static UI elements.
 void print_staticui(rov_screen*);
