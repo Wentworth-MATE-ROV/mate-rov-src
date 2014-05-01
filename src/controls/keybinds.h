@@ -38,7 +38,6 @@ extern const char* const rotate_y_str;
 extern const char* const transpose_x_str;
 extern const char* const transpose_y_str;
 extern const char* const turn_y_str;
-extern const char* const thrust_mod_str;
 extern const char* const laser_toggle_str;
 extern const char* const headlight_toggle_str;
 extern const char* const sidelight_toggle_str;

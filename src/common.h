@@ -107,8 +107,6 @@ typedef struct{
     rov_jsaxis    transpose_yv[6];       // Axes to transpose along the y.
     size_t        turn_yc;               // The bindings to turn about y.
     rov_jsaxis    turn_yv[6];            // Axes to turn without rotating.
-    size_t        thrust_modc;           // The amount of bindings to thrus_mod
-    rov_jsaxis    thrust_modv[6];        // Axes to adjust the thrust power.
     size_t        laser_togglec;         // The amount of bindings laser_toggle.
     unsigned char laser_togglev[12];     // Buttons that toggle the lasers.
     size_t        headlight_togglec;     // The amount of bindings headlights.

@@ -33,8 +33,8 @@ short trunc_powerval(short v){
 // Re-reads the state from the joystick and keybinds.
 void read_ctrlstate(rov_arduino *a){
     size_t n;
-    int    lx,rx,lr,rr;
-    lx = rx = lr = rr = 0;
+    int    lx,rx,lr,rr,fy,by,fr,br;
+    lx = rx = lr = rr = fy = by = fr = br = 0;
     for (n = 0;n < a->keybinds.headlight_togglec;n++){
         if (is_button(&a->joystick,a->keybinds.headlight_togglev[n])){
             a->ctrl.headlights = !a->ctrl.headlights;
@@ -69,7 +69,8 @@ void read_ctrlstate(rov_arduino *a){
         if (a->keybinds.transpose_xv[n].is_pair){
             if (is_button(&a->joystick,a->keybinds.transpose_xv[n].pos)){
                 lx += 180;
-            }else if (is_button(&a->joystick,a->keybinds.transpose_xv[n].neg)){
+            }
+            if (is_button(&a->joystick,a->keybinds.transpose_xv[n].neg)){
                 lx -= 180;
             }
         }else{
@@ -83,7 +84,8 @@ void read_ctrlstate(rov_arduino *a){
         if (a->keybinds.rotate_yv[n].is_pair){
             if (is_button(&a->joystick,a->keybinds.rotate_yv[n].pos)){
                 lr += 180;
-            }else if (is_button(&a->joystick,a->keybinds.rotate_yv[n].neg)){
+            }
+            if (is_button(&a->joystick,a->keybinds.rotate_yv[n].neg)){
                 lr -= 180;
             }
         }else{
@@ -91,10 +93,40 @@ void read_ctrlstate(rov_arduino *a){
                                                  .rotate_yv[n].axis]);
         }
     }
+    for (n = 0;n < a->keybinds.transpose_yc;n++){
+        if (a->keybinds.transpose_yv[n].is_pair){
+            if (is_button(&a->joystick,a->keybinds.transpose_yv[n].pos)){
+                fy += 180;
+            }
+            if (is_button(&a->joystick,a->keybinds.transpose_yv[n].neg)){
+                fy -= 180;
+            }
+        }else{
+            fy += scale_axisval(a->joystick.axes[a->keybinds
+                                                 .transpose_yv[n].axis]);
+        }
+    }
+    for (n = 0;n < a->keybinds.rotate_zc;n++){
+        if (a->keybinds.rotate_zv[n].is_pair){
+            if (is_button(&a->joystick,a->keybinds.rotate_zv[n].pos)){
+                fr += 180;
+            }
+            if (is_button(&a->joystick,a->keybinds.rotate_zv[n].neg)){
+                fr -= 180;
+            }
+        }else{
+            fr += scale_axisval(a->joystick.axes[a->keybinds
+                                                 .rotate_zv[n].axis]);
+        }
+    }
     lr                 /= a->keybinds.rotate_yc;
     rr                 =  -lr;
+    by                 =  fy;
+    br                 =  -fr;
     a->ctrl.leftmotor  =  trunc_powerval(lx + lr);
     a->ctrl.rightmotor =  trunc_powerval(rx + rr);
+    a->ctrl.frontmotor =  trunc_powerval(fy + fr);
+    a->ctrl.backmotor  =  trunc_powerval(by + br);
 }
 
 // Syncs the local control state back to the arduino if it has changed.
@@ -133,6 +165,26 @@ void sync_ctrlstate(rov_arduino *a,rov_ctrlstate *old){
     v = abs(a->ctrl.rightmotor);
     for (n = 0;n < a->layout.rightmotorc;n++){
         servo_write(a,a->layout.rightmotorv[n],v);
+    }
+    if ((a->ctrl.frontmotor > 0) != (old->frontmotor > 0)){
+        b = a->ctrl.frontmotor > 0;
+        for (n = 0;n < a->layout.frontmotordc;n++){
+            digital_write(a,a->layout.frontmotordv[v],b);
+        }
+    }
+    v = abs(a->ctrl.frontmotor);
+    for (n = 0;n < a->layout.frontmotorc;n++){
+        servo_write(a,a->layout.frontmotorv[n],v);
+    }
+    if ((a->ctrl.backmotor > 0) != (old->backmotor > 0)){
+        b = a->ctrl.backmotor > 0;
+        for (n = 0;n < a->layout.backmotordc;n++){
+            digital_write(a,a->layout.backmotordv[n],b);
+        }
+    }
+    v = abs(a->ctrl.backmotor);
+    for (n = 0;n < a->layout.backmotorc;n++){
+        servo_write(a,a->layout.backmotorv[n],v);
     }
 }
 

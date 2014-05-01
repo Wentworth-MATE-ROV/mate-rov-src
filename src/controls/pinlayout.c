@@ -152,7 +152,11 @@ void pinmode_sync(rov_arduino *a){
     SETPINSTATEOUT(headlightc,headlightv);
     SETPINSTATEOUT(sidelightc,sidelightv);
     SETPINSTATESERVO(leftmotorc,leftmotorv);
+    SETPINSTATEOUT(leftmotordc,leftmotordv);
     SETPINSTATESERVO(rightmotorc,rightmotorv);
+    SETPINSTATEOUT(rightmotordc,rightmotordv);
     SETPINSTATESERVO(frontmotorc,frontmotorv);
+    SETPINSTATEOUT(frontmotordc,frontmotordv);
     SETPINSTATESERVO(backmotorc,backmotorv);
+    SETPINSTATEOUT(backmotordc,backmotordv);
 }

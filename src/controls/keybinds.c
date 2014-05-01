@@ -27,7 +27,6 @@ const char* const rotate_y_str         = "rotate-y";
 const char* const transpose_x_str      = "transpose-x";
 const char* const transpose_y_str      = "transpose-y";
 const char* const turn_y_str           = "turn-y";
-const char* const thrust_mod_str       = "thrust-mod";
 const char* const laser_toggle_str     = "laser-toggle";
 const char* const headlight_toggle_str = "headlight-toggle";
 const char* const sidelight_toggle_str = "sidelight-toggle";
@@ -84,9 +83,6 @@ void init_keybinds(){
     default_keybinds.turn_yc            = 1;
     *default_keybinds.turn_yv           = x_axis;
 
-    default_keybinds.thrust_modc        = 1;
-    *default_keybinds.thrust_modv       = slider_axis;
-
     default_keybinds.laser_togglec      = 1;
     *default_keybinds.laser_togglev     = 11;
 
@@ -98,9 +94,9 @@ void init_keybinds(){
 }
 
 // Length constants
-#define OPCOUNT     13
+#define OPCOUNT     12
 #define BUTTONCOUNT 5
-#define AXESCOUNT   8
+#define AXESCOUNT   7
 
 // Reads sexpr, updating the keybinds as needed.
 // return: 0 on success, non-zero on failure.
@@ -120,8 +116,7 @@ int keybinds_read_scm_line(rov_keybinds *kbs,char *str){
                                         rotate_y_str,
                                         transpose_x_str,
                                         transpose_y_str,
-                                        turn_y_str,
-                                        thrust_mod_str };
+                                        turn_y_str };
     unsigned char *bvs[BUTTONCOUNT] = { kbs->claw_openv,
                                         kbs->claw_closev,
                                         kbs->laser_togglev,
@@ -133,8 +128,7 @@ int keybinds_read_scm_line(rov_keybinds *kbs,char *str){
                                         kbs->rotate_yv,
                                         kbs->transpose_xv,
                                         kbs->transpose_yv,
-                                        kbs->turn_yv,
-                                        kbs->thrust_modv };
+                                        kbs->turn_yv };
     size_t        *cs[OPCOUNT]      = { &kbs->claw_openc,
                                         &kbs->claw_closec,
                                         &kbs->laser_togglec,
@@ -146,8 +140,7 @@ int keybinds_read_scm_line(rov_keybinds *kbs,char *str){
                                         &kbs->rotate_yc,
                                         &kbs->transpose_xc,
                                         &kbs->transpose_yc,
-                                        &kbs->turn_yc,
-                                        &kbs->thrust_modc };
+                                        &kbs->turn_yc };
     if (str[0] == ';'){
         return 0;
     }

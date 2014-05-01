@@ -70,7 +70,6 @@ void screen_reload_keybinds(rov_screen *scr,rov_arduino *a,bool diff){
     DIFFCMPAXIS("transpose-x: ",transpose_xv,transpose_xc);
     DIFFCMPAXIS("transpose-y: ",transpose_yv,transpose_yc);
     DIFFCMPAXIS("turn-y: ",turn_yv,turn_yc);
-    DIFFCMPAXIS("thrust-mod: ",thrust_modv,thrust_modc);
     DIFFCMPBUTTON("laser-toggle: ",laser_togglev,laser_togglec);
     DIFFCMPBUTTON("headlight-toggle",headlight_togglev,headlight_togglec);
     DIFFCMPBUTTON("sidelight-toggle",sidelight_togglev,sidelight_togglec);
@@ -105,9 +104,13 @@ void screen_reload_pinlayout(rov_screen *scr,rov_arduino *a,bool diff){
     DIFFCMPPIN("headlights: ",headlightv,headlightc);
     DIFFCMPPIN("sidelights: ",sidelightv,sidelightc);
     DIFFCMPPIN("left-motor: ",leftmotorv,leftmotorc);
+    DIFFCMPPIN("left-motor-direction: ",leftmotordv,leftmotordc);
     DIFFCMPPIN("right-motor: ",rightmotorv,rightmotorc);
+    DIFFCMPPIN("right-motor-direction: ",rightmotordv,rightmotordc);
     DIFFCMPPIN("front-motor: ",frontmotorv,frontmotorc);
+    DIFFCMPPIN("front-motor-direction: ",frontmotordv,frontmotordc);
     DIFFCMPPIN("back-motor: ",backmotorv,backmotorc);
+    DIFFCMPPIN("back-motor-direction: ",backmotordv,backmotordc);
     if (!c){
         screen_printattr(scr,GREEN_PAIR | A_BOLD,"Nothing to reload!");
     }

@@ -69,7 +69,6 @@
 (gen-op turn-y           all-axis?)
 (gen-op transpose-x      all-axis?)
 (gen-op transpose-y      all-axis?)
-(gen-op thrust-mod       all-axis?)
 (gen-op laser-toggle     all-buttons?)
 (gen-op sidelight-toggle all-buttons?)
 (gen-op headlight-toggle all-buttons?)
