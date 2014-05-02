@@ -69,12 +69,11 @@ void screen_reload_keybinds(rov_screen *scr,rov_arduino *a,bool diff){
     DIFFCMPAXIS("rotate-y: ",rotate_yv,rotate_yc);
     DIFFCMPAXIS("transpose-x: ",transpose_xv,transpose_xc);
     DIFFCMPAXIS("transpose-y: ",transpose_yv,transpose_yc);
-    DIFFCMPAXIS("turn-y: ",turn_yv,turn_yc);
     DIFFCMPBUTTON("laser-toggle: ",laser_togglev,laser_togglec);
     DIFFCMPBUTTON("headlight-toggle",headlight_togglev,headlight_togglec);
     DIFFCMPBUTTON("sidelight-toggle",sidelight_togglev,sidelight_togglec);
     if (!c){
-        screen_printattr(scr,GREEN_PAIR | A_BOLD,"Nothing to reload!");
+        screen_printattr(scr,GREEN_PAIR | A_BOLD,"Nothing to reload! (keys)");
     }
 }
 
@@ -112,7 +111,7 @@ void screen_reload_pinlayout(rov_screen *scr,rov_arduino *a,bool diff){
     DIFFCMPPIN("back-motor: ",backmotorv,backmotorc);
     DIFFCMPPIN("back-motor-direction: ",backmotordv,backmotordc);
     if (!c){
-        screen_printattr(scr,GREEN_PAIR | A_BOLD,"Nothing to reload!");
+        screen_printattr(scr,GREEN_PAIR | A_BOLD,"Nothing to reload! (pins)");
     }
 }
 

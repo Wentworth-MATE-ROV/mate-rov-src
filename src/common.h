@@ -87,60 +87,99 @@ typedef struct{
     };
 }rov_jsaxis;
 
+// Keybinding length constants.
+#define KEYCOUNT       11
+#define KEYBUTTONCOUNT 5
+#define KEYAXESCOUNT   6
+
 // A structure to hold all the keybindings in memory.
 typedef struct{
-    size_t        claw_openc;            // The amount of bindings to claw_open.
-    unsigned char claw_openv[12];        // Buttons to open the claw.
-    size_t        claw_closec;           // The amount of bindings to claw_close.
-    unsigned char claw_closev[12];       // Buttons to close the claw.
-    size_t        claw_xc;               // The amounf of bindings to claw_x;
-    rov_jsaxis    claw_xv[6];            // Axes that move the claw along the x.
-    size_t        claw_yc;               // The amount of bindings to claw_y.
-    rov_jsaxis    claw_yv[6];            // Axes that move the claw along the y.
-    size_t        rotate_zc;             // The amount of bindings to rotate_z.
-    rov_jsaxis    rotate_zv[6];          // Axes to rotate about the z.
-    size_t        rotate_yc;             // The amount of bindings to rotate_y.
-    rov_jsaxis    rotate_yv[6];          // Axes to rotate about the y.
-    size_t        transpose_xc;          // The amount of bindings transpose_x.
-    rov_jsaxis    transpose_xv[6];       // Axes to transpose along the x.
-    size_t        transpose_yc;          // The amount of bindings transpose_y.
-    rov_jsaxis    transpose_yv[6];       // Axes to transpose along the y.
-    size_t        turn_yc;               // The bindings to turn about y.
-    rov_jsaxis    turn_yv[6];            // Axes to turn without rotating.
-    size_t        laser_togglec;         // The amount of bindings laser_toggle.
-    unsigned char laser_togglev[12];     // Buttons that toggle the lasers.
-    size_t        headlight_togglec;     // The amount of bindings headlights.
-    unsigned char headlight_togglev[12]; // Buttons that toggle the headlights.
-    size_t        sidelight_togglec;     // The amount of bindings sidelights.
-    unsigned char sidelight_togglev[12]; // Buttons that toggle to sidelights.
+    union{
+        struct{
+            size_t        claw_openc;            // Claw open.
+            size_t        claw_closec;           // Claw close.
+            size_t        laser_togglec;         // Laser toggle.
+            size_t        headlight_togglec;     // Headlights toggle.
+            size_t        sidelight_togglec;     // Sidelights toggle.
+            size_t        claw_xc;               // Claw x-axis.
+            size_t        claw_yc;               // Claw y-axis.
+            size_t        rotate_zc;             // Rotation about z.
+            size_t        rotate_yc;             // Rotation about y.
+            size_t        transpose_xc;          // Transposition over x.
+            size_t        transpose_yc;          // Transposition over y.
+        };
+        size_t            keycounts[KEYCOUNT];
+    };
+    union{
+        struct{
+            unsigned char claw_openv[12];        // Claw open.
+            unsigned char claw_closev[12];       // Claw close.
+            unsigned char laser_togglev[12];     // Laser toggle.
+            unsigned char headlight_togglev[12]; // Headlights toggle.
+            unsigned char sidelight_togglev[12]; // Sidelights toggle.
+        };
+        unsigned char     buttonvalues[KEYBUTTONCOUNT][12];
+    };
+    union{
+        struct{
+            rov_jsaxis    claw_xv[6];            // Claw x-axis.
+            rov_jsaxis    claw_yv[6];            // Claw y-axis.
+            rov_jsaxis    rotate_zv[6];          // Rotation about z.
+            rov_jsaxis    rotate_yv[6];          // Rotation about y.
+            rov_jsaxis    transpose_xv[6];       // Transposition over x.
+            rov_jsaxis    transpose_yv[6];       // Transposition over y.
+        };
+        rov_jsaxis        axesvalues[KEYAXESCOUNT];
+    };
 }rov_keybinds;
+
+// Pin binding length constant.
+#define PINCMDCOUNT 16
 
 // A structure to hold the pinlayout of the robot.
 typedef struct{
-    size_t        clawgripc;        // The number of pins for the claw grip.
-    unsigned char clawgripv[54];    // The pins for the claw grip.
-    size_t        laserc;           // The number of pins for the lasers.
-    unsigned char laserv[54];       // The pins the lasers are on.
-    size_t        headlightc;       // The number of pins for the headlights
-    unsigned char headlightv[54];   // The pins the headlights are on.
-    size_t        sidelightc;       // The number of pins for the sidelights.
-    unsigned char sidelightv[54];   // The pins the sidelights are on.
-    size_t        leftmotorc;       // The number of pins for the left motor.
-    unsigned char leftmotorv[54];   // The pins the left motor is on.
-    size_t        leftmotordc;      // The number of pins to the left direction.
-    unsigned char leftmotordv[54];  // The pins the left motor direction is on.
-    size_t        rightmotorc;      // The number of pins for the right motor.
-    unsigned char rightmotorv[54];  // The pins the right motor is on.
-    size_t        rightmotordc;     // The number of pins to the rightmotor d.
-    unsigned char rightmotordv[54]; // The pins the right motor direction is on.
-    size_t        frontmotorc;      // The number of pins for the front motor.
-    unsigned char frontmotorv[54];  // The pins the front motor is on.
-    size_t        frontmotordc;     // The number of pins to the frontmotor d.
-    unsigned char frontmotordv[54]; // The pins the front motor direction is on.
-    size_t        backmotorc;       // The number of pins for the back motor.
-    unsigned char backmotorv[54];   // The pins the back motor is on.
-    size_t        backmotordc;      // The number of pins for the backmotor d.
-    unsigned char backmotordv[54];  // The pins the back motor direction is on.
+    union{
+        struct{
+            size_t        clawgripc;                  // Claw grip.
+            size_t        laserc;                     // Lasers.
+            size_t        headlightc;                 // Headlights.
+            size_t        sidelightc;                 // Sidelights.
+            size_t        leftmotorc;                 // Left motors.
+            size_t        leftmotordc;                // Left motor directions.
+            size_t        leftmotorsc;                // Left motor ssgs.
+            size_t        rightmotorc;                // Right motors.
+            size_t        rightmotordc;               // Right motor directions.
+            size_t        rightmotorsc;               // Right motor ssgs.
+            size_t        frontmotorc;                // Front motors.
+            size_t        frontmotordc;               // Front motor directions.
+            size_t        frontmotorsc;               // Front motor ssgs.
+            size_t        backmotorc;                 // Back motors.
+            size_t        backmotordc;                // Back motor directions.
+            size_t        backmotorsc;                // Back motor ssgs.
+        };
+        size_t            pincounts[PINCMDCOUNT];     // The pin count vector.
+    };
+    union{
+        struct{
+            unsigned char clawgripv[54];              // Claw grip.
+            unsigned char laserv[54];                 // Lasers.
+            unsigned char headlightv[54];             // Headlights.
+            unsigned char sidelightv[54];             // Sidelights.
+            unsigned char leftmotorv[54];             // Left motors.
+            unsigned char leftmotordv[54];            // Left motor directions.
+            unsigned char leftmotorsv[54];            // Left motor ssgs.
+            unsigned char rightmotorv[54];            // Right motors.
+            unsigned char rightmotordv[54];           // Right motor directions.
+            unsigned char rightmotorsv[54];           // Right motor ssgs.
+            unsigned char frontmotorv[54];            // Front motors.
+            unsigned char frontmotordv[54];           // Front motor directions.
+            unsigned char frontmotorsv[54];           // Front motor ssgs.
+            unsigned char backmotorv[54];             // Back motors.
+            unsigned char backmotordv[54];            // Back motor directions.
+            unsigned char backmotorsv[54];            // Back motor ssgs.
+        };
+        unsigned char     pinvalues[PINCMDCOUNT][54]; // The pin value vector.
+    };
 }rov_pinlayout;
 
 typedef struct{

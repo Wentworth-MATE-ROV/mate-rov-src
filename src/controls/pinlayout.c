@@ -24,20 +24,21 @@ const char* const pin_sidelight_str    = "sidelights";
 const char* const pin_clawgrip_str     = "claw-grip";
 const char* const pin_leftmotor_str    = "left-motor";
 const char* const pin_leftmotor_d_str  = "left-motor-direction";
+const char* const pin_leftmotor_s_str  = "left-motor-ssg";
 const char* const pin_rightmotor_str   = "right-motor";
 const char* const pin_rightmotor_d_str = "right-motor-direction";
+const char* const pin_rightmotor_s_str = "right-motor-ssg";
 const char* const pin_frontmotor_str   = "front-motor";
 const char* const pin_frontmotor_d_str = "front-motor-direction";
+const char* const pin_frontmotor_s_str = "front-motor-ssg";
 const char* const pin_backmotor_str    = "back-motor";
 const char* const pin_backmotor_d_str  = "back-motor-direction";
+const char* const pin_backmotor_s_str  = "back-motor-ssg";
 
 // Zeros the pinlayout.
 void init_pinlayout(rov_pinlayout *l){
-    memset(l,54,sizeof(rov_pinlayout));
+    memset(l->pincounts,0,PINCMDCOUNT * sizeof(size_t));
 }
-
-// The count of the pin commands.
-#define PINCMDCOUNT 12
 
 // Reads a line of output from the pin-parser.
 // return: 0 on success, non-zero on failure.
@@ -51,51 +52,31 @@ int pin_read_scm_line(rov_pinlayout *l,char *str){
                                        pin_clawgrip_str,
                                        pin_leftmotor_str,
                                        pin_leftmotor_d_str,
+                                       pin_leftmotor_s_str,
                                        pin_rightmotor_str,
                                        pin_rightmotor_d_str,
+                                       pin_rightmotor_s_str,
                                        pin_frontmotor_str,
                                        pin_frontmotor_d_str,
+                                       pin_frontmotor_s_str,
                                        pin_backmotor_str,
-                                       pin_backmotor_d_str };
-    unsigned char *ar[PINCMDCOUNT] = { l->laserv,
-                                       l->headlightv,
-                                       l->sidelightv,
-                                       l->clawgripv,
-                                       l->leftmotorv,
-                                       l->leftmotordv,
-                                       l->rightmotorv,
-                                       l->rightmotordv,
-                                       l->frontmotorv,
-                                       l->frontmotordv,
-                                       l->backmotorv,
-                                       l->backmotordv };
-    size_t        *ls[PINCMDCOUNT] = { &l->laserc,
-                                       &l->headlightc,
-                                       &l->sidelightc,
-                                       &l->clawgripc,
-                                       &l->leftmotorc,
-                                       &l->leftmotordc,
-                                       &l->rightmotorc,
-                                       &l->rightmotordc,
-                                       &l->frontmotorc,
-                                       &l->frontmotordc,
-                                       &l->backmotorc,
-                                       &l->backmotordc };
+                                       pin_backmotor_d_str,
+                                       pin_backmotor_s_str };
     t = strtok(str," \n");
     if (t[0] != '('){
         return -1;
     }
     for (n = 0;n < PINCMDCOUNT;n++){
         if (!strcmp(&t[1],cs[n])){
-            *ls[n] = strtol(strtok(NULL," "),NULL,10);
-            for (m = 0;m < *ls[n];m++){
+            l->pincounts[n] = strtol(strtok(NULL," "),NULL,10);
+            for (m = 0;m < l->pincounts[n];m++){
                 if (!(t = strtok(NULL," )"))){
                     break;
                 }
                 if (t[0] == '('){
                     t += 1;
                 }
-                ar[n][m] = (unsigned char) strtol(t,NULL,0);
+                l->pinvalues[n][m] = (unsigned char) strtol(t,NULL,0);
             }
             return 0;
         }

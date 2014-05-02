@@ -35,12 +35,16 @@ extern const char* const pin_sidelight_str;
 extern const char* const pin_clawgrip_str;
 extern const char* const pin_leftmotor_str;
 extern const char* const pin_leftmotor_d_str;
+extern const char* const pin_leftmotor_s_str;
 extern const char* const pin_rightmotor_str;
 extern const char* const pin_rightmotor_d_str;
+extern const char* const pin_rightmotor_s_str;
 extern const char* const pin_frontmotor_str;
 extern const char* const pin_frontmotor_d_str;
+extern const char* const pin_frontmotor_s_str;
 extern const char* const pin_backmotor_str;
 extern const char* const pin_backmotor_d_str;
+extern const char* const pin_backmotor_s_str;
 
 // Zeros the pinlayout.
 void init_pinlayout(rov_pinlayout*);
