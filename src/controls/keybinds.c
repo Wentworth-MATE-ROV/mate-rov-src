@@ -32,61 +32,7 @@ const char* const sidelight_toggle_str = "sidelight-toggle";
 
 // Sets up the initial default keybind values, call before parsing!
 void init_keybinds(){
-    // The default 6 axis that exist on the joystick.
-    x_axis.is_pair                     = false;
-    x_axis.axis                        = ROV_JS_X;
-    y_axis.is_pair                     = false;
-    y_axis.axis                        = ROV_JS_Y;
-    twist_axis.is_pair                 = false;
-    twist_axis.axis                    = ROV_JS_T;
-    slider_axis.is_pair                = false;
-    slider_axis.axis                   = ROV_JS_S;
-    hat_x_axis.is_pair                 = false;
-    hat_x_axis.axis                    = ROV_JS_HX;
-    hat_y_axis.is_pair                 = false;
-    hat_y_axis.axis                    = ROV_JS_HY;
-
-    trans_y_pair_axis.is_pair           = true;
-    trans_y_pair_axis.pos               = 3;
-    trans_y_pair_axis.neg               = 2;
-
-    rot_z_pair_axis.is_pair             = true;
-    rot_z_pair_axis.pos                 = 5;
-    rot_z_pair_axis.neg                 = 4;
-
-    // The default set of keybinds.
-    default_keybinds.claw_openc         = 1;
-    *default_keybinds.claw_openv        = 0;
-
-    default_keybinds.claw_closec        = 1;
-    *default_keybinds.claw_closev       = 1;
-
-    default_keybinds.claw_xc            = 1;
-    *default_keybinds.claw_xv           = hat_x_axis;
-
-    default_keybinds.claw_yc            = 1;
-    *default_keybinds.claw_yv           = hat_y_axis;
-
-    default_keybinds.rotate_yc          = 1;
-    *default_keybinds.rotate_yv         = twist_axis;
-
-    default_keybinds.rotate_zc          = 1;
-    *default_keybinds.rotate_zv         = rot_z_pair_axis;
-
-    default_keybinds.transpose_xc       = 1;
-    *default_keybinds.transpose_xv      = y_axis;
-
-    default_keybinds.transpose_yc       = 1;
-    *default_keybinds.transpose_yv      = trans_y_pair_axis;
-
-    default_keybinds.laser_togglec      = 1;
-    *default_keybinds.laser_togglev     = 11;
-
-    default_keybinds.headlight_togglec  = 1;
-    *default_keybinds.headlight_togglev = 8;
-
-    default_keybinds.sidelight_togglec  = 1;
-    *default_keybinds.sidelight_togglev = 10;
+    memset(default_keybinds.keycounts,0,KEYCOUNT * sizeof(size_t));
 }
 
 // Reads sexpr, updating the keybinds as needed.
@@ -123,7 +69,8 @@ int keybinds_read_scm_line(rov_keybinds *kbs,char *str){
     len = strtol(strtok(NULL," "),NULL,10);
     for (n = 0;n < KEYBUTTONCOUNT;n++){
         keybinds_parse_scm_params(op,ops[n],len,
-                                  &kbs->buttonvalues[n],&kbs->keycounts[n],true);
+                                  &kbs->buttonvalues[n],
+                                  &kbs->keycounts[n],true);
     }
     for (n = 0;n < KEYAXESCOUNT;n++){
         keybinds_parse_scm_params(op,ops[n + KEYBUTTONCOUNT],len,

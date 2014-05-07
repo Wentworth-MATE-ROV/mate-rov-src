@@ -29,4 +29,7 @@ void sync_ctrlstate(rov_arduino*,rov_ctrlstate*);
 // Process joystick input forever.
 void *process_joystick(void*);
 
+// Holds the thread until all ssg's have completed or overide is set to true.
+void wait_ssgs(rov_arduino*,bool*);
+
 #endif

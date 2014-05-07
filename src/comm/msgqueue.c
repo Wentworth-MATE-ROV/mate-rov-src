@@ -119,7 +119,8 @@ void *process_queue(void *pqp){
     for (;;){
         if (q->size > 0 && !q->is_waiting){
             if (dequeue(q)){
-                ++q->miswrites;
+                screen_printfattr(scr,RED_PAIR,"Miswrite occured (total: %d)",
+                                  ++q->miswrites);
             }else{
                 ++q->writes;
             }
@@ -127,8 +128,10 @@ void *process_queue(void *pqp){
         w = poll_wait(q->arduino);
         if (q->is_waiting && w == OP_SHOULDSTART){
             q->is_waiting = false;
+            screen_printattr(scr,GREEN_PAIR,"Recieved: OP_SHOULDSTART");
         }else if (!q->is_waiting && w == OP_SHOULDWAIT){
             q->is_waiting = true;
+            screen_printattr(scr,RED_PAIR,"Recieved: OP_SHOULDWAIT");
         }
         usleep(q->sleep_time);
     }

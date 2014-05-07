@@ -210,3 +210,24 @@ void *process_joystick(void *vscr_hz){
     }
     return NULL;
 }
+
+// Holds the thread until all ssg's have completed or overide is set to true.
+void wait_ssgs(rov_arduino *a,bool *override){
+    size_t n;
+    bool   b = true;
+    while (!*override && b){
+        b = true;
+        for (n = 0;n < a->layout.leftmotorsc;n++){
+            b &= digital_read(a,a->layout.leftmotorsv[n]);
+        }
+        for (n = 0;n < a->layout.rightmotorsc;n++){
+            b &= digital_read(a,a->layout.rightmotorsv[n]);
+        }
+        for (n = 0;n < a->layout.frontmotorsc;n++){
+            b &= digital_read(a,a->layout.frontmotorsv[n]);
+        }
+        for (n = 0;n < a->layout.backmotorsc;n++){
+            b &= digital_read(a,a->layout.backmotorsv[n]);
+        }
+    }
+}

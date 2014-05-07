@@ -42,9 +42,10 @@ typedef short rov_motor;
 
 // The states the pins may be in.
 typedef enum{
-    ROV_INPUT  = 0x00,
-    ROV_OUTPUT = 0x01,
-    ROV_SERVO  = 0x02
+    ROV_INPUT        = 0x00,
+    ROV_OUTPUT       = 0x01,
+    ROV_SERVO        = 0x02,
+    ROV_INPUT_PULLUP = 0x03
 }rov_pinstate;
 
 // A node in the queue.
@@ -129,7 +130,7 @@ typedef struct{
             rov_jsaxis    transpose_xv[6];       // Transposition over x.
             rov_jsaxis    transpose_yv[6];       // Transposition over y.
         };
-        rov_jsaxis        axesvalues[KEYAXESCOUNT];
+        rov_jsaxis        axesvalues[KEYAXESCOUNT][6];
     };
 }rov_keybinds;
 

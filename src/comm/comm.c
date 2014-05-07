@@ -103,6 +103,13 @@ void digital_write(rov_arduino *a,rov_pin p,bool v){
     enqueue(&a->queue,msg,2 * sizeof(unsigned char));
 }
 
+// Reads the state of a pin on the arduino.
+// return: true iff the pin is on.
+bool digital_read(rov_arduino *a,rov_pin p){
+    unsigned char msg[] = { OP_DIGITAL_READ,p };
+    return enqueue_blocking(&a->queue,msg,2 * sizeof(unsigned char));
+}
+
 // Sends a value to a pin in the range of [0,256)
 // Data is formatted as so: byte 0 = opcode
 //                          byte 1 = pin number;p9

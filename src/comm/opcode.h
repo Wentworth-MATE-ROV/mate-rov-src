@@ -23,6 +23,7 @@
 
 #define OP_DIGITAL_ON    0x00
 #define OP_DIGITAL_OFF   0x10
+#define OP_DIGITAL_READ  0x80
 #define OP_ANALOG_WRITE  0x30
 #define OP_ANALOG_READ   0x40
 #define OP_SERVO_WRITE   0x80

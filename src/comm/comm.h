@@ -86,6 +86,10 @@ void set_pinstate(rov_arduino*,rov_pin,rov_pinstate);
 // Enqueues a message that sets a digital pin on or off.
 void digital_write(rov_arduino*,rov_pin,bool);
 
+// Reads the state of a pin on the arduino.
+// return: true iff the pin is on.
+bool digital_read(rov_arduino*,rov_pin);
+
 // Sends a value to a pin in the range of [0,256)
 // Data is formatted as so: byte 0 = opcode
 //                          byte 1 = pin number

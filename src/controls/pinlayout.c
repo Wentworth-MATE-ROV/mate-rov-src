@@ -43,25 +43,25 @@ void init_pinlayout(rov_pinlayout *l){
 // Reads a line of output from the pin-parser.
 // return: 0 on success, non-zero on failure.
 int pin_read_scm_line(rov_pinlayout *l,char *str){
-    int            n;
-    size_t         m;
-    char          *t;
-    const char    *cs[PINCMDCOUNT] = { pin_laser_str,
-                                       pin_headlight_str,
-                                       pin_sidelight_str,
-                                       pin_clawgrip_str,
-                                       pin_leftmotor_str,
-                                       pin_leftmotor_d_str,
-                                       pin_leftmotor_s_str,
-                                       pin_rightmotor_str,
-                                       pin_rightmotor_d_str,
-                                       pin_rightmotor_s_str,
-                                       pin_frontmotor_str,
-                                       pin_frontmotor_d_str,
-                                       pin_frontmotor_s_str,
-                                       pin_backmotor_str,
-                                       pin_backmotor_d_str,
-                                       pin_backmotor_s_str };
+    int         n;
+    size_t      m;
+    char       *t;
+    const char *cs[PINCMDCOUNT] = { pin_laser_str,
+                                    pin_headlight_str,
+                                    pin_sidelight_str,
+                                    pin_clawgrip_str,
+                                    pin_leftmotor_str,
+                                    pin_leftmotor_d_str,
+                                    pin_leftmotor_s_str,
+                                    pin_rightmotor_str,
+                                    pin_rightmotor_d_str,
+                                    pin_rightmotor_s_str,
+                                    pin_frontmotor_str,
+                                    pin_frontmotor_d_str,
+                                    pin_frontmotor_s_str,
+                                    pin_backmotor_str,
+                                    pin_backmotor_d_str,
+                                    pin_backmotor_s_str };
     t = strtok(str," \n");
     if (t[0] != '('){
         return -1;
@@ -134,10 +134,14 @@ void pinmode_sync(rov_arduino *a){
     SETPINSTATEOUT(sidelightc,sidelightv);
     SETPINSTATESERVO(leftmotorc,leftmotorv);
     SETPINSTATEOUT(leftmotordc,leftmotordv);
+    SETPINSTATEIN(leftmotorsc,leftmotorsv);
     SETPINSTATESERVO(rightmotorc,rightmotorv);
     SETPINSTATEOUT(rightmotordc,rightmotordv);
+    SETPINSTATEOUT(rightmotorsc,rightmotorsv);
     SETPINSTATESERVO(frontmotorc,frontmotorv);
     SETPINSTATEOUT(frontmotordc,frontmotordv);
+    SETPINSTATEIN(frontmotorsc,frontmotorsv);
     SETPINSTATESERVO(backmotorc,backmotorv);
     SETPINSTATEOUT(backmotordc,backmotordv);
+    SETPINSTATEIN(backmotorsc,backmotorsv);
 }
