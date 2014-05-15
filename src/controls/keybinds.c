@@ -92,6 +92,7 @@ int keybinds_read_scm_line(rov_keybinds *kbs,SCM scm){
             }
         }
     }
+    free(op);
     return 0;
 }
 
