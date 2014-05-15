@@ -13,6 +13,7 @@
 #include <sys/stat.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <libguile.h>
 
 // The default 6 axis that exist on the joystick.
 extern rov_jsaxis x_axis;            // Joystick's x axis.
