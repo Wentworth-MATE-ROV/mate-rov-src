@@ -47,7 +47,7 @@ void init_keybinds(void);
 
 // Reads sexpr, updating the keybinds as needed.
 // return: 0 on success, non-zero on failure.
-int keybinds_read_scm_line(rov_keybinds*,char*);
+int keybinds_read_scm_line(rov_keybinds*,SCM);
 
 // Parses the params from a sexpr.
 void keybinds_parse_scm_params(char*,         // The operation
@@ -60,7 +60,7 @@ void keybinds_parse_scm_params(char*,         // The operation
 // Parse a keybinds config out of a file (pass the path).
 // If the file is NULL, or there is an error, returns a pointer to the default
 // keybinds config.
-// IO WARNING: Calls out to './keybinds-parser.scm' which requires guile.
+// IO WARNING: Calls out to './keybinds-parser.scm'.
 // return: 0 on success, non-zero on failure.
 int parse_keybinds(rov_keybinds*,const char*);
 

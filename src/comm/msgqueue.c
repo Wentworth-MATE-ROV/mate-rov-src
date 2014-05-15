@@ -85,7 +85,7 @@ unsigned short enqueue_blocking(rov_msgqueue *q,unsigned char *msg,size_t len){
 int dequeue(rov_msgqueue *q){
     rov_node      *n;
     unsigned short res;
-    int            r,c;
+    unsigned int   r,c;
     pthread_mutex_lock(&q->mutex);
     assert(q->size > 0);
     n = q->head;

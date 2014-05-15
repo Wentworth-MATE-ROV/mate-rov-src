@@ -38,31 +38,30 @@ void init_keybinds(){
 // Reads sexpr, updating the keybinds as needed.
 // return: 0 on success, non-zero on failure.
 int keybinds_read_scm_line(rov_keybinds *kbs,SCM scm){
-    SCM         scm_len;
-    size_t      len;
-    SCM         scm_op;
-    char       *op;
-    int         n;
-    SCM         scm_val;
-    const char *ops[KEYCOUNT] = { claw_open_str,
-                                  claw_close_str,
-                                  laser_toggle_str,
-                                  headlight_toggle_str,
-                                  sidelight_toggle_str,
-                                  claw_x_str,
-                                  claw_y_str,
-                                  rotate_z_str,
-                                  rotate_y_str,
-                                  transpose_x_str,
-                                  transpose_y_str };
+    SCM          scm_len;
+    size_t       len;
+    SCM          scm_op;
+    char        *op;
+    unsigned int n,m;
+    SCM          scm_val;
+    const char  *ops[KEYCOUNT] = { claw_open_str,
+                                   claw_close_str,
+                                   laser_toggle_str,
+                                   headlight_toggle_str,
+                                   sidelight_toggle_str,
+                                   claw_x_str,
+                                   claw_y_str,
+                                   rotate_z_str,
+                                   rotate_y_str,
+                                   transpose_x_str,
+                                   transpose_y_str };
     scm_op  = scm_car(scm);
-    op      = scm_to_locale_str(scm_op)
+    op      = scm_to_locale_string(scm_op);
     scm     = scm_cdr(scm);
-    scm_len = scm_car(scm);
-    len     = scm_to_size_t(scm_len)
-    scm     = scm_cdr(scm);
-    for (n = 0;n < len;n++){
-        if (!strcmp(scm_op,ops[n])){
+    scm_len = scm_length(scm);
+    len     = scm_to_size_t(scm_len);
+    for (n = 0;n < KEYCOUNT;n++){
+        if (!strcmp(op,ops[n])){
             break;
         }
     }
@@ -70,6 +69,30 @@ int keybinds_read_scm_line(rov_keybinds *kbs,SCM scm){
         free(op);
         return -1;
     }
+    kbs->keycounts[n] = len;
+    if (n < KEYBUTTONCOUNT){
+        for (m = 0;m < len;m++){
+            kbs->buttonvalues[n][m]
+                = scm_to_char(scm_list_ref(scm,scm_from_uint(m)));
+        }
+    }else{
+        n -= KEYBUTTONCOUNT;
+        for (m = 0;m < len;m++){
+            scm_val = scm_list_ref(scm,scm_from_uint(m));
+            if (scm_is_pair(scm_val)){
+                kbs->axesvalues[n][m].is_pair = true;
+                kbs->axesvalues[n][m].pos
+                    = scm_to_char(scm_car(scm_val));
+                kbs->axesvalues[n][m].neg
+                    = scm_to_char(scm_car(scm_val));
+            }else{
+                kbs->axesvalues[n][m].is_pair = false;
+                kbs->axesvalues[n][m].axis
+                    = scm_to_char(scm_val);
+            }
+        }
+    }
+    return 0;
 }
 
 
@@ -87,24 +110,30 @@ int parse_keybinds(rov_keybinds *kbs,const char *kfl){
     if (!scm_parser){
         return -1;
     }
+    memset(path,0,256);
     memcpy(kbs,&default_keybinds,sizeof(rov_keybinds));
     if (!kfl){
         return 0;
     }
     getcwd(path,256);
+    path[strlen(path)] = '/';
     strncat(path,kfl,256 - strlen(path));
-    if (!access(path,F_OK)){
+    if (access(path,F_OK)){
         return -1;
     }
     kbs_fl = fopen(path,"r");
+    if (!kbs_fl){
+        return -1;
+    }
     scm_init_guile();
     fread(scm_fc,sizeof(char),BUFSIZ,scm_parser);
     fclose(scm_parser);
     scm_c_eval_string(scm_fc);
     while (fgets(scm_fc,BUFSIZ,kbs_fl)){
         scm = scm_c_eval_string(scm_fc);
-        if (scm_list_p(scm)){
+        if (scm != SCM_UNSPECIFIED && scm_is_pair(scm)){
             keybinds_read_scm_line(kbs,scm);
         }
     }
+    return 0;
 }

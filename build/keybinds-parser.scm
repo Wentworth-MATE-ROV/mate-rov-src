@@ -1,7 +1,4 @@
-#!/usr/bin/guile
-!#
 ;;; Joe Jevnik
-;;; 2014.3.13
 ;;; Parser of the .keybinds file.
 
 ;; Generates the button number in the form of a list of 'b and the number.
@@ -57,7 +54,7 @@
     ((gen-op name p)
      (define (name . n)
        (if (p n)
-           `(name ,(length n) ,n)
+           `(,(symbol->string 'name) . ,n)
            'name)))))
 
 ;; Generate the operations.
@@ -73,6 +70,3 @@
 (gen-op laser-toggle     all-buttons?)
 (gen-op sidelight-toggle all-buttons?)
 (gen-op headlight-toggle all-buttons?)
-
-;; Loads and evals argv[1], the config file.
-;(load (cadr (command-line)))
