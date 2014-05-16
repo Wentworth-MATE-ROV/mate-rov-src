@@ -1,3 +1,2 @@
-* Read and synch the vertical thrusters.
-* Add default values for the pinlayouts (currently it will fail on defaults).
-* Look into stiching a picture or taking video with a hotkey.
+- Fine tuning
+- Video loopback for HUD on the cams.
