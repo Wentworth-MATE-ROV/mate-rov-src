@@ -38,9 +38,7 @@ void init_keybinds(){
 // Reads sexpr, updating the keybinds as needed.
 // return: 0 on success, non-zero on failure.
 int keybinds_read_scm_line(rov_keybinds *kbs,SCM scm){
-    SCM          scm_len;
     size_t       len;
-    SCM          scm_op;
     char        *op;
     unsigned int n,m;
     SCM          scm_val;
@@ -55,18 +53,16 @@ int keybinds_read_scm_line(rov_keybinds *kbs,SCM scm){
                                    rotate_y_str,
                                    transpose_x_str,
                                    transpose_y_str };
-    scm_op  = scm_car(scm);
-    op      = scm_to_locale_string(scm_op);
-    scm     = scm_cdr(scm);
-    scm_len = scm_length(scm);
-    len     = scm_to_size_t(scm_len);
+    op  = scm_to_locale_string(scm_car(scm));
+    scm = scm_cdr(scm);
+    len = scm_to_size_t(scm_length(scm));
     for (n = 0;n < KEYCOUNT;n++){
         if (!strcmp(op,ops[n])){
             break;
         }
     }
+    free(op);
     if (n == KEYCOUNT){
-        free(op);
         return -1;
     }
     kbs->keycounts[n] = len;
@@ -88,11 +84,10 @@ int keybinds_read_scm_line(rov_keybinds *kbs,SCM scm){
             }else{
                 kbs->axesvalues[n][m].is_pair = false;
                 kbs->axesvalues[n][m].axis
-                    = scm_to_char(scm_val);
+                    = scm_to_uchar(scm_val);
             }
         }
     }
-    free(op);
     return 0;
 }
 
@@ -111,11 +106,12 @@ int parse_keybinds(rov_keybinds *kbs,const char *kfl){
     if (!scm_parser){
         return -1;
     }
-    memset(path,0,256);
-    memcpy(kbs,&default_keybinds,sizeof(rov_keybinds));
     if (!kfl){
         return 0;
     }
+    memset(path,0,256);
+    memset(scm_fc,0,BUFSIZ);
+    memcpy(kbs,&default_keybinds,sizeof(rov_keybinds));
     getcwd(path,256);
     path[strlen(path)] = '/';
     strncat(path,kfl,256 - strlen(path));

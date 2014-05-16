@@ -42,71 +42,76 @@ void init_pinlayout(rov_pinlayout *l){
 
 // Reads a line of output from the pin-parser.
 // return: 0 on success, non-zero on failure.
-int pin_read_scm_line(rov_pinlayout *l,char *str){
-    int         n;
-    size_t      m;
-    char       *t;
-    const char *cs[PINCMDCOUNT] = { pin_laser_str,
-                                    pin_headlight_str,
-                                    pin_sidelight_str,
-                                    pin_clawgrip_str,
-                                    pin_leftmotor_str,
-                                    pin_leftmotor_d_str,
-                                    pin_leftmotor_s_str,
-                                    pin_rightmotor_str,
-                                    pin_rightmotor_d_str,
-                                    pin_rightmotor_s_str,
-                                    pin_frontmotor_str,
-                                    pin_frontmotor_d_str,
-                                    pin_frontmotor_s_str,
-                                    pin_backmotor_str,
-                                    pin_backmotor_d_str,
-                                    pin_backmotor_s_str };
-    t = strtok(str," \n");
-    if (t[0] != '('){
-        return -1;
-    }
+int pin_read_scm_line(rov_pinlayout *l,SCM scm){
+    unsigned int n,m;
+    size_t       len;
+    char        *op;
+    const char  *cs[PINCMDCOUNT] = { pin_clawgrip_str,
+                                     pin_laser_str,
+                                     pin_headlight_str,
+                                     pin_sidelight_str,
+                                     pin_leftmotor_str,
+                                     pin_leftmotor_d_str,
+                                     pin_leftmotor_s_str,
+                                     pin_rightmotor_str,
+                                     pin_rightmotor_d_str,
+                                     pin_rightmotor_s_str,
+                                     pin_frontmotor_str,
+                                     pin_frontmotor_d_str,
+                                     pin_frontmotor_s_str,
+                                     pin_backmotor_str,
+                                     pin_backmotor_d_str,
+                                     pin_backmotor_s_str };
+    op  = scm_to_locale_string(scm_car(scm));
+    scm = scm_cdr(scm);
+    len = scm_to_size_t(scm_length(scm));
     for (n = 0;n < PINCMDCOUNT;n++){
-        if (!strcmp(&t[1],cs[n])){
-            l->pincounts[n] = strtol(strtok(NULL," "),NULL,10);
-            for (m = 0;m < l->pincounts[n];m++){
-                if (!(t = strtok(NULL," )"))){
-                    break;
-                }
-                if (t[0] == '('){
-                    t += 1;
-                }
-                l->pinvalues[n][m] = (unsigned char) strtol(t,NULL,0);
-            }
-            return 0;
+        if (!strcmp(op,cs[n])){
+            break;
         }
     }
-    return -1;
+    free(op);
+    if (n == PINCMDCOUNT){
+        return -1;
+    }
+    l->pincounts[n] = len;
+    for (m = 0;m < len;m++){
+        l->pinvalues[n][m] = scm_to_uchar(scm_list_ref(scm,scm_from_uint(m)));
+    }
+    return 0;
 }
 
 // Parses a pinlayout from a file.
 // return: 0 on success, non-zero on failure.
 int parse_pinlayout(rov_pinlayout *l,const char *pfl){
-    char  cmd[128];
-    FILE *scm;
+    FILE *scm_fl = fopen("pin-parser.scm","r");
+    FILE *l_fl;
     char  path[256];
+    char  scm_fc[BUFSIZ];
+    SCM   scm;
+    if (!scm_fl){
+        return -1;
+    }
     if (!pfl){
         return 0;
     }
+    memset(path,0,256);
+    memset(scm_fc,0,BUFSIZ);
     getcwd(path,256);
+    path[strlen(path)] = '/';
     strncat(path,pfl,256 - strlen(path));
-    if (!access(path,F_OK)){
+    l_fl = fopen(path,"r");
+    if (!l_fl){
         return -1;
     }
-    strcpy(cmd,"./pin-parser.scm");
-    cmd[16] = ' ';
-    cmd[17] = '\0';
-    strncat(cmd,pfl,110);
-    strncat(cmd," 2> /dev/null",128 - strlen(cmd));
-    scm = popen(cmd,"r");
-    while (fgets(cmd,128,scm) != NULL){
-        if (pin_read_scm_line(l,cmd)){
-            return -1;
+    scm_init_guile();
+    fread(scm_fc,sizeof(char),BUFSIZ,scm_fl);
+    fclose(scm_fl);
+    scm_c_eval_string(scm_fc);
+    while (fgets(scm_fc,BUFSIZ,l_fl)){
+        scm = scm_c_eval_string(scm_fc);
+        if (scm != SCM_UNSPECIFIED && scm_is_pair(scm)){
+            pin_read_scm_line(l,scm);
         }
     }
     return 0;
