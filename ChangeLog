@@ -133,3 +133,7 @@
 	* src/common.h: Added an rov_ctrlstate struct to hold all the state
 	to make it easier to copy them in one shot to check for changes.
 	* TODO: updated TODO
+
+2014-5-15 Joe Jevnik <joejev@gmail.com>
+	* src/controls/keybinds.h, src/controls/keybinds.c: Now uses libguile.
+	* src/controls/pinlayout.h, src/controls/pinlayout.c: Now uses libguile.

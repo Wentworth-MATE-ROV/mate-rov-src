@@ -27,6 +27,7 @@
 #include <sys/stat.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <libguile.h>
 
 // The strings used when parsing the pins.
 extern const char* const pin_laser_str;
@@ -51,7 +52,7 @@ void init_pinlayout(rov_pinlayout*);
 
 // Reads sexpr, updating the layout as needed.
 // return: 0 on success, non-zero on failure.
-int pin_read_scm_line(rov_pinlayout*,char*);
+int pin_read_scm_line(rov_pinlayout*,SCM);
 
 // Parse a pin layout config out of a file (pass the path).
 // If the file is NULL, or there is an error, returns a pointer to the default

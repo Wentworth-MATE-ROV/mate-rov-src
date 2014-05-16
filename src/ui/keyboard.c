@@ -32,7 +32,7 @@ static void print_jsaxis(rov_screen *scr,rov_jsaxis *j){
 
 // Quick macros to print if values differ.
 #define DIFFCMPBUTTON(str,val,count)                                    \
-    if (!diff || memcmp(&old.val,kbs->val,6)){                          \
+    if (!diff || memcmp(&old.val,kbs->val,12)){                          \
         boldgreenprint(scr,str);                                        \
         for (n = 0;n < kbs->count;n++){                                 \
             screen_printfattr(scr,GREEN_PAIR,"%u ",kbs->val[n] + 1);    \
@@ -40,7 +40,7 @@ static void print_jsaxis(rov_screen *scr,rov_jsaxis *j){
         ++c;                                                            \
     }
 #define DIFFCMPAXIS(str,val,count)                                      \
-    if (!diff || memcmp(&old.val,kbs->val,12 * sizeof(rov_jsaxis))){    \
+    if (!diff || memcmp(&old.val,kbs->val,6 * sizeof(rov_jsaxis))){    \
         boldgreenprint(scr,str);                                        \
         for (n = 0;n < kbs->count;n++){                                 \
             print_jsaxis(scr,&kbs->val[n]);                             \
@@ -50,7 +50,7 @@ static void print_jsaxis(rov_screen *scr,rov_jsaxis *j){
 
 // Reloads the keybinds from the .keybinds file.
 void screen_reload_keybinds(rov_screen *scr,rov_arduino *a,bool diff){
-    int           n,c = 0;
+    unsigned int  n,c = 0;
     rov_keybinds  old = a->keybinds;
     rov_keybinds *kbs = &a->keybinds;
     char          line[81];
@@ -88,7 +88,7 @@ void screen_reload_keybinds(rov_screen *scr,rov_arduino *a,bool diff){
     }
 
 void screen_reload_pinlayout(rov_screen *scr,rov_arduino *a,bool diff){
-    int            n,c = 0;
+    unsigned int   n,c = 0;
     rov_pinlayout  old = a->layout;
     rov_pinlayout *l   = &a->layout;
     char           line[81];

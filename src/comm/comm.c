@@ -76,7 +76,7 @@ int write_char(rov_arduino *a,unsigned char b){
 // Writes a string to the arduino.
 // return: 0 on success, non-zero on failure.
 int write_str(rov_arduino *a,unsigned char *str,size_t s){
-    int n;
+    unsigned int n;
     for (n = 0;n < s;n++){
         if (write_char(a,str[n])){
             break;

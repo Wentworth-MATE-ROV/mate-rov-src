@@ -2,7 +2,7 @@
 ;;; 2014.4.21
 ;;; Keybinding layout for the robot.
 
-(lasers                '(54))
+(lasers                '(54 10))
 (headlights            '(54))
 (sidelights            '(54))
 (claw-grip             '(54))

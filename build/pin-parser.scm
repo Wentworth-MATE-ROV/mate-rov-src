@@ -1,5 +1,3 @@
-#!/usr/bin/guile
-!#
 ;;; Joe Jevnik
 ;;; 2014.4.21
 ;;; Parser of the .pins file.
@@ -18,10 +16,9 @@
   (syntax-rules ()
     ((gen-pin name)
      (define (name ps)
-       (display (if (list-and (lambda (p) (or (> p 54) (< p 0))) ps)
-                    'name
-                    `(name ,(length ps) ,ps)))
-       (newline)))))
+       (if (list-and (lambda (p) (or (> p 54) (< p 0))) ps)
+           'name
+           `(,(symbol->string 'name) . ,ps))))))
 
 (gen-pin lasers)
 (gen-pin headlights)
@@ -39,6 +36,3 @@
 (gen-pin back-motor)
 (gen-pin back-motor-direction)
 (gen-pin back-motor-ssg)
-
-;; Loads and evals argv[1], the config file.
-(load (cadr (command-line)))

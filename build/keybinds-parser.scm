@@ -1,13 +1,12 @@
-#!/usr/bin/guile
-!#
 ;;; Joe Jevnik
-;;; 2014.3.13
 ;;; Parser of the .keybinds file.
 
 ;; Generates the button number in the form of a list of 'b and the number.
 ;; n -- the number of the button on the joystick: (button 2) is button 2.
 (define (button n)
-  (list 'b (- n 1)))
+  (if (or (> n 12) (< n 1))
+      -1
+      (- n 1)))
 
 ;; Defines a constant for no button, expanding to (b -1) or 255 on the c end.
 (define no-button (button 0))
@@ -15,11 +14,15 @@
 ;; Generates the axis number in the form of a list of 'a and the number or pair.
 ;; n -- the axis number.
 (define (axis n)
-  (list 'a n))
+  (if (or (> n 6) (< n 0))
+      -1
+      n))
 
 ;; Generates a pair that will represent an axis.
 (define (axis-pair a b)
-  (axis (list (- a 1) (- b 1))))
+  (if (or (eq? no-button a) (eq? no-button b))
+      no-axis
+      (cons a b)))
 
 (define no-axis (axis -1))
 
@@ -35,16 +38,12 @@
 ;; Are all the elements buttons?
 ;; n -- the list to check.
 (define (all-buttons? n)
-  (and
-   (>= 12 (length n))
-   (list-and (lambda (m) (eq? 'b (car m))) n)))
+  (>= 12 (length n)))
 
 ;; Are all the elements axis?
 ;; n -- the list to check.
 (define (all-axis? n)
-  (and
-   (>= 6 (length n))
-   (list-and (lambda (m) (eq? 'a (car m))) n)))
+  (>= 6 (length n)))
 
 
 ;; Create a handler for an operation.
@@ -54,10 +53,9 @@
   (syntax-rules ()
     ((gen-op name p)
      (define (name . n)
-       (display (if (p n)
-                    `(name ,(length n) ,@n)
-                    'name))
-       (newline)))))
+       (if (p n)
+           `(,(symbol->string 'name) . ,n)
+           'name)))))
 
 ;; Generate the operations.
 (gen-op claw-open        all-buttons?)
@@ -72,6 +70,3 @@
 (gen-op laser-toggle     all-buttons?)
 (gen-op sidelight-toggle all-buttons?)
 (gen-op headlight-toggle all-buttons?)
-
-;; Loads and evals argv[1], the config file.
-(load (cadr (command-line)))

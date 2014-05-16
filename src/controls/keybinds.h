@@ -13,6 +13,7 @@
 #include <sys/stat.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <libguile.h>
 
 // The default 6 axis that exist on the joystick.
 extern rov_jsaxis x_axis;            // Joystick's x axis.
@@ -44,22 +45,14 @@ extern const char* const sidelight_toggle_str;
 // Sets up the initial default keybind values, call before parsing!
 void init_keybinds(void);
 
-// Reads sexpr, updating the keybinds as needed.
+// Reads the SCM, updating the keybinds as needed.
 // return: 0 on success, non-zero on failure.
-int keybinds_read_scm_line(rov_keybinds*,char*);
-
-// Parses the params from a sexpr.
-void keybinds_parse_scm_params(char*,         // The operation
-                               const char*,   // The operation to check against.
-                               size_t,        // The amount of params.
-                               void*,         // A pointer to list of params.
-                               size_t*,       // A pointer to the op's size.
-                               bool);         // Is this param a button?
+int keybinds_read_scm_line(rov_keybinds*,SCM);
 
 // Parse a keybinds config out of a file (pass the path).
 // If the file is NULL, or there is an error, returns a pointer to the default
 // keybinds config.
-// IO WARNING: Calls out to './keybinds-parser.scm' which requires guile.
+// IO WARNING: Calls out to './keybinds-parser.scm'.
 // return: 0 on success, non-zero on failure.
 int parse_keybinds(rov_keybinds*,const char*);
 
