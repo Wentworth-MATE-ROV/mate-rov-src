@@ -212,10 +212,11 @@ typedef struct rov_arduino{
 
 // A structure to pass to the process joystick thread.
 typedef struct{
-    rov_screen  *scr; // The screen structure.
-    rov_arduino *a;   // The arduino that this joystick thread must act on.
-    useconds_t   phz; // The Hz of the polling.
-    useconds_t   shz; // The Hz of the sending.
+    rov_screen  *scr;        // The screen structure.
+    rov_arduino *a;          // The arduino that thisthread must act on.
+    const char  *logic_path; // The path to the logic module (.scm).
+    useconds_t   phz;        // The Hz of the polling.
+    useconds_t   shz;        // The Hz of the sending.
 }rov_pjs_param;
 
 // A structure to pass to the process queue thread.

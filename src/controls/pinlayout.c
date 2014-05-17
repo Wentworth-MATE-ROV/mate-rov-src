@@ -107,6 +107,8 @@ int parse_pinlayout(rov_pinlayout *l,const char *pfl){
     scm_init_guile();
     fread(scm_fc,sizeof(char),BUFSIZ,scm_fl);
     fclose(scm_fl);
+    scm_c_eval_string("(set! %load-path (cons (getcwd) %load-path))\n"
+                      "(use-modules (parsers pin-parser))");
     scm_c_eval_string(scm_fc);
     while (fgets(scm_fc,BUFSIZ,l_fl)){
         scm = scm_c_eval_string(scm_fc);

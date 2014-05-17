@@ -92,10 +92,8 @@ int keybinds_read_scm_line(rov_keybinds *kbs,SCM scm){
 }
 
 
-// Parse a keybinds config out of a file (pass the path).
-// If the file is NULL, or there is an error, returns a pointer to the default
-// keybinds config.
-// IO WARNING: Calls out to './keybinds-parser.scm' which requires guile.
+// Parses an rov_keybind layout out of the file kfl.
+// if there is a read error, kbs will be filled with an empty layout.
 // return: 0 on success, non-zero on failure.
 int parse_keybinds(rov_keybinds *kbs,const char *kfl){
     FILE *scm_parser = fopen("keybinds-parser.scm","r");
@@ -125,6 +123,8 @@ int parse_keybinds(rov_keybinds *kbs,const char *kfl){
     scm_init_guile();
     fread(scm_fc,sizeof(char),BUFSIZ,scm_parser);
     fclose(scm_parser);
+    scm_c_eval_string("(set! %load-path (cons (getcwd) %load-path))\n"
+                      "(use-modules (parsers keybinds-parser))");
     scm_c_eval_string(scm_fc);
     while (fgets(scm_fc,BUFSIZ,kbs_fl)){
         scm = scm_c_eval_string(scm_fc);

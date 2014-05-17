@@ -134,6 +134,17 @@
 	to make it easier to copy them in one shot to check for changes.
 	* TODO: updated TODO
 
-2014-5-15 Joe Jevnik <joejev@gmail.com>
+2014-05-15 Joe Jevnik <joejev@gmail.com>
 	* src/controls/keybinds.h, src/controls/keybinds.c: Now uses libguile.
 	* src/controls/pinlayout.h, src/controls/pinlayout.c: Now uses libguile.
+
+2014-05-17 Joe Jevnik <joejev@gmail.com>
+	* src/controls/controls.h, src/controls/controls.c: Added support for
+	the logic modules (robobot logic written in scheme).
+	* COPYING: Upgraded license from gpl-2 to gpl-3 to comply with libguile.
+	* src/controls/keybinds.c, src/controls/pinlayout.c: Now put the parsers
+	in a scheme module.
+	* build/parsers/keybinds-parser.scm, build/parsers/pin-parser.scm: Moved
+	the scheme parsers for keybindings and pinlayouts, wrapped them both in
+	modules.
+	* TODO: Updated TODO with writing the logic module.

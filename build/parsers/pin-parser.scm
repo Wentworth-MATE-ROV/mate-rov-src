@@ -1,6 +1,7 @@
 ;;; Joe Jevnik
 ;;; 2014.4.21
 ;;; Parser of the .pins file.
+(define-module (parsers pin-parser))
 
 ;; Lazily folds a function over list.
 ;; f -- the function to fold.
@@ -15,7 +16,7 @@
 (define-syntax gen-pin
   (syntax-rules ()
     ((gen-pin name)
-     (define (name ps)
+     (define-public (name ps)
        (if (list-and (lambda (p) (or (> p 54) (< p 0))) ps)
            'name
            `(,(symbol->string 'name) . ,ps))))))
