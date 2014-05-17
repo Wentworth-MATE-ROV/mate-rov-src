@@ -3,7 +3,7 @@
 
    This program is free software; you can redistribute it and/or modify it
    under the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your option)
+   Software Foundation; either version 3 of the License, or (at your option)
    any later version.
 
    This program is distributed in the hope that it will be useful, but WITHOUT
@@ -84,7 +84,7 @@ int pin_read_scm_line(rov_pinlayout *l,SCM scm){
 // Parses a pinlayout from a file.
 // return: 0 on success, non-zero on failure.
 int parse_pinlayout(rov_pinlayout *l,const char *pfl){
-    FILE *scm_fl = fopen("pin-parser.scm","r");
+    FILE *scm_fl = fopen("parsers/pin-parser.scm","r");
     FILE *l_fl;
     char  path[256];
     char  scm_fc[BUFSIZ];

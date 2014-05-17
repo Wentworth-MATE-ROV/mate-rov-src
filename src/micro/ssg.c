@@ -1,4 +1,4 @@
-/* stats.h --- Manages the printing of the robot's stats.
+/* hw11ssg.c --- Start up sequence generator for the hw11.
    Copyright (c) Joe Jevnik
 
    This program is free software; you can redistribute it and/or modify it
@@ -15,33 +15,36 @@
    this program; if not, write to the Free Software Foundation, Inc., 51
    Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA. */
 
-#ifndef ROV_STATS_H
-#define ROV_STATS_H
+#include <Servo.h>
 
-// The length of the stat value array.
-#define STATC           10
+#define HWPIN      3
+#define PHOENIXPIN 11
+#define ARDPIN     2
 
-// Stat value indecies.
-#define LEFTMOTOR_STAT  0
-#define RIGHTMOTOR_STAT 1
-#define FRONTMOTOR_STAT 2
-#define BACKMOTOR_STAT  3
-#define HEADLIGHTS_STAT 4
-#define SIDELIGHTS_STAT 5
-#define LASERS_STAT     6
-#define CLAW_STAT       7
-#define MISWRITES_STAT  9
+void setup(){
+    Servo hw,phoenix;
+    hw.attach(HWPIN);
+    phoenix.attach(PHOENIXPIN);
+    pinMode(8,OUTPUT);
+    pinMode(7,OUTPUT);
+    pinMode(6,OUTPUT);
+    pinMode(5,OUTPUT);
+    hw.write(180);
+    phoenix.write(0);
+    digitalWrite(8,HIGH);
+    delay(2500);
+    hw.write(0);
+    phoenix.write(180);
+    digitalWrite(7,HIGH);
+    delay(2500);
+    hw.write(180);
+    phoenix.write(0);
+    digitalWrite(6,HIGH);
+    delay(2000);
+    hw.write(0);
+    pinMode(ARDPIN,OUTPUT);
+    digitalWrite(ARDPIN,HIGH);
+    digitalWrite(5,HIGH);
+}
 
-// Stat name values.
-extern char *statv[STATC];
-
-#include "../common.h"
-#include "../librov/screen.h"
-
-// Prints all the stats.
-void update_stats(rov_screen*,rov_arduino*);
-
-// Updates the stats that have changed.
-void diff_update_stats(rov_screen*,rov_arduino*,rov_ctrlstate*);
-
-#endif
+void loop(){}

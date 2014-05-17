@@ -148,3 +148,8 @@
 	the scheme parsers for keybindings and pinlayouts, wrapped them both in
 	modules.
 	* TODO: Updated TODO with writing the logic module.
+
+2014-05-17 Joe Jevnik <joejev@gmail.com>
+	* build/logic.scm: Completed a preliminary logic module for the
+	robot.
+	* TODO: Updated TODO to remove the completion of the logic module.

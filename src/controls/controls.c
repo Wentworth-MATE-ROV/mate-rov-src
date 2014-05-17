@@ -3,7 +3,7 @@
 
    This program is free software; you can redistribute it and/or modify it
    under the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your option)
+   Software Foundation; either version 3 of the License, or (at your option)
    any later version.
 
    This program is distributed in the hope that it will be useful, but WITHOUT
@@ -32,7 +32,7 @@ static SCM scm_clawgrip;
 
 // return: scales the value from the range of unsigned char to [0,180].
 short scale_axisval(short v){
-    return (v / 32767.0) * 180;
+    return (v / ((double) SHRT_MAX)) * 180;
 }
 
 // return: truncates the power value in the range [SHRT_MIN,SHRT_MAX].
@@ -188,6 +188,33 @@ void sync_ctrlstate(rov_arduino *a,rov_ctrlstate *old){
     }
 }
 
+// Subtracts two timeval structures storing the result in the result struct.
+// Returns 1 if result is negative.
+// Source: http://www.gnu.org/software/libc/manual/html_node/Elapsed-Time.html
+int timeval_subtract (struct timeval *result,
+                      struct timeval *x,
+                      struct timeval *y){
+    int nsec;
+    if (x->tv_usec < y->tv_usec){
+        nsec = (y->tv_usec - x->tv_usec) / 1000000 + 1;
+        y->tv_usec -= 1000000 * nsec;
+        y->tv_sec += nsec;
+    }
+    if (x->tv_usec - y->tv_usec > 1000000){
+        nsec = (x->tv_usec - y->tv_usec) / 1000000;
+        y->tv_usec += 1000000 * nsec;
+        y->tv_sec -= nsec;
+    }
+    result->tv_sec = x->tv_sec - y->tv_sec;
+    result->tv_usec = x->tv_usec - y->tv_usec;
+    return x->tv_sec < y->tv_sec;
+}
+
+// return: the total number of microseonds in this timeval.
+long long total_usec(struct timeval *t){
+    return t->tv_sec * 1000 + t->tv_usec;
+}
+
 // Process joystick input forever.
 void *process_joystick(void *vps){
     rov_pjs_param *p          = vps;
@@ -203,6 +230,9 @@ void *process_joystick(void *vps){
     SCM            scm_logic_step;
     SCM            scm_sanatize;
     SCM            scm_ctrl_state;
+    struct timeval d,before,after;
+    long long      delta_t;
+    int            sign;
     memset(lb,0,BUFSIZ);
     fread(lb,sizeof(char),BUFSIZ,logic_fl);
     fclose(logic_fl);
@@ -212,16 +242,24 @@ void *process_joystick(void *vps){
     scm_c_eval_string(lb);
     scm_logic_step = scm_c_eval_string("logic-step");
     scm_sanatize   = scm_c_eval_string("sanatize-ctrl-state");
-    scm_ctrl_state = scm_c_eval_string("(mk-ctrl-state 0 0 0 0 #f #f #f #f ())");
+    scm_ctrl_state = scm_c_eval_string("(mk-ctrl-state 0 0 0 0 #f "
+                                       "#f #f #f 'e)");
+    after.tv_sec  = LONG_MAX;
+    after.tv_usec = 99999;
     for (;;){
         read_jsevent(&a->joystick);
         if (memcmp(&a->joystick,&oldjs,sizeof(rov_joystick))){
             oldctrl = a->ctrl;
             clean_joystick(&a->joystick,&a->keybinds,&cjs);
+            gettimeofday(&after,NULL);
+            sign    = timeval_subtract(&d,&before,&after);
+            delta_t = ((sign) ? -1 : 1) * total_usec(&d);
             scm_ctrl_state = scm_call_1(scm_sanatize,
-                                        scm_call_2(scm_logic_step,
+                                        scm_call_3(scm_logic_step,
                                                    scm_from_cjs(&cjs),
+                                                   scm_from_double(delta_t),
                                                    scm_ctrl_state));
+            after = before;
             ctrl_from_scm(scm_ctrl_state,&a->ctrl);
             sync_ctrlstate(a,&oldctrl);
             diff_update_stats(scr,a,&oldctrl);

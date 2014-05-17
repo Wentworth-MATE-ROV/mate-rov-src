@@ -1,6 +1,19 @@
-// Joe Jevnik
-// 2014.3.13
-// Keybinds parsing.
+/* keybinds.c --- Parsing of the .keybinds file.
+   Copyright (c) Joe Jevnik
+
+   This program is free software; you can redistribute it and/or modify it
+   under the terms of the GNU General Public License as published by the Free
+   Software Foundation; either version 3 of the License, or (at your option)
+   any later version.
+
+   This program is distributed in the hope that it will be useful, but WITHOUT
+   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+   more details.
+
+   You should have received a copy of the GNU General Public License along with
+   this program; if not, write to the Free Software Foundation, Inc., 51
+   Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA. */
 
 #include "keybinds.h"
 #include "controls.h"
@@ -96,7 +109,7 @@ int keybinds_read_scm_line(rov_keybinds *kbs,SCM scm){
 // if there is a read error, kbs will be filled with an empty layout.
 // return: 0 on success, non-zero on failure.
 int parse_keybinds(rov_keybinds *kbs,const char *kfl){
-    FILE *scm_parser = fopen("keybinds-parser.scm","r");
+    FILE *scm_parser = fopen("parsers/keybinds-parser.scm","r");
     FILE *kbs_fl;
     char  path[256];
     char  scm_fc[BUFSIZ];
