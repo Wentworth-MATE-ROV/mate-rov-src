@@ -3,7 +3,7 @@
 
    This program is free software; you can redistribute it and/or modify it
    under the terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2 of the License, or (at your option)
+   Software Foundation; either version 3 of the License, or (at your option)
    any later version.
 
    This program is distributed in the hope that it will be useful, but WITHOUT
@@ -212,10 +212,11 @@ typedef struct rov_arduino{
 
 // A structure to pass to the process joystick thread.
 typedef struct{
-    rov_screen  *scr; // The screen structure.
-    rov_arduino *a;   // The arduino that this joystick thread must act on.
-    useconds_t   phz; // The Hz of the polling.
-    useconds_t   shz; // The Hz of the sending.
+    rov_screen  *scr;        // The screen structure.
+    rov_arduino *a;          // The arduino that thisthread must act on.
+    const char  *logic_path; // The path to the logic module (.scm).
+    useconds_t   phz;        // The Hz of the polling.
+    useconds_t   shz;        // The Hz of the sending.
 }rov_pjs_param;
 
 // A structure to pass to the process queue thread.

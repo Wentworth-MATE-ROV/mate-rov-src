@@ -1,25 +1,41 @@
-;;; Joe Jevnik
-;;; Parser of the .keybinds file.
+#| keybinds-parser.scm --- Parser for the .keybinds config file.
+   Copyright (c) Joe Jevnik
+
+   This program is free software; you can redistribute it and/or modify it
+   under the terms of the GNU General Public License as published by the Free
+   Software Foundation; either version 3 of the License, or (at your option)
+   any later version.
+
+   This program is distributed in the hope that it will be useful, but WITHOUT
+   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+   more details.
+
+   You should have received a copy of the GNU General Public License along with
+   this program; if not, write to the Free Software Foundation, Inc., 51
+   Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA. |#
+
+(define-module (parsers keybinds-parser))
 
 ;; Generates the button number in the form of a list of 'b and the number.
 ;; n -- the number of the button on the joystick: (button 2) is button 2.
-(define (button n)
+(define-public (button n)
   (if (or (> n 12) (< n 1))
       -1
       (- n 1)))
 
 ;; Defines a constant for no button, expanding to (b -1) or 255 on the c end.
-(define no-button (button 0))
+(define-public no-button (button 0))
 
 ;; Generates the axis number in the form of a list of 'a and the number or pair.
 ;; n -- the axis number.
-(define (axis n)
+(define-public (axis n)
   (if (or (> n 6) (< n 0))
       -1
       n))
 
 ;; Generates a pair that will represent an axis.
-(define (axis-pair a b)
+(define-public (axis-pair a b)
   (if (or (eq? no-button a) (eq? no-button b))
       no-axis
       (cons a b)))
@@ -52,7 +68,7 @@
 (define-syntax gen-op
   (syntax-rules ()
     ((gen-op name p)
-     (define (name . n)
+     (define-public (name . n)
        (if (p n)
            `(,(symbol->string 'name) . ,n)
            'name)))))

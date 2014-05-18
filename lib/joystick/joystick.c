@@ -48,7 +48,7 @@ int read_jsevent(rov_joystick *js){
     return 0;
 }
 
-// return: is button number b being pressed (trigger = 1).
+// return: is button number b being pressed (trigger = 0).
 bool is_button(rov_joystick *js,unsigned char b){
     if (b < 1 || b > 12){
         return false;
