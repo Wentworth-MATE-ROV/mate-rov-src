@@ -2,7 +2,7 @@ mate-rov-src
 ============
 
 Source code for The Anna Maria.
-Licensed under the GPLv2.
+Licensed under the GPLv3.
 
 
 Dependencies
