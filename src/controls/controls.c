@@ -230,6 +230,7 @@ void *process_joystick(void *vps){
     SCM            scm_logic_step;
     SCM            scm_sanatize;
     SCM            scm_ctrl_state;
+    SCM            scm_initialize;
     struct timeval d,before,after;
     long long      delta_t;
     int            sign;
@@ -241,25 +242,26 @@ void *process_joystick(void *vps){
     scm_c_eval_string(scm_init_logic_str);
     scm_c_eval_string(lb);
     scm_logic_step = scm_c_eval_string("logic-step");
+    scm_initialize = scm_c_eval_string("initialize");
     scm_sanatize   = scm_c_eval_string("sanatize-ctrl-state");
-    scm_ctrl_state = scm_c_eval_string("(mk-ctrl-state 0 0 0 0 #f "
-                                       "#f #f #f 'e)");
-    after.tv_sec  = LONG_MAX;
-    after.tv_usec = 99999;
+    scm_ctrl_state = scm_call_1(scm_initialize,
+                                scm_c_eval_string("(mk-ctrl-state 0 0 0 0 #f "
+                                                  "#f #f #f 'e)"));
+    gettimeofday(&after,NULL);
     for (;;){
         read_jsevent(&a->joystick);
         if (memcmp(&a->joystick,&oldjs,sizeof(rov_joystick))){
             oldctrl = a->ctrl;
             clean_joystick(&a->joystick,&a->keybinds,&cjs);
-            gettimeofday(&after,NULL);
-            sign    = timeval_subtract(&d,&before,&after);
-            delta_t = ((sign) ? -1 : 1) * total_usec(&d);
+            gettimeofday(&before,NULL);
+            timeval_subtract(&d,&a,&b);
+            delta_t = total_usec(&d);
             scm_ctrl_state = scm_call_1(scm_sanatize,
                                         scm_call_3(scm_logic_step,
                                                    scm_from_cjs(&cjs),
                                                    scm_from_double(delta_t),
                                                    scm_ctrl_state));
-            after = before;
+            gettimeofday(&after,NULL);
             ctrl_from_scm(scm_ctrl_state,&a->ctrl);
             sync_ctrlstate(a,&oldctrl);
             diff_update_stats(scr,a,&oldctrl);
@@ -337,63 +339,3 @@ SCM scm_from_cjs(rov_clean_js *cjs){
              cjs->transpose_y);
     return scm_c_eval_string(b);
 }
-
-// The scheme that will setup the records and sanatize function.
-const char* const scm_init_logic_str =
-    "(use-modules (srfi srfi-9 gnu))\n"
-    "\n"
-    ";; The robot control state.\n"
-    "(define-immutable-record-type <ctrl-state>\n"
-    "  (mk-ctrl-state left-motor right-motor front-motor back-motor\n"
-    "                 headlights sidelights lasers claw-grip extra)\n"
-    "  ctrl-state?\n"
-    "  (left-motor left-motor set-left-motor)\n"
-    "  (right-motor right-motor set-right-motor)\n"
-    "  (front-motor front-motor set-front-motor)\n"
-    "  (back-motor back-motor set-back-motor)\n"
-    "  (headlights headlights set-headlights)\n"
-    "  (sidelights sidelights set-sidelights)\n"
-    "  (lasers lasers set-lasers)\n"
-    "  (claw-grip claw-grip set-claw-grip)\n"
-    "  (extra extra set-extra))\n"
-    "\n"
-    ";; The cleaned joystick.\n"
-    "(define-immutable-record-type <js-state>\n"
-    "  (mk-js-state claw-open claw-close laser-toggle headlight-toggle\n"
-    "               sidelight-toggle claw-x claw-y rotate-z rotate-y\n"
-    "               transpose-x transpose-y)\n"
-    "  js-state?\n"
-    "  (claw-open claw-open set-claw-open)\n"
-    "  (claw-close claw-close set-claw-close)\n"
-    "  (laser-toggle laser-toggle set-laser-toggle)\n"
-    "  (headlight-toggle headlight-toggle set-headlight-toggle)\n"
-    "  (sidelight-toggle sidelight-toggle set-sidelight-toggle)\n"
-    "  (claw-x claw-x set-claw-x)\n"
-    "  (claw-y claw-y set-claw-y)\n"
-    "  (rotate-z rotate-z set-rotate-z)\n"
-    "  (rotate-y rotate-y set-rotate-y)\n"
-    "  (transpose-x transpose-x set-transpose-x)\n"
-    "  (transpose-y transpose-y set-transpose-y))\n"
-    "\n"
-    "\n"
-    ";; Checks the types of the control state and sets default values.\n"
-    "(define (sanatize-ctrl-state ctrl)\n"
-    "  (letrec ((check-field (lambda (c pred getter setter v)\n"
-    "                          (if (pred (getter c))\n"
-    "                              c\n"
-    "                              (setter c v))))\n"
-    "           (check-fields (lambda (init forms)\n"
-    "                           (if (null? forms)\n"
-    "                               init\n"
-    "                               (check-fields\n"
-    "                                (apply check-field\n"
-    "                                       (cons init (car forms)))\n"
-    "                                (cdr forms))))))\n"
-    "    (check-fields ctrl `((,integer? ,front-motor ,set-front-motor 0)\n"
-    "                         (,integer? ,back-motor ,set-back-motor 0)\n"
-    "                         (,integer? ,left-motor ,set-left-motor 0)\n"
-    "                         (,integer? ,right-motor ,set-right-motor 0)\n"
-    "                         (,boolean? ,headlights ,set-headlights #f)\n"
-    "                         (,boolean? ,sidelights ,set-sidelights #f)\n"
-    "                         (,boolean? ,lasers ,set-lasers #f)\n"
-    "                         (,boolean? ,claw-grip ,set-claw-grip #f)))))\n";

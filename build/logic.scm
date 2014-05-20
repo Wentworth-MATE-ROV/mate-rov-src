@@ -57,6 +57,11 @@
         (rot-z   (rotate-z    js-state)))
     (scale-axis-value (trunc-sum-axis-values trans-y (- 0 rot-z)))))
 
+
+;; Setup control state; populate extra if you wish.
+(define (initialize ctrl-state)
+  (ctrl-state))
+
 ;; The main logic step.
 ;; Invoked with the paramaters:
 ;;   js-state:   The state of the joystick this frame.
