@@ -20,6 +20,8 @@
 #include "../librov/screen.h"
 #include "../ui/stats.h"
 
+#include "init-logic.scm.ch"
+
 // The scheme accesor functions.
 static SCM scm_leftmotor;
 static SCM scm_rightmotor;
@@ -233,13 +235,12 @@ void *process_joystick(void *vps){
     SCM            scm_initialize;
     struct timeval d,before,after;
     long long      delta_t;
-    int            sign;
     memset(lb,0,BUFSIZ);
     fread(lb,sizeof(char),BUFSIZ,logic_fl);
     fclose(logic_fl);
     update_stats(scr,a);
     scm_init_guile();
-    scm_c_eval_string(scm_init_logic_str);
+    scm_c_eval_string(init_logic_str);
     scm_c_eval_string(lb);
     scm_logic_step = scm_c_eval_string("logic-step");
     scm_initialize = scm_c_eval_string("initialize");
@@ -254,7 +255,7 @@ void *process_joystick(void *vps){
             oldctrl = a->ctrl;
             clean_joystick(&a->joystick,&a->keybinds,&cjs);
             gettimeofday(&before,NULL);
-            timeval_subtract(&d,&a,&b);
+            timeval_subtract(&d,&after,&before);
             delta_t = total_usec(&d);
             scm_ctrl_state = scm_call_1(scm_sanatize,
                                         scm_call_3(scm_logic_step,
