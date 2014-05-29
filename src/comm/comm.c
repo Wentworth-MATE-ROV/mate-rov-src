@@ -112,7 +112,7 @@ bool digital_read(rov_arduino *a,rov_pin p){
 
 // Sends a value to a pin in the range of [0,256)
 // Data is formatted as so: byte 0 = opcode
-//                          byte 1 = pin number;p9
+//                          byte 1 = pin number
 //                          byte 2 = value
 void analog_write(rov_arduino *a,rov_pin p,unsigned char v){
     unsigned char msg[3] = { OP_ANALOG_WRITE,p,v };

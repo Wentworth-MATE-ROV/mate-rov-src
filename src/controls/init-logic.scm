@@ -1,4 +1,4 @@
-(use-modules (srfi srfi-9 gnu))
+(use-modules (srfi srfi-9 gnu) (ice-9 format))
 
 ;; The robot control state.
 (define-immutable-record-type <ctrl-state>
@@ -55,3 +55,9 @@
                          (,boolean? ,sidelights ,set-sidelights #f)
                          (,boolean? ,lasers ,set-lasers #f)
                          (,boolean? ,claw-grip ,set-claw-grip #f)))))\
+
+;; Checks if a process exists or not.
+(define (proc-exists? proc-name)
+  (catch #t
+    (eval-string (format #f "(lambda () ~a #t)" proc-name))
+    (lambda (k . p) #f)))

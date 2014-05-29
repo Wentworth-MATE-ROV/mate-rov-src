@@ -217,6 +217,18 @@ long long total_usec(struct timeval *t){
     return t->tv_sec * 1000 + t->tv_usec;
 }
 
+// Checks if it is safe to lookup a function and only looks it up if it safe to
+// do so.
+// return: 0 on success, non-zero on failure.
+int safe_scm_c_lookup(const char *proc,SCM scm_proc_exists_p, SCM *scm_proc){
+    if (scm_is_true(scm_call_1(scm_proc_exists_p,
+                               scm_from_locale_string(proc)))){
+        *scm_proc = scm_c_lookup(proc);
+        return 0;
+    }
+    return -1;
+}
+
 // Process joystick input forever.
 void *process_joystick(void *vps){
     rov_pjs_param *p          = vps;
@@ -229,6 +241,7 @@ void *process_joystick(void *vps){
     useconds_t     sleep_time = p->phz / 1000000;
     FILE          *logic_fl   = fopen(logic_path,"r");
     char           lb[BUFSIZ];
+    SCM            scm_proc_exists_p;
     SCM            scm_logic_step;
     SCM            scm_sanatize;
     SCM            scm_ctrl_state;
@@ -242,10 +255,19 @@ void *process_joystick(void *vps){
     scm_init_guile();
     scm_c_eval_string(init_logic_str);
     scm_c_eval_string(lb);
-    scm_logic_step = scm_c_eval_string("logic-step");
-    scm_initialize = scm_c_eval_string("initialize");
-    scm_sanatize   = scm_c_eval_string("sanatize-ctrl-state");
-    scm_ctrl_state = scm_call_1(scm_initialize,
+    scm_proc_exists_p = scm_c_lookup("proc-exists?");
+    scm_sanatize      = scm_c_lookup("sanatize-ctrl-state");
+    if (safe_scm_c_lookup("initialize",scm_proc_exists_p,&scm_initialize)){
+        screen_printattr(scr,RED_PAIR,
+                         "ERROR: Failed to find 'initialize' procedure");
+        return NULL;
+    }
+    if (safe_scm_c_lookup("logic-step",scm_proc_exists_p,&scm_logic_step)){
+        screen_printattr(scr,RED_PAIR,
+                         "ERROR: Failed to find 'logic-step' procedure");
+        return NULL;
+    }
+    scm_ctrl_state     = scm_call_1(scm_initialize,
                                 scm_c_eval_string("(mk-ctrl-state 0 0 0 0 #f "
                                                   "#f #f #f 'e)"));
     gettimeofday(&after,NULL);
