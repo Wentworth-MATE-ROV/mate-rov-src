@@ -231,21 +231,24 @@ int safe_scm_c_lookup(const char *proc,SCM scm_proc_exists_p, SCM *scm_proc){
 
 // Process joystick input forever.
 void *process_joystick(void *vps){
-    rov_pjs_param *p          = vps;
-    const char    *logic_path = p->logic_path;
-    rov_screen    *scr        = p->scr;
-    rov_arduino   *a          = p->a;
-    rov_joystick   oldjs      = a->joystick;
-    rov_ctrlstate  oldctrl    = a->ctrl;
+    rov_pjs_param *p           = vps;
+    const char    *logic_path  = p->logic_path;
+    rov_screen    *scr         = p->scr;
+    rov_arduino   *a           = p->a;
+    rov_joystick   oldjs       = a->joystick;
+    rov_ctrlstate  oldctrl     = a->ctrl;
+    bool           always_step = p->always_step;
+    useconds_t     sleep_time  = p->phz / 1000000;
+    FILE          *logic_fl    = fopen(logic_path,"r");
     rov_clean_js   cjs;
-    useconds_t     sleep_time = p->phz / 1000000;
-    FILE          *logic_fl   = fopen(logic_path,"r");
     char           lb[BUFSIZ];
     SCM            scm_proc_exists_p;
     SCM            scm_logic_step;
     SCM            scm_sanatize;
     SCM            scm_ctrl_state;
     SCM            scm_initialize;
+    SCM            scm_input_state;
+    SCM            scm_old_input_state;
     struct timeval d,before,after;
     long long      delta_t;
     memset(lb,0,BUFSIZ);
@@ -273,24 +276,25 @@ void *process_joystick(void *vps){
     gettimeofday(&after,NULL);
     for (;;){
         read_jsevent(&a->joystick);
-        if (memcmp(&a->joystick,&oldjs,sizeof(rov_joystick))){
-            oldctrl = a->ctrl;
-            clean_joystick(&a->joystick,&a->keybinds,&cjs);
+        oldctrl = a->ctrl;
+        clean_joystick(&a->joystick,&a->keybinds,&cjs);
+        scm_old_input_state = scm_input_state;
+        scm_input_state = scm_from_cjs(&cjs);
+        if (always_step || !scm_is_eq(scm_input_state, scm_old_input_state){
             gettimeofday(&before,NULL);
             timeval_subtract(&d,&after,&before);
             delta_t = total_usec(&d);
             scm_ctrl_state = scm_call_1(scm_sanatize,
                                         scm_call_3(scm_logic_step,
-                                                   scm_from_cjs(&cjs),
+                                                   scm_input_state,
                                                    scm_from_double(delta_t),
                                                    scm_ctrl_state));
             gettimeofday(&after,NULL);
             ctrl_from_scm(scm_ctrl_state,&a->ctrl);
             sync_ctrlstate(a,&oldctrl);
             diff_update_stats(scr,a,&oldctrl);
-        }
-        oldjs = a->joystick;
-        usleep(sleep_time); // Sleep the thread (quantizes the polling rate).
+          }
+          usleep(sleep_time); // Sleep the thread (quantizes the polling rate).
     }
     return NULL;
 }
