@@ -15,12 +15,12 @@
   (claw-grip claw-grip set-claw-grip)
   (extra extra set-extra))
 
-;; The cleaned joystick.
-(define-immutable-record-type <js-state>
-  (mk-js-state claw-open claw-close laser-toggle headlight-toggle
-               sidelight-toggle claw-x claw-y rotate-z rotate-y
-               transpose-x transpose-y)
-  js-state?
+;; The cleaned joystick and any sensors.
+(define-immutable-record-type <input-state>
+  (mk-input-state claw-open claw-close laser-toggle headlight-toggle
+                  sidelight-toggle claw-x claw-y rotate-z rotate-y
+                  transpose-x transpose-y)
+  input-state?
   (claw-open claw-open set-claw-open)
   (claw-close claw-close set-claw-close)
   (laser-toggle laser-toggle set-laser-toggle)

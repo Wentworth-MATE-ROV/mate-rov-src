@@ -345,10 +345,10 @@ void ctrl_from_scm(SCM scm_ctrl,rov_ctrlstate *ctrl){
 // Converts a boolean into a string representing the scheme type.
 #define SCM_BOOL_STR(b) ((b) ? "#t" : "#f")
 
-// return: A scheme js-state built from a clean joystick.
+// return: A scheme input-state built from a clean joystick.
 SCM scm_from_cjs(rov_clean_js *cjs){
     char b[BUFSIZ];
-    snprintf(b,BUFSIZ,"(mk-js-state %s %s %s %s %s %d %d %d %d %d %d)",
+    snprintf(b,BUFSIZ,"(mk-input-state %s %s %s %s %s %d %d %d %d %d %d)",
              SCM_BOOL_STR(cjs->claw_open),
              SCM_BOOL_STR(cjs->claw_close),
              SCM_BOOL_STR(cjs->laser_toggle),
