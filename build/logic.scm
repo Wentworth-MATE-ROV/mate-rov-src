@@ -34,27 +34,27 @@
           (else s))))
 
 ;; Scales and returns the power to send to the left motor.
-(define (scale-left-motor js-state)
-  (let ((trans-x (transpose-x js-state))
-        (rot-y   (rotate-y    js-state)))
+(define (scale-left-motor input-state)
+  (let ((trans-x (transpose-x input-state))
+        (rot-y   (rotate-y    input-state)))
     (scale-axis-value (trunc-sum-axis-values trans-x rot-y))))
 
 ;; Scales and returns to the power to send to the right motor
-(define (scale-right-motor js-state)
-  (let ((trans-x (transpose-x js-state))
-        (rot-y   (rotate-y    js-state)))
+(define (scale-right-motor input-state)
+  (let ((trans-x (transpose-x input-state))
+        (rot-y   (rotate-y    input-state)))
     (scale-axis-value (trunc-sum-axis-values trans-x (- 0 rot-y)))))
 
 ;; Scales and returns the power to send to the front motor.
-(define (scale-front-motor js-state)
-  (let ((trans-y (transpose-y js-state))
-        (rot-z   (rotate-z    js-state)))
+(define (scale-front-motor input-state)
+  (let ((trans-y (transpose-y input-state))
+        (rot-z   (rotate-z    input-state)))
     (scale-axis-value (trunc-sum-axis-values trans-y rot-z))))
 
 ;; Scales and returns the power to send to the back motor.
-(define (scale-back-motor js-state)
-  (let ((trans-y (transpose-y js-state))
-        (rot-z   (rotate-z    js-state)))
+(define (scale-back-motor input-state)
+  (let ((trans-y (transpose-y input-state))
+        (rot-z   (rotate-z    input-state)))
     (scale-axis-value (trunc-sum-axis-values trans-y (- 0 rot-z)))))
 
 
@@ -64,27 +64,27 @@
 
 ;; The main logic step.
 ;; Invoked with the paramaters:
-;;   js-state:   The state of the joystick this frame.
-;;   delta-t:    The time in milliseconds since the last frame.
-;;   ctrl-state: The <ctrl-state> returned from the last frame.
+;;   input-state: The state of the joystick this frame.
+;;   delta-t:     The time in milliseconds since the last frame.
+;;   ctrl-state:  The <ctrl-state> returned from the last frame.
 ;; On the first frame, delta-t will be a negative value and
 ;; the ctrl-state will be a default (zeroed) <ctrl-state>.
-(define (logic-step js-state delta-t ctrl-state)
+(define (logic-step input-state delta-t ctrl-state)
   (mk-ctrl-state
-   (scale-left-motor  js-state)
-   (scale-front-motor js-state)
-   (scale-front-motor js-state)
-   (scale-back-motor  js-state)
-   (if (headlight-toggle js-state)
+   (scale-left-motor  input-state)
+   (scale-front-motor input-state)
+   (scale-front-motor input-state)
+   (scale-back-motor  input-state)
+   (if (headlight-toggle input-state)
        (not (headlights ctrl-state))
        (headlights ctrl-state))
-   (if (sidelight-toggle js-state)
+   (if (sidelight-toggle input-state)
        (not (sidelights ctrl-state))
        (sidelights ctrl-state))
-   (if (laser-toggle js-state)
+   (if (laser-toggle input-state)
        (not (lasers ctrl-state))
        (lasers ctrl-state))
-   (cond ((claw-close js-state) #t)
-         ((claw-open  js-state) #f)
+   (cond ((claw-close input-state) #t)
+         ((claw-open  input-state) #f)
          (else (claw-grip ctrl-state)))
    'e))
