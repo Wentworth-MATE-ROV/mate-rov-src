@@ -235,7 +235,6 @@ void *process_joystick(void *vps){
     const char    *logic_path  = p->logic_path;
     rov_screen    *scr         = p->scr;
     rov_arduino   *a           = p->a;
-    rov_joystick   oldjs       = a->joystick;
     rov_ctrlstate  oldctrl     = a->ctrl;
     bool           always_step = p->always_step;
     useconds_t     sleep_time  = p->phz / 1000000;
@@ -280,7 +279,7 @@ void *process_joystick(void *vps){
         clean_joystick(&a->joystick,&a->keybinds,&cjs);
         scm_old_input_state = scm_input_state;
         scm_input_state = scm_from_cjs(&cjs);
-        if (always_step || !scm_is_eq(scm_input_state, scm_old_input_state){
+        if (always_step || !scm_is_eq(scm_input_state, scm_old_input_state)){
             gettimeofday(&before,NULL);
             timeval_subtract(&d,&after,&before);
             delta_t = total_usec(&d);
