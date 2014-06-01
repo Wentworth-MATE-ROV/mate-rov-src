@@ -45,8 +45,8 @@ void clean_joystick(rov_joystick*,rov_keybinds*,rov_clean_js*);
 // Syncs the local control state back to the arduino if it has changed.
 void sync_ctrlstate(rov_arduino*,rov_ctrlstate*);
 
-// Process joystick input forever.
-void *process_joystick(void*);
+// Process robot logic forever.
+void *process_logic(void*);
 
 // Holds the thread until all ssg's have completed or overide is set to true.
 void wait_ssgs(rov_arduino*,bool*);

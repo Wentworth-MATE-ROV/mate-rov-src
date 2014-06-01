@@ -27,11 +27,11 @@
 char *statv[STATC];
 
 int main(void){
-    rov_arduino   a;
-    rov_screen    scr;
-    pthread_t     jst;
-    rov_pjs_param pjp;
-    rov_pq_param  pqp;
+    rov_arduino  a;
+    rov_screen   scr;
+    pthread_t    jst;
+    rov_pl_param plp;
+    rov_pq_param pqp;
     init_keybinds();
     if (init_arduino(&a,"/dev/ttyACM0","/dev/input/js0")){
         fputs("Could not initialize the arduino\n",stderr);
@@ -44,16 +44,16 @@ int main(void){
     pqp.scr         = &scr;
     pqp.q           = &a.queue;
     pthread_create(&a.qt,NULL,process_queue,&pqp);
-    pjp.a           = &a;
-    pjp.scr         = &scr;
-    pjp.phz         = 100;
-    pjp.shz         = 100;
-    pjp.logic_path  = "logic.scm";
-    pjp.always_step = false;
+    plp.a           = &a;
+    plp.scr         = &scr;
+    plp.phz         = 100;
+    plp.shz         = 100;
+    plp.logic_path  = "logic.scm";
+    plp.always_step = false;
     screen_reload_keybinds(&scr,&a,false);
     screen_reload_pinlayout(&scr,&a,false);
     pinmode_sync(&a);
-    pthread_create(&jst,NULL,process_joystick,&pjp);
+    pthread_create(&jst,NULL,process_logic,&plp);
     process_keyboard(&scr,&a);
     destroy_screen(&scr);
     destroy_arduino(&a);

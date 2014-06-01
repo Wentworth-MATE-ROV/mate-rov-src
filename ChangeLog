@@ -153,3 +153,10 @@
 	* build/logic.scm: Completed a preliminary logic module for the
 	robot.
 	* TODO: Updated TODO to remove the completion of the logic module.
+
+2014-05-31 Joe Jevnik <joejev@gmail.com>
+	* src/controls/controls.h, src/controls/controls.c, src/ui/main.c:
+	Updated the name process_joystick to process_logic to more accuratly
+	reflect the scheme->c interaction happening.
+	* src/common.h: Updated the name rov_pjp_params ro rov_pl_params to
+	more accuratly represent what it is the params to.

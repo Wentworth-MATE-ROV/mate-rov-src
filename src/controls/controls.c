@@ -229,9 +229,9 @@ int safe_scm_c_lookup(const char *proc,SCM scm_proc_exists_p, SCM *scm_proc){
     return -1;
 }
 
-// Process joystick input forever.
-void *process_joystick(void *vps){
-    rov_pjs_param *p           = vps;
+// Process robot logic forever.
+void *process_logic(void *vps){
+    rov_pl_param  *p           = vps;
     const char    *logic_path  = p->logic_path;
     rov_screen    *scr         = p->scr;
     rov_arduino   *a           = p->a;
