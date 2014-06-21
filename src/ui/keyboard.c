@@ -103,13 +103,11 @@ void screen_reload_pinlayout(rov_screen *scr,rov_arduino *a,bool diff){
     DIFFCMPPIN("headlights: ",headlightv,headlightc);
     DIFFCMPPIN("sidelights: ",sidelightv,sidelightc);
     DIFFCMPPIN("left-motor: ",leftmotorv,leftmotorc);
-    DIFFCMPPIN("left-motor-direction: ",leftmotordv,leftmotordc);
     DIFFCMPPIN("right-motor: ",rightmotorv,rightmotorc);
-    DIFFCMPPIN("right-motor-direction: ",rightmotordv,rightmotordc);
     DIFFCMPPIN("front-motor: ",frontmotorv,frontmotorc);
-    DIFFCMPPIN("front-motor-direction: ",frontmotordv,frontmotordc);
     DIFFCMPPIN("back-motor: ",backmotorv,backmotorc);
-    DIFFCMPPIN("back-motor-direction: ",backmotordv,backmotordc);
+    DIFFCMPPIN("claw-90: ",claw_90v,claw_90c);
+    DIFFCMPPIN("claw-180: ",claw_180v,claw_180c);
     if (!c){
         screen_printattr(scr,GREEN_PAIR | A_BOLD,"Nothing to reload! (pins)");
     }

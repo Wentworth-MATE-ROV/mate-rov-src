@@ -160,3 +160,8 @@
 	reflect the scheme->c interaction happening.
 	* src/common.h: Updated the name rov_pjp_params ro rov_pl_params to
 	more accuratly represent what it is the params to.
+
+2014-06-21 Joe Jevnik <joejev@gmail.com>
+	* src/controls/controls.h, src/controls/controls.c: Now accounts for
+	the pistons needed to move the claw.
+	* src/common.h: Provided limit definitons for some integer types.

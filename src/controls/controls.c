@@ -31,20 +31,24 @@ static SCM scm_headlights;
 static SCM scm_sidelights;
 static SCM scm_lasers;
 static SCM scm_clawgrip;
+static SCM scm_claw_90;
+static SCM scm_claw_180;
 
-// return: scales the value from the range of unsigned char to [0,180].
-short scale_axisval(short v){
-    return (v / ((double) SHRT_MAX)) * 180;
+// return: scales the values of the rov_motor to the range [0,255].
+unsigned char scale_motorval(rov_motor v){
+    return ((v + 100) / 200) * 255;
 }
 
-// return: truncates the power value in the range [SHRT_MIN,SHRT_MAX].
-short trunc_powerval(int v){
-    return (v > SHRT_MAX) ? SHRT_MAX : (v < SHRT_MIN) ? SHRT_MIN : v;
+// return: scales v to the range of an rov_motor.
+rov_motor scale_cleaned_val(int v){
+    return (v > ROV_MOTOR_MAX) ? ROV_MOTOR_MAX
+        : (v < ROV_MOTOR_MIN) ? ROV_MOTOR_MIN : v;
 }
 
 // Applies the keybinds to the joystick to clean it, storing the result in c.
 void clean_joystick(rov_joystick *js,rov_keybinds *kbs,rov_clean_js *c){
     size_t n;
+    int    trans_x,trans_y,rot_z,rot_y,claw_x,claw_y;
     memset(c,0,sizeof(rov_clean_js));
     for (n = 0;n < kbs->headlight_togglec;n++){
         if (is_button(js,kbs->headlight_togglev[n])){
@@ -76,115 +80,140 @@ void clean_joystick(rov_joystick *js,rov_keybinds *kbs,rov_clean_js *c){
             break;
         }
     }
+    for (n = 0;n < kbs->claw_xc;n++){
+        if (kbs->claw_xv[n].is_pair){
+            if (is_button(js,kbs->claw_xv[n].pos)){
+                claw_x += SHRT_MAX;
+            }
+            if (is_button(js,kbs->claw_xv[n].neg)){
+                claw_x += SHRT_MIN;
+            }
+        }else{
+            claw_x+= js->axes[kbs->claw_xv[n].axis];
+        }
+    }
+    claw_x /= kbs->claw_xc;
+    c->claw_x = scale_cleaned_val(claw_x);
+    for (n = 0;n < kbs->claw_yc;n++){
+        if (kbs->claw_yv[n].is_pair){
+            if (is_button(js,kbs->claw_yv[n].pos)){
+                claw_y += SHRT_MAX;
+            }
+            if (is_button(js,kbs->claw_yv[n].neg)){
+                claw_y += SHRT_MIN;
+            }
+        }else{
+            claw_y+= js->axes[kbs->claw_yv[n].axis];
+        }
+    }
+    claw_y /= kbs->claw_yc;
+    c->claw_y = scale_cleaned_val(claw_y);
     for (n = 0;n < kbs->transpose_xc;n++){
         if (kbs->transpose_xv[n].is_pair){
             if (is_button(js,kbs->transpose_xv[n].pos)){
-                c->transpose_x += SHRT_MAX;
+                trans_x += SHRT_MAX;
             }
             if (is_button(js,kbs->transpose_xv[n].neg)){
-                c->transpose_x += SHRT_MIN;
+                trans_x += SHRT_MIN;
             }
         }else{
-            c->transpose_x += js->axes[kbs->transpose_xv[n].axis];
+            trans_x+= js->axes[kbs->transpose_xv[n].axis];
         }
     }
-    c->transpose_x /= kbs->transpose_xc;
+    trans_x /= kbs->transpose_xc;
+    c->transpose_x = scale_cleaned_val(trans_x);
     for (n = 0;n < kbs->rotate_yc;n++){
         if (kbs->rotate_yv[n].is_pair){
             if (is_button(js,kbs->rotate_yv[n].pos)){
-                c->rotate_y += SHRT_MAX;
+                rot_y += SHRT_MAX;
             }
             if (is_button(js,kbs->rotate_yv[n].neg)){
-                c->rotate_y += SHRT_MIN;
+                rot_y += SHRT_MIN;
             }
         }else{
-            c->rotate_y += js->axes[kbs->rotate_yv[n].axis];
+            rot_y += js->axes[kbs->rotate_yv[n].axis];
         }
     }
-    c->rotate_y /= kbs->rotate_yc;
+    rot_y /= kbs->rotate_yc;
+    c->rotate_y = scale_cleaned_val(rot_y);
     for (n = 0;n < kbs->transpose_yc;n++){
         if (kbs->transpose_yv[n].is_pair){
             if (is_button(js,kbs->transpose_yv[n].pos)){
-                c->transpose_y += SHRT_MAX;
+                trans_y += SHRT_MAX;
             }
             if (is_button(js,kbs->transpose_yv[n].neg)){
-                c->transpose_y += SHRT_MIN;
+                trans_y += SHRT_MIN;
             }
         }else{
-            c->transpose_y += js->axes[kbs->transpose_yv[n].axis];
+            trans_y += js->axes[kbs->transpose_yv[n].axis];
         }
     }
-    c->transpose_y /= kbs->transpose_yc;
+    trans_y /= kbs->transpose_yc;
+    c->transpose_y = scale_cleaned_val(trans_y);
     for (n = 0;n < kbs->rotate_zc;n++){
         if (kbs->rotate_zv[n].is_pair){
             if (is_button(js,kbs->rotate_zv[n].pos)){
-                c->rotate_z += SHRT_MAX;
+                rot_z += SHRT_MAX;
             }
             if (is_button(js,kbs->rotate_zv[n].neg)){
-                c->rotate_z += SHRT_MIN;
+                rot_z += SHRT_MIN;
             }
         }else{
-            c->rotate_z += js->axes[kbs->rotate_zv[n].axis];
+            rot_z += js->axes[kbs->rotate_zv[n].axis];
         }
     }
-    c->rotate_z /= kbs->rotate_zc;
+    rot_z/= kbs->rotate_zc;
+    c->rotate_z = scale_cleaned_val(rot_z);
 }
 
 
 // Syncs the local control state back to the arduino if it has changed.
-void sync_ctrlstate(rov_arduino *a,rov_ctrlstate *old){
+void sync_ctrlstate(rov_arduino *a, rov_ctrlstate *old){
     size_t n;
     short  v;
-    bool   b;
-    for (n = 0;n < a->layout.laserc;n++){
-        digital_write(a,a->layout.laserv[n],a->ctrl.lasers);
-    }
-    for (n = 0;n < a->layout.headlightc;n++){
-        digital_write(a,a->layout.headlightv[n],a->ctrl.headlights);
-    }
-    for (n = 0;n < a->layout.sidelightc;n++){
-        digital_write(a,a->layout.sidelightv[n],a->ctrl.sidelights);
-    }
-    for (n = 0;n < a->layout.clawgripc;n++){
-        digital_write(a,a->layout.clawgripv[n],a->ctrl.clawgrip);
-    }
-    if ((a->ctrl.leftmotor > 0) != (old->leftmotor > 0)){
-        b = a->ctrl.leftmotor > 0;
-        for (n = 0;n < a->layout.leftmotordc;n++){
-            digital_write(a,a->layout.leftmotordv[n],b);
+    if (old->lasers != a->ctrl.lasers){
+        for (n = 0;n < a->layout.laserc;n++){
+            digital_write(a,a->layout.laserv[n],a->ctrl.lasers);
         }
     }
-    v = abs(a->ctrl.leftmotor);
+    if (old->headlights != a->ctrl.headlights){
+        for (n = 0;n < a->layout.headlightc;n++){
+            digital_write(a,a->layout.headlightv[n],a->ctrl.headlights);
+        }
+    }
+    if (old->sidelights != a->ctrl.sidelights){
+        for (n = 0;n < a->layout.sidelightc;n++){
+            digital_write(a,a->layout.sidelightv[n],a->ctrl.sidelights);
+        }
+    }
+    if (old->clawgrip != a->ctrl.clawgrip){
+        for (n = 0;n < a->layout.clawgripc;n++){
+            digital_write(a,a->layout.clawgripv[n],a->ctrl.clawgrip);
+        }
+    }
+    if (old->claw_180 != a->ctrl.claw_180){
+        for (n = 0;n < a->layout.claw_180c;n++){
+            digital_write(a,a->layout.claw_180v[n],a->ctrl.claw_180);
+        }
+    }
+    if (old->claw_90 != a->ctrl.claw_90){
+        for (n = 0;n < a->layout.claw_90c;n++){
+            digital_write(a,a->layout.claw_90v[n],a->ctrl.claw_90);
+        }
+    }
+    v = scale_motorval(a->ctrl.leftmotor);
     for (n = 0;n < a->layout.leftmotorc;n++){
         servo_write(a,a->layout.leftmotorv[n],v);
     }
-    if ((a->ctrl.rightmotor > 0) != (old->rightmotor > 0)){
-        b = a->ctrl.rightmotor > 0;
-        for (n = 0;n < a->layout.rightmotordc;n++){
-            digital_write(a,a->layout.rightmotordv[n],b);
-        }
-    }
-    v = abs(a->ctrl.rightmotor);
+    v = scale_motorval(a->ctrl.rightmotor);
     for (n = 0;n < a->layout.rightmotorc;n++){
         servo_write(a,a->layout.rightmotorv[n],v);
     }
-    if ((a->ctrl.frontmotor > 0) != (old->frontmotor > 0)){
-        b = a->ctrl.frontmotor > 0;
-        for (n = 0;n < a->layout.frontmotordc;n++){
-            digital_write(a,a->layout.frontmotordv[v],b);
-        }
-    }
-    v = abs(a->ctrl.frontmotor);
+    v = scale_motorval(a->ctrl.frontmotor);
     for (n = 0;n < a->layout.frontmotorc;n++){
         servo_write(a,a->layout.frontmotorv[n],v);
     }
-    if ((a->ctrl.backmotor > 0) != (old->backmotor > 0)){
-        b = a->ctrl.backmotor > 0;
-        for (n = 0;n < a->layout.backmotordc;n++){
-            digital_write(a,a->layout.backmotordv[n],b);
-        }
-    }
-    v = abs(a->ctrl.backmotor);
+    v = scale_motorval(a->ctrl.backmotor);
     for (n = 0;n < a->layout.backmotorc;n++){
         servo_write(a,a->layout.backmotorv[n],v);
     }
@@ -256,6 +285,16 @@ void *process_logic(void *vps){
     update_stats(scr,a);
     scm_init_guile();
     scm_c_eval_string(init_logic_str);
+    scm_leftmotor     = scm_c_eval_string("left-motor");
+    scm_rightmotor    = scm_c_eval_string("right-motor");
+    scm_frontmotor    = scm_c_eval_string("front-motor");
+    scm_backmotor     = scm_c_eval_string("back-motor");
+    scm_headlights    = scm_c_eval_string("headlights");
+    scm_sidelights    = scm_c_eval_string("sidelights");
+    scm_lasers        = scm_c_eval_string("lasers");
+    scm_clawgrip      = scm_c_eval_string("claw-grip");
+    scm_claw_90       = scm_c_eval_string("claw-90");
+    scm_claw_180      = scm_c_eval_string("claw-180");
     scm_c_eval_string(lb);
     scm_proc_exists_p = scm_c_lookup("proc-exists?");
     scm_sanatize      = scm_c_lookup("sanatize-ctrl-state");
@@ -270,8 +309,8 @@ void *process_logic(void *vps){
         return NULL;
     }
     scm_ctrl_state     = scm_call_1(scm_initialize,
-                                scm_c_eval_string("(mk-ctrl-state 0 0 0 0 #f "
-                                                  "#f #f #f 'e)"));
+                                scm_c_eval_string("(mk-ctrl-state 0 0 0"
+                                                  " 0 #f #f #f #f 'e)"));
     gettimeofday(&after,NULL);
     for (;;){
         read_jsevent(&a->joystick);
@@ -298,42 +337,9 @@ void *process_logic(void *vps){
     return NULL;
 }
 
-// Holds the thread until all ssg's have completed or overide is set to true.
-void wait_ssgs(rov_arduino *a,bool *override){
-    size_t n;
-    bool   b = true;
-    while (!*override && b){
-        b = true;
-        for (n = 0;n < a->layout.leftmotorsc;n++){
-            b &= digital_read(a,a->layout.leftmotorsv[n]);
-        }
-        for (n = 0;n < a->layout.rightmotorsc;n++){
-            b &= digital_read(a,a->layout.rightmotorsv[n]);
-        }
-        for (n = 0;n < a->layout.frontmotorsc;n++){
-            b &= digital_read(a,a->layout.frontmotorsv[n]);
-        }
-        for (n = 0;n < a->layout.backmotorsc;n++){
-            b &= digital_read(a,a->layout.backmotorsv[n]);
-        }
-    }
-}
-
 // Converts a (sanatized) ctrl-state to an rov_controlstate.
 // WARNING: Does no type checking, call sanatize-ctrl-state first.
 void ctrl_from_scm(SCM scm_ctrl,rov_ctrlstate *ctrl){
-    static bool init = false;
-    if (!init){
-        scm_leftmotor  = scm_c_eval_string("left-motor");
-        scm_rightmotor = scm_c_eval_string("right-motor");
-        scm_frontmotor = scm_c_eval_string("front-motor");
-        scm_backmotor  = scm_c_eval_string("back-motor");
-        scm_headlights = scm_c_eval_string("headlights");
-        scm_sidelights = scm_c_eval_string("sidelights");
-        scm_lasers     = scm_c_eval_string("lasers");
-        scm_clawgrip   = scm_c_eval_string("claw-grip");
-        init           = true;
-    }
     ctrl->leftmotor  = scm_to_short(scm_call_1(scm_leftmotor,scm_ctrl));
     ctrl->rightmotor = scm_to_short(scm_call_1(scm_rightmotor,scm_ctrl));
     ctrl->frontmotor = scm_to_short(scm_call_1(scm_frontmotor,scm_ctrl));
@@ -342,6 +348,8 @@ void ctrl_from_scm(SCM scm_ctrl,rov_ctrlstate *ctrl){
     ctrl->sidelights = scm_to_bool(scm_call_1(scm_sidelights,scm_ctrl));
     ctrl->lasers     = scm_to_bool(scm_call_1(scm_lasers,scm_ctrl));
     ctrl->clawgrip   = scm_to_bool(scm_call_1(scm_clawgrip,scm_ctrl));
+    ctrl->claw_90    = scm_to_bool(scm_call_1(scm_claw_90,scm_ctrl));
+    ctrl->claw_180   = scm_to_bool(scm_call_1(scm_claw_180,scm_ctrl));
 }
 
 

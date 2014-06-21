@@ -15,27 +15,25 @@
    this program; if not, write to the Free Software Foundation, Inc., 51
    Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA. |#
 
-(define-module (parsers keybinds-parser))
-
 ;; Generates the button number in the form of a list of 'b and the number.
 ;; n -- the number of the button on the joystick: (button 2) is button 2.
-(define-public (button n)
+(define (button n)
   (if (or (> n 12) (< n 1))
       -1
       (- n 1)))
 
 ;; Defines a constant for no button, expanding to (b -1) or 255 on the c end.
-(define-public no-button (button 0))
+(define no-button (button 0))
 
 ;; Generates the axis number in the form of a list of 'a and the number or pair.
 ;; n -- the axis number.
-(define-public (axis n)
+(define (axis n)
   (if (or (> n 6) (< n 0))
       -1
       n))
 
 ;; Generates a pair that will represent an axis.
-(define-public (axis-pair a b)
+(define (axis-pair a b)
   (if (or (eq? no-button a) (eq? no-button b))
       no-axis
       (cons a b)))
@@ -68,7 +66,7 @@
 (define-syntax gen-op
   (syntax-rules ()
     ((gen-op name p)
-     (define-public (name . n)
+     (define (name . n)
        (if (p n)
            `(,(symbol->string 'name) . ,n)
            'name)))))

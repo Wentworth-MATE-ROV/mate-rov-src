@@ -22,17 +22,19 @@
 ;; The robot control state.
 (define-immutable-record-type <ctrl-state>
   (mk-ctrl-state left-motor right-motor front-motor back-motor
-                 headlights sidelights lasers claw-grip extra)
+                 headlights sidelights lasers claw-grip claw-90 claw-180 extra)
   ctrl-state?
-  (left-motor left-motor set-left-motor)
+  (left-motor  left-motor  set-left-motor)
   (right-motor right-motor set-right-motor)
   (front-motor front-motor set-front-motor)
-  (back-motor back-motor set-back-motor)
-  (headlights headlights set-headlights)
-  (sidelights sidelights set-sidelights)
-  (lasers lasers set-lasers)
-  (claw-grip claw-grip set-claw-grip)
-  (extra extra set-extra))
+  (back-motor  back-motor  set-back-motor)
+  (headlights  headlights  set-headlights)
+  (sidelights  sidelights  set-sidelights)
+  (lasers      lasers      set-lasers)
+  (claw-grip   claw-grip   set-claw-grip)
+  (claw-90     claw-90     set-claw-90)
+  (claw-180    claw-180    set-claw-180)
+  (extra       extra       set-extra))
 
 ;; The cleaned joystick and any sensors.
 (define-immutable-record-type <input-state>
@@ -40,17 +42,17 @@
                   sidelight-toggle claw-x claw-y rotate-z rotate-y
                   transpose-x transpose-y)
   input-state?
-  (claw-open claw-open set-claw-open)
-  (claw-close claw-close set-claw-close)
-  (laser-toggle laser-toggle set-laser-toggle)
+  (claw-open        claw-open        set-claw-open)
+  (claw-close       claw-close       set-claw-close)
+  (laser-toggle     laser-toggle     set-laser-toggle)
   (headlight-toggle headlight-toggle set-headlight-toggle)
   (sidelight-toggle sidelight-toggle set-sidelight-toggle)
-  (claw-x claw-x set-claw-x)
-  (claw-y claw-y set-claw-y)
-  (rotate-z rotate-z set-rotate-z)
-  (rotate-y rotate-y set-rotate-y)
-  (transpose-x transpose-x set-transpose-x)
-  (transpose-y transpose-y set-transpose-y))
+  (claw-x           claw-x           set-claw-x)
+  (claw-y           claw-y           set-claw-y)
+  (rotate-z         rotate-z         set-rotate-z)
+  (rotate-y         rotate-y         set-rotate-y)
+  (transpose-x      transpose-x      set-transpose-x)
+  (transpose-y      transpose-y      set-transpose-y))
 
 
 ;; Checks the types of the control state and sets default values.
@@ -67,13 +69,15 @@
                                        (cons init (car forms)))
                                 (cdr forms))))))
     (check-fields ctrl `((,integer? ,front-motor ,set-front-motor 0)
-                         (,integer? ,back-motor ,set-back-motor 0)
-                         (,integer? ,left-motor ,set-left-motor 0)
+                         (,integer? ,back-motor  ,set-back-motor 0)
+                         (,integer? ,left-motor  ,set-left-motor 0)
                          (,integer? ,right-motor ,set-right-motor 0)
-                         (,boolean? ,headlights ,set-headlights #f)
-                         (,boolean? ,sidelights ,set-sidelights #f)
-                         (,boolean? ,lasers ,set-lasers #f)
-                         (,boolean? ,claw-grip ,set-claw-grip #f)))))\
+                         (,boolean? ,headlights  ,set-headlights #f)
+                         (,boolean? ,sidelights  ,set-sidelights #f)
+                         (,boolean? ,lasers      ,set-lasers #f)
+                         (,boolean? ,claw-grip   ,set-claw-grip #f)
+                         (,boolean? ,claw-90     ,set-claw-90)
+                         (,boolean? ,claw-180    ,set-claw-180)))))
 
 ;; Checks if a process exists or not.
 (define (proc-exists? proc-name)

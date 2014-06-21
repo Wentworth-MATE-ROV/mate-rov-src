@@ -26,9 +26,14 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <ncurses.h>
+#include <limits.h>
 
 // The type of a pin on the arduino. Range: [0,63]
 typedef unsigned char rov_pin;
+
+// Pin limits.
+#define ROV_PIN_MAX 63
+#define ROV_PIN_MIN 0
 
 // PLACEHOLDER:
 typedef int rov_therm;
@@ -37,8 +42,12 @@ typedef int rov_accel;
 // The lights on the arduino.
 typedef bool rov_light;
 
-// A type representing a motor controller attached to the arduino.
+// A type representing the values of power that can be sent to a motor.
 typedef short rov_motor;
+
+// Define the limits for this type.
+#define ROV_MOTOR_MAX SHRT_MAX
+#define ROV_MOTOR_MIN SHRT_MIN
 
 // The states the pins may be in.
 typedef enum{
@@ -135,7 +144,7 @@ typedef struct{
 }rov_keybinds;
 
 // Pin binding length constant.
-#define PINCMDCOUNT 16
+#define PINCMDCOUNT 10
 
 // A structure to hold the pinlayout of the robot.
 typedef struct{
@@ -146,40 +155,28 @@ typedef struct{
             size_t        headlightc;                 // Headlights.
             size_t        sidelightc;                 // Sidelights.
             size_t        leftmotorc;                 // Left motors.
-            size_t        leftmotordc;                // Left motor directions.
-            size_t        leftmotorsc;                // Left motor ssgs.
             size_t        rightmotorc;                // Right motors.
-            size_t        rightmotordc;               // Right motor directions.
-            size_t        rightmotorsc;               // Right motor ssgs.
             size_t        frontmotorc;                // Front motors.
-            size_t        frontmotordc;               // Front motor directions.
-            size_t        frontmotorsc;               // Front motor ssgs.
             size_t        backmotorc;                 // Back motors.
-            size_t        backmotordc;                // Back motor directions.
-            size_t        backmotorsc;                // Back motor ssgs.
+            size_t        claw_90c;                   // Claw 90deg piston.
+            size_t        claw_180c;                  // Claw 180deg piston.
         };
         size_t            pincounts[PINCMDCOUNT];     // The pin count vector.
     };
     union{
         struct{
-            unsigned char clawgripv[54];              // Claw grip.
-            unsigned char laserv[54];                 // Lasers.
-            unsigned char headlightv[54];             // Headlights.
-            unsigned char sidelightv[54];             // Sidelights.
-            unsigned char leftmotorv[54];             // Left motors.
-            unsigned char leftmotordv[54];            // Left motor directions.
-            unsigned char leftmotorsv[54];            // Left motor ssgs.
-            unsigned char rightmotorv[54];            // Right motors.
-            unsigned char rightmotordv[54];           // Right motor directions.
-            unsigned char rightmotorsv[54];           // Right motor ssgs.
-            unsigned char frontmotorv[54];            // Front motors.
-            unsigned char frontmotordv[54];           // Front motor directions.
-            unsigned char frontmotorsv[54];           // Front motor ssgs.
-            unsigned char backmotorv[54];             // Back motors.
-            unsigned char backmotordv[54];            // Back motor directions.
-            unsigned char backmotorsv[54];            // Back motor ssgs.
+            rov_pin clawgripv[54];                    // Claw grip.
+            rov_pin laserv[54];                       // Lasers.
+            rov_pin headlightv[54];                   // Headlights.
+            rov_pin sidelightv[54];                   // Sidelights.
+            rov_pin leftmotorv[54];                   // Left motors.
+            rov_pin rightmotorv[54];                  // Right motors.
+            rov_pin frontmotorv[54];                  // Front motors.
+            rov_pin backmotorv[54];                   // Back motors.
+            rov_pin claw_90v[54];                     // Claw 90deg piston.
+            rov_pin claw_180v[54];                    // Claw 180deg piston.
         };
-        unsigned char     pinvalues[PINCMDCOUNT][54]; // The pin value vector.
+        rov_pin     pinvalues[PINCMDCOUNT][54];       // The pin value vector.
     };
 }rov_pinlayout;
 
@@ -197,6 +194,8 @@ typedef struct{
     rov_light         sidelights; // The lights on the side cameras.
     rov_light         lasers;     // The laser mechanism.
     bool              clawgrip;   // Is the claw closed?
+    bool              claw_90;    // The 90deg piston.
+    bool              claw_180;   // The 90deg piston.
 }rov_ctrlstate;
 
 // A complete arduino.

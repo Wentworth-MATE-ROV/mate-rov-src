@@ -48,9 +48,6 @@ void sync_ctrlstate(rov_arduino*,rov_ctrlstate*);
 // Process robot logic forever.
 void *process_logic(void*);
 
-// Holds the thread until all ssg's have completed or overide is set to true.
-void wait_ssgs(rov_arduino*,bool*);
-
 // Converts a (sanatized) ctrl-state to an rov_controlstate.
 // WARNING: Does no type checking, call sanatize-ctrl-state first.
 void ctrl_from_scm(SCM,rov_ctrlstate*);

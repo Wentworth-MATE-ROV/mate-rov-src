@@ -16,6 +16,7 @@
    Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA. */
 
 #include "pinlayout.h"
+#include "pin-parser.scm.ch"
 
 // The strings used when parsing the pins.
 const char* const pin_laser_str        = "lasers";
@@ -23,17 +24,11 @@ const char* const pin_headlight_str    = "headlights";
 const char* const pin_sidelight_str    = "sidelights";
 const char* const pin_clawgrip_str     = "claw-grip";
 const char* const pin_leftmotor_str    = "left-motor";
-const char* const pin_leftmotor_d_str  = "left-motor-direction";
-const char* const pin_leftmotor_s_str  = "left-motor-ssg";
 const char* const pin_rightmotor_str   = "right-motor";
-const char* const pin_rightmotor_d_str = "right-motor-direction";
-const char* const pin_rightmotor_s_str = "right-motor-ssg";
 const char* const pin_frontmotor_str   = "front-motor";
-const char* const pin_frontmotor_d_str = "front-motor-direction";
-const char* const pin_frontmotor_s_str = "front-motor-ssg";
 const char* const pin_backmotor_str    = "back-motor";
-const char* const pin_backmotor_d_str  = "back-motor-direction";
-const char* const pin_backmotor_s_str  = "back-motor-ssg";
+const char* const pin_claw_90_str      = "claw-90";
+const char* const pin_claw_180_str     = "claw-180";
 
 // Zeros the pinlayout.
 void init_pinlayout(rov_pinlayout *l){
@@ -51,17 +46,11 @@ int pin_read_scm_line(rov_pinlayout *l,SCM scm){
                                      pin_headlight_str,
                                      pin_sidelight_str,
                                      pin_leftmotor_str,
-                                     pin_leftmotor_d_str,
-                                     pin_leftmotor_s_str,
                                      pin_rightmotor_str,
-                                     pin_rightmotor_d_str,
-                                     pin_rightmotor_s_str,
                                      pin_frontmotor_str,
-                                     pin_frontmotor_d_str,
-                                     pin_frontmotor_s_str,
                                      pin_backmotor_str,
-                                     pin_backmotor_d_str,
-                                     pin_backmotor_s_str };
+                                     pin_claw_90_str,
+                                     pin_claw_180_str };
     op  = scm_to_locale_string(scm_car(scm));
     scm = scm_cdr(scm);
     len = scm_to_size_t(scm_length(scm));
@@ -84,14 +73,10 @@ int pin_read_scm_line(rov_pinlayout *l,SCM scm){
 // Parses a pinlayout from a file.
 // return: 0 on success, non-zero on failure.
 int parse_pinlayout(rov_pinlayout *l,const char *pfl){
-    FILE *scm_fl = fopen("parsers/pin-parser.scm","r");
     FILE *l_fl;
     char  path[256];
     char  scm_fc[BUFSIZ];
     SCM   scm;
-    if (!scm_fl){
-        return -1;
-    }
     if (!pfl){
         return 0;
     }
@@ -105,17 +90,14 @@ int parse_pinlayout(rov_pinlayout *l,const char *pfl){
         return -1;
     }
     scm_init_guile();
-    fread(scm_fc,sizeof(char),BUFSIZ,scm_fl);
-    fclose(scm_fl);
-    scm_c_eval_string("(set! %load-path (cons (getcwd) %load-path))\n"
-                      "(use-modules (parsers pin-parser))");
-    scm_c_eval_string(scm_fc);
+    scm_c_eval_string(pin_parser_str);
     while (fgets(scm_fc,BUFSIZ,l_fl)){
         scm = scm_c_eval_string(scm_fc);
         if (scm != SCM_UNSPECIFIED && scm_is_pair(scm)){
             pin_read_scm_line(l,scm);
         }
     }
+    fclose(l_fl);
     return 0;
 }
 
@@ -140,15 +122,7 @@ void pinmode_sync(rov_arduino *a){
     SETPINSTATEOUT(headlightc,headlightv);
     SETPINSTATEOUT(sidelightc,sidelightv);
     SETPINSTATESERVO(leftmotorc,leftmotorv);
-    SETPINSTATEOUT(leftmotordc,leftmotordv);
-    SETPINSTATEIN(leftmotorsc,leftmotorsv);
     SETPINSTATESERVO(rightmotorc,rightmotorv);
-    SETPINSTATEOUT(rightmotordc,rightmotordv);
-    SETPINSTATEOUT(rightmotorsc,rightmotorsv);
     SETPINSTATESERVO(frontmotorc,frontmotorv);
-    SETPINSTATEOUT(frontmotordc,frontmotordv);
-    SETPINSTATEIN(frontmotorsc,frontmotorsv);
     SETPINSTATESERVO(backmotorc,backmotorv);
-    SETPINSTATEOUT(backmotordc,backmotordv);
-    SETPINSTATEIN(backmotorsc,backmotorsv);
 }

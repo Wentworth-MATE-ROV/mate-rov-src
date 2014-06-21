@@ -38,11 +38,18 @@ add_custom_command(
   OUTPUT controls/keybinds-parser.scm.ch
   COMMAND fch -l c -m ROV_KEYBINDS_PARSER_H ${SRC}/controls/keybinds-parser.scm)
 
+add_custom_command(
+  PRE_BUILD
+  OUTPUT controls/pin-parser.scm.ch
+  COMMAND fch -l c -m ROV_PIN_PARSER_H ${SRC}/controls/pin-parser.scm)
+
 include_directories(/usr/include/guile/2.0)
 
 add_custom_target(
   gen_fch
-  DEPENDS controls/init-logic.scm.ch controls/keybinds-parser.scm.ch)
+  DEPENDS controls/init-logic.scm.ch
+          controls/keybinds-parser.scm.ch
+          controls/pin-parser.scm.ch)
 
 add_executable(rov
                ${MATEROV_FILES})

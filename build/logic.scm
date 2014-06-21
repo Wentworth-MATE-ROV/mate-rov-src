@@ -24,7 +24,7 @@
 ;; Scales the values from a joystick to what the ctrl-state wants.
 ;; return: An integer
 (define (scale-axis-value v)
-  (floor (* 180 (/ v shrt-max))))
+  (floor (* 100 (/ v shrt-max))))
 
 ;; Truncates the sum of two axis values
 (define (trunc-sum-axis-values v w)
@@ -57,6 +57,14 @@
         (rot-z   (rotate-z    input-state)))
     (scale-axis-value (trunc-sum-axis-values trans-y (- 0 rot-z)))))
 
+;; (claw-90 . claw-180)
+(define (get-piston-state claw-x claw-y old-state)
+  (cond ((or (and (= 0 claw-x) (= 0 claw-y))
+             (and (not (= 0 claw-x)) (not (= 0 claw-y)))) old-state)
+        ((< claw-y 0) '(#t . #f))    ; Straight up
+        ((> claw-y 0) '(#t . #t))    ; Straight down.
+        ((< claw-x 0) '(#f . #f))    ; Straight foward.
+        ((> claw-x 0) '(#f . #f))))  ; Straight Back.
 
 ;; Setup control state; populate extra if you wish.
 (define (initialize ctrl-state)
@@ -70,21 +78,29 @@
 ;; On the first frame, delta-t will be a negative value and
 ;; the ctrl-state will be a default (zeroed) <ctrl-state>.
 (define (logic-step input-state delta-t ctrl-state)
-  (mk-ctrl-state
-   (scale-left-motor  input-state)
-   (scale-front-motor input-state)
-   (scale-front-motor input-state)
-   (scale-back-motor  input-state)
-   (if (headlight-toggle input-state)
-       (not (headlights ctrl-state))
-       (headlights ctrl-state))
-   (if (sidelight-toggle input-state)
-       (not (sidelights ctrl-state))
-       (sidelights ctrl-state))
-   (if (laser-toggle input-state)
-       (not (lasers ctrl-state))
-       (lasers ctrl-state))
-   (cond ((claw-close input-state) #t)
-         ((claw-open  input-state) #f)
-         (else (claw-grip ctrl-state)))
-   'e))
+  (let* ((old-piston-state '((claw-90 ctrl-state) . (claw-180 ctrl-state)))
+         (new-piston-state (get-piston-state (claw-x ctrl-state)
+                                             (claw-y ctrl-state)
+                                             old-piston-state))
+         (claw-90-state (car new-piston-state))
+         (claw-180-state (cdr new-piston-state)))
+    (mk-ctrl-state
+     (scale-left-motor  input-state)
+     (scale-front-motor input-state)
+     (scale-front-motor input-state)
+     (scale-back-motor  input-state)
+     (if (headlight-toggle input-state)
+         (not (headlights ctrl-state))
+         (headlights ctrl-state))
+     (if (sidelight-toggle input-state)
+         (not (sidelights ctrl-state))
+         (sidelights ctrl-state))
+     (if (laser-toggle input-state)
+         (not (lasers ctrl-state))
+         (lasers ctrl-state))
+     (cond ((claw-close input-state) #t)
+           ((claw-open  input-state) #f)
+           (else (claw-grip ctrl-state)))
+     claw-90-state
+     claw-180-state
+     'e)))

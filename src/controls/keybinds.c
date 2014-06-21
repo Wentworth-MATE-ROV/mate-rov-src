@@ -18,6 +18,8 @@
 #include "keybinds.h"
 #include "controls.h"
 
+#include "keybinds-parser.scm.ch"
+
 rov_jsaxis x_axis;            // Joystick's x axis.
 rov_jsaxis y_axis;            // Joystick's y axis.
 rov_jsaxis twist_axis;        // Joystick's twisting axis.
@@ -109,14 +111,10 @@ int keybinds_read_scm_line(rov_keybinds *kbs,SCM scm){
 // if there is a read error, kbs will be filled with an empty layout.
 // return: 0 on success, non-zero on failure.
 int parse_keybinds(rov_keybinds *kbs,const char *kfl){
-    FILE *scm_parser = fopen("parsers/keybinds-parser.scm","r");
     FILE *kbs_fl;
     char  path[256];
     char  scm_fc[BUFSIZ];
     SCM   scm;
-    if (!scm_parser){
-        return -1;
-    }
     if (!kfl){
         return 0;
     }
@@ -134,16 +132,13 @@ int parse_keybinds(rov_keybinds *kbs,const char *kfl){
         return -1;
     }
     scm_init_guile();
-    fread(scm_fc,sizeof(char),BUFSIZ,scm_parser);
-    fclose(scm_parser);
-    scm_c_eval_string("(set! %load-path (cons (getcwd) %load-path))\n"
-                      "(use-modules (parsers keybinds-parser))");
-    scm_c_eval_string(scm_fc);
+    scm_c_eval_string(keybinds_parser_str);
     while (fgets(scm_fc,BUFSIZ,kbs_fl)){
         scm = scm_c_eval_string(scm_fc);
         if (scm != SCM_UNSPECIFIED && scm_is_pair(scm)){
             keybinds_read_scm_line(kbs,scm);
         }
     }
+    fclose(kbs_fl);
     return 0;
 }
