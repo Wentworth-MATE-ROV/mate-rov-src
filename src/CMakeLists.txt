@@ -35,12 +35,12 @@ add_custom_command(
 
 add_custom_command(
   PRE_BUILD
-  OUTPUT controls/keybinds-parser.scm.ch
+  OUTPUT ${SRC}/controls/keybinds-parser.scm.ch
   COMMAND fch -l c -m ROV_KEYBINDS_PARSER_H ${SRC}/controls/keybinds-parser.scm)
 
 add_custom_command(
   PRE_BUILD
-  OUTPUT controls/pin-parser.scm.ch
+  OUTPUT ${SRC}/controls/pin-parser.scm.ch
   COMMAND fch -l c -m ROV_PIN_PARSER_H ${SRC}/controls/pin-parser.scm)
 
 include_directories(/usr/include/guile/2.0)
@@ -66,3 +66,5 @@ target_link_libraries(rov
                       ncurses
                       guile-2.0
                       gc)
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")

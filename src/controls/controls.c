@@ -52,7 +52,7 @@ void clean_joystick(rov_joystick *js,rov_keybinds *kbs,rov_clean_js *c){
     memset(c,0,sizeof(rov_clean_js));
     for (n = 0;n < kbs->headlight_togglec;n++){
         if (is_button(js,kbs->headlight_togglev[n])){
-            c->headlight_toggle = true;;
+            c->headlight_toggle = true;
             break;
         }
     }
@@ -89,11 +89,10 @@ void clean_joystick(rov_joystick *js,rov_keybinds *kbs,rov_clean_js *c){
                 claw_x += SHRT_MIN;
             }
         }else{
-            claw_x+= js->axes[kbs->claw_xv[n].axis];
+            claw_x += js->axes[kbs->claw_xv[n].axis];
         }
     }
-    claw_x /= kbs->claw_xc;
-    c->claw_x = scale_cleaned_val(claw_x);
+    c->claw_x = (short) (claw_x / kbs->claw_xc);
     for (n = 0;n < kbs->claw_yc;n++){
         if (kbs->claw_yv[n].is_pair){
             if (is_button(js,kbs->claw_yv[n].pos)){
@@ -106,8 +105,7 @@ void clean_joystick(rov_joystick *js,rov_keybinds *kbs,rov_clean_js *c){
             claw_y+= js->axes[kbs->claw_yv[n].axis];
         }
     }
-    claw_y /= kbs->claw_yc;
-    c->claw_y = scale_cleaned_val(claw_y);
+    c->claw_y = (short) (claw_y / kbs->claw_yc);
     for (n = 0;n < kbs->transpose_xc;n++){
         if (kbs->transpose_xv[n].is_pair){
             if (is_button(js,kbs->transpose_xv[n].pos)){
@@ -117,11 +115,10 @@ void clean_joystick(rov_joystick *js,rov_keybinds *kbs,rov_clean_js *c){
                 trans_x += SHRT_MIN;
             }
         }else{
-            trans_x+= js->axes[kbs->transpose_xv[n].axis];
+            trans_x += js->axes[kbs->transpose_xv[n].axis];
         }
     }
-    trans_x /= kbs->transpose_xc;
-    c->transpose_x = scale_cleaned_val(trans_x);
+    c->transpose_x = (short) (trans_x / kbs->transpose_xc);
     for (n = 0;n < kbs->rotate_yc;n++){
         if (kbs->rotate_yv[n].is_pair){
             if (is_button(js,kbs->rotate_yv[n].pos)){
@@ -134,8 +131,7 @@ void clean_joystick(rov_joystick *js,rov_keybinds *kbs,rov_clean_js *c){
             rot_y += js->axes[kbs->rotate_yv[n].axis];
         }
     }
-    rot_y /= kbs->rotate_yc;
-    c->rotate_y = scale_cleaned_val(rot_y);
+    c->rotate_y = (short) (rot_y / kbs->rotate_yc);
     for (n = 0;n < kbs->transpose_yc;n++){
         if (kbs->transpose_yv[n].is_pair){
             if (is_button(js,kbs->transpose_yv[n].pos)){
@@ -148,8 +144,7 @@ void clean_joystick(rov_joystick *js,rov_keybinds *kbs,rov_clean_js *c){
             trans_y += js->axes[kbs->transpose_yv[n].axis];
         }
     }
-    trans_y /= kbs->transpose_yc;
-    c->transpose_y = scale_cleaned_val(trans_y);
+    c->transpose_y = (short) (trans_y / kbs->transpose_yc);
     for (n = 0;n < kbs->rotate_zc;n++){
         if (kbs->rotate_zv[n].is_pair){
             if (is_button(js,kbs->rotate_zv[n].pos)){
@@ -162,13 +157,12 @@ void clean_joystick(rov_joystick *js,rov_keybinds *kbs,rov_clean_js *c){
             rot_z += js->axes[kbs->rotate_zv[n].axis];
         }
     }
-    rot_z/= kbs->rotate_zc;
-    c->rotate_z = scale_cleaned_val(rot_z);
+    c->rotate_z = (short) (rot_z / kbs->rotate_zc);
 }
 
 
 // Syncs the local control state back to the arduino if it has changed.
-void sync_ctrlstate(rov_arduino *a, rov_ctrlstate *old){
+void sync_ctrlstate(rov_arduino *a,rov_ctrlstate *old){
     size_t n;
     short  v;
     if (old->lasers != a->ctrl.lasers){
@@ -252,7 +246,7 @@ long long total_usec(struct timeval *t){
 int safe_scm_c_lookup(const char *proc,SCM scm_proc_exists_p, SCM *scm_proc){
     if (scm_is_true(scm_call_1(scm_proc_exists_p,
                                scm_from_locale_string(proc)))){
-        *scm_proc = scm_c_lookup(proc);
+        *scm_proc = scm_c_eval_string(proc);
         return 0;
     }
     return -1;
@@ -266,9 +260,10 @@ void *process_logic(void *vps){
     rov_arduino   *a           = p->a;
     rov_ctrlstate  oldctrl     = a->ctrl;
     bool           always_step = p->always_step;
-    useconds_t     sleep_time  = p->phz / 1000000;
+    useconds_t     sleep_time  = p->phz;
     FILE          *logic_fl    = fopen(logic_path,"r");
     rov_clean_js   cjs;
+    rov_clean_js   oldinput;
     char           lb[BUFSIZ];
     SCM            scm_proc_exists_p;
     SCM            scm_logic_step;
@@ -276,7 +271,6 @@ void *process_logic(void *vps){
     SCM            scm_ctrl_state;
     SCM            scm_initialize;
     SCM            scm_input_state;
-    SCM            scm_old_input_state;
     struct timeval d,before,after;
     long long      delta_t;
     memset(lb,0,BUFSIZ);
@@ -295,9 +289,9 @@ void *process_logic(void *vps){
     scm_clawgrip      = scm_c_eval_string("claw-grip");
     scm_claw_90       = scm_c_eval_string("claw-90");
     scm_claw_180      = scm_c_eval_string("claw-180");
+    scm_proc_exists_p = scm_c_eval_string("proc-exists?");
+    scm_sanatize      = scm_c_eval_string("sanatize-ctrl-state");
     scm_c_eval_string(lb);
-    scm_proc_exists_p = scm_c_lookup("proc-exists?");
-    scm_sanatize      = scm_c_lookup("sanatize-ctrl-state");
     if (safe_scm_c_lookup("initialize",scm_proc_exists_p,&scm_initialize)){
         screen_printattr(scr,RED_PAIR,
                          "ERROR: Failed to find 'initialize' procedure");
@@ -308,20 +302,25 @@ void *process_logic(void *vps){
                          "ERROR: Failed to find 'logic-step' procedure");
         return NULL;
     }
-    scm_ctrl_state     = scm_call_1(scm_initialize,
+    scm_ctrl_state = scm_call_1(scm_initialize,
                                 scm_c_eval_string("(mk-ctrl-state 0 0 0"
-                                                  " 0 #f #f #f #f 'e)"));
+                                                  " 0 #f #f #f #f #f #f 'e)"));
     gettimeofday(&after,NULL);
     for (;;){
         read_jsevent(&a->joystick);
         oldctrl = a->ctrl;
+        oldinput = cjs;
         clean_joystick(&a->joystick,&a->keybinds,&cjs);
-        scm_old_input_state = scm_input_state;
         scm_input_state = scm_from_cjs(&cjs);
-        if (always_step || !scm_is_eq(scm_input_state, scm_old_input_state)){
+        if (always_step || memcmp(&oldinput,&cjs,sizeof(rov_clean_js))){
             gettimeofday(&before,NULL);
             timeval_subtract(&d,&after,&before);
             delta_t = total_usec(&d);
+            screen_printf(scr,"* tx:%d ry:%d",
+                          a->joystick.axes[a->keybinds.transpose_xv[0].axis],
+                          a->joystick.axes[a->keybinds.rotate_yv[0].axis]);
+            screen_printf(scr,"tx:%d ry:%d",cjs.transpose_x,cjs.rotate_y);
+            screen_printf(scr,"c:%d",scale_cleaned_val(cjs.transpose_x));
             scm_ctrl_state = scm_call_1(scm_sanatize,
                                         scm_call_3(scm_logic_step,
                                                    scm_input_state,
@@ -331,6 +330,7 @@ void *process_logic(void *vps){
             ctrl_from_scm(scm_ctrl_state,&a->ctrl);
             sync_ctrlstate(a,&oldctrl);
             diff_update_stats(scr,a,&oldctrl);
+            usleep(sleep_time);
           }
           usleep(sleep_time); // Sleep the thread (quantizes the polling rate).
     }

@@ -76,8 +76,8 @@
                          (,boolean? ,sidelights  ,set-sidelights #f)
                          (,boolean? ,lasers      ,set-lasers #f)
                          (,boolean? ,claw-grip   ,set-claw-grip #f)
-                         (,boolean? ,claw-90     ,set-claw-90)
-                         (,boolean? ,claw-180    ,set-claw-180)))))
+                         (,boolean? ,claw-90     ,set-claw-90 #f)
+                         (,boolean? ,claw-180    ,set-claw-180 #f)))))
 
 ;; Checks if a process exists or not.
 (define (proc-exists? proc-name)

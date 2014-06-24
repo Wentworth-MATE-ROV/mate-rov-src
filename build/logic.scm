@@ -68,7 +68,7 @@
 
 ;; Setup control state; populate extra if you wish.
 (define (initialize ctrl-state)
-  (ctrl-state))
+  ctrl-state)
 
 ;; The main logic step.
 ;; Invoked with the paramaters:
@@ -79,8 +79,8 @@
 ;; the ctrl-state will be a default (zeroed) <ctrl-state>.
 (define (logic-step input-state delta-t ctrl-state)
   (let* ((old-piston-state '((claw-90 ctrl-state) . (claw-180 ctrl-state)))
-         (new-piston-state (get-piston-state (claw-x ctrl-state)
-                                             (claw-y ctrl-state)
+         (new-piston-state (get-piston-state (claw-x input-state)
+                                             (claw-y input-state)
                                              old-piston-state))
          (claw-90-state (car new-piston-state))
          (claw-180-state (cdr new-piston-state)))
