@@ -24,7 +24,8 @@ char *statv[STATC] = { "left motor: ",
                        "headlights: ",
                        "sidelights: ",
                        "lasers:     ",
-                       "claw:    ",
+                       "claw-grip:",
+                       "cp:    ",
                        "",
                        "miswrites: " };
 
@@ -34,16 +35,40 @@ int getstatcol(rov_motor p){
         return GREEN_PAIR | A_BOLD;
     }
     p = abs(p);
-    if (p <= 60){
+    if (p <= 25){
         return GREEN_PAIR;
     }
-    if (p <= 120){
+    if (p <= 50){
         return YELLOW_PAIR;
     }
-    if (p < 180){
+    if (p < 75 && p != 100){
         return RED_PAIR;
     }
     return RED_PAIR | A_BOLD;
+}
+
+void update_claw_pos_stat(rov_screen *scr,rov_ctrlstate *ctrl){
+    unsigned char s = 0;
+    if (ctrl->claw_90){
+        s |= 1;
+    }
+    if (ctrl->claw_180){
+        s |= 2;
+    }
+    switch(s){
+    case 0:
+        update_statvattr(scr,CLAW_POS_STAT,RED_PAIR | A_BOLD,"(#f . #f)");
+        return;
+    case 1:
+        update_statvattr(scr,CLAW_POS_STAT,RED_PAIR,"(#t . #f)");
+        return;
+    case 2:
+        update_statvattr(scr,CLAW_POS_STAT,GREEN_PAIR,"(#f . #t)");
+        return;
+    case 3:
+        update_statvattr(scr,CLAW_POS_STAT,GREEN_PAIR | A_BOLD,"(#t . #t)");
+        return;
+    }
 }
 
 // Updates all the stats.
@@ -70,6 +95,7 @@ void update_stats(rov_screen *scr,rov_arduino *a){
     b = a->ctrl.clawgrip;
     update_statvattr(scr,CLAW_STAT,(b) ? RED_PAIR : GREEN_PAIR,
                          (b) ? "closed" : "  open");
+    update_claw_pos_stat(scr,&a->ctrl);
     v = ((double) a->queue.miswrites) / a->queue.writes;
     update_statvfattr(scr,MISWRITES_STAT,
                       (v > 0.05) ? RED_PAIR : GREEN_PAIR,"%.2lf",v);
@@ -116,6 +142,9 @@ void diff_update_stats(rov_screen *scr,rov_arduino *a,rov_ctrlstate *old){
                          (b) ? "closed" : "  open");
     }
     v = ((double) a->queue.miswrites) / a->queue.writes;
+    if (a->ctrl.claw_90 != old->claw_90 || a->ctrl.claw_180 != old->claw_180){
+        update_claw_pos_stat(scr,&a->ctrl);
+    }
     update_statvfattr(scr,MISWRITES_STAT,
                       (v > 0.05) ? RED_PAIR : GREEN_PAIR,"%.2lf",v);
 }

@@ -189,7 +189,6 @@ void print_staticui(rov_screen *scr){
     int n;
     pthread_mutex_lock(&scr->mutex);
     attron(YELLOW_PAIR | A_BOLD);
-    mvprintw(0,scr->mc - 7,"Bot Six");
     for (n = 2;n < scr->mr;n++){
 	mvprintw(n,c,"|");
     }

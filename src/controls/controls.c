@@ -48,11 +48,10 @@ rov_motor scale_cleaned_val(int v){
 // Applies the keybinds to the joystick to clean it, storing the result in c.
 void clean_joystick(rov_joystick *js,rov_keybinds *kbs,rov_clean_js *c){
     size_t n;
-    int    trans_x,trans_y,rot_z,rot_y,claw_x,claw_y;
     memset(c,0,sizeof(rov_clean_js));
     for (n = 0;n < kbs->headlight_togglec;n++){
         if (is_button(js,kbs->headlight_togglev[n])){
-            c->headlight_toggle = true;
+            c->headlight_toggle = true;;
             break;
         }
     }
@@ -80,86 +79,85 @@ void clean_joystick(rov_joystick *js,rov_keybinds *kbs,rov_clean_js *c){
             break;
         }
     }
-    for (n = 0;n < kbs->claw_xc;n++){
-        if (kbs->claw_xv[n].is_pair){
-            if (is_button(js,kbs->claw_xv[n].pos)){
-                claw_x += SHRT_MAX;
-            }
-            if (is_button(js,kbs->claw_xv[n].neg)){
-                claw_x += SHRT_MIN;
-            }
-        }else{
-            claw_x += js->axes[kbs->claw_xv[n].axis];
-        }
-    }
-    c->claw_x = (short) (claw_x / kbs->claw_xc);
-    for (n = 0;n < kbs->claw_yc;n++){
-        if (kbs->claw_yv[n].is_pair){
-            if (is_button(js,kbs->claw_yv[n].pos)){
-                claw_y += SHRT_MAX;
-            }
-            if (is_button(js,kbs->claw_yv[n].neg)){
-                claw_y += SHRT_MIN;
-            }
-        }else{
-            claw_y+= js->axes[kbs->claw_yv[n].axis];
-        }
-    }
-    c->claw_y = (short) (claw_y / kbs->claw_yc);
     for (n = 0;n < kbs->transpose_xc;n++){
         if (kbs->transpose_xv[n].is_pair){
             if (is_button(js,kbs->transpose_xv[n].pos)){
-                trans_x += SHRT_MAX;
+                c->transpose_x += SHRT_MAX;
             }
             if (is_button(js,kbs->transpose_xv[n].neg)){
-                trans_x += SHRT_MIN;
+                c->transpose_x += SHRT_MIN;
             }
         }else{
-            trans_x += js->axes[kbs->transpose_xv[n].axis];
+            c->transpose_x += js->axes[kbs->transpose_xv[n].axis];
         }
     }
-    c->transpose_x = (short) (trans_x / kbs->transpose_xc);
+    c->transpose_x /= kbs->transpose_xc;
     for (n = 0;n < kbs->rotate_yc;n++){
         if (kbs->rotate_yv[n].is_pair){
             if (is_button(js,kbs->rotate_yv[n].pos)){
-                rot_y += SHRT_MAX;
+                c->rotate_y += SHRT_MAX;
             }
             if (is_button(js,kbs->rotate_yv[n].neg)){
-                rot_y += SHRT_MIN;
+                c->rotate_y += SHRT_MIN;
             }
         }else{
-            rot_y += js->axes[kbs->rotate_yv[n].axis];
+            c->rotate_y += js->axes[kbs->rotate_yv[n].axis];
         }
     }
-    c->rotate_y = (short) (rot_y / kbs->rotate_yc);
+    c->rotate_y /= kbs->rotate_yc;
     for (n = 0;n < kbs->transpose_yc;n++){
         if (kbs->transpose_yv[n].is_pair){
             if (is_button(js,kbs->transpose_yv[n].pos)){
-                trans_y += SHRT_MAX;
+                c->transpose_y += SHRT_MAX;
             }
             if (is_button(js,kbs->transpose_yv[n].neg)){
-                trans_y += SHRT_MIN;
+                c->transpose_y += SHRT_MIN;
             }
         }else{
-            trans_y += js->axes[kbs->transpose_yv[n].axis];
+            c->transpose_y += js->axes[kbs->transpose_yv[n].axis];
         }
     }
-    c->transpose_y = (short) (trans_y / kbs->transpose_yc);
+    c->transpose_y /= kbs->transpose_yc;
     for (n = 0;n < kbs->rotate_zc;n++){
         if (kbs->rotate_zv[n].is_pair){
             if (is_button(js,kbs->rotate_zv[n].pos)){
-                rot_z += SHRT_MAX;
+                c->rotate_z += SHRT_MAX;
             }
             if (is_button(js,kbs->rotate_zv[n].neg)){
-                rot_z += SHRT_MIN;
+                c->rotate_z += SHRT_MIN;
             }
         }else{
-            rot_z += js->axes[kbs->rotate_zv[n].axis];
+            c->rotate_z += js->axes[kbs->rotate_zv[n].axis];
         }
     }
-    c->rotate_z = (short) (rot_z / kbs->rotate_zc);
+    c->rotate_z /= kbs->rotate_zc;
+    for (n = 0;n < kbs->claw_xc;n++){
+        if (kbs->claw_xv[n].is_pair){
+            if (is_button(js,kbs->claw_xv[n].pos)){
+                c->claw_x += SHRT_MAX;
+            }
+            if (is_button(js,kbs->claw_xv[n].neg)){
+                c->claw_x += SHRT_MIN;
+            }
+        }else{
+            c->claw_x += js->axes[kbs->claw_xv[n].axis];
+        }
+    }
+    c->claw_x /= kbs->claw_xc;
+    for (n = 0;n < kbs->claw_yc;n++){
+        if (kbs->claw_yv[n].is_pair){
+            if (is_button(js,kbs->claw_yv[n].pos)){
+                c->claw_y += SHRT_MAX;
+            }
+            if (is_button(js,kbs->claw_yv[n].neg)){
+                c->claw_y += SHRT_MIN;
+            }
+        }else{
+            c->claw_y += js->axes[kbs->claw_yv[n].axis];
+        }
+    }
+    c->claw_y /= kbs->claw_yc;
 }
-
 
 // Syncs the local control state back to the arduino if it has changed.
 void sync_ctrlstate(rov_arduino *a,rov_ctrlstate *old){
@@ -260,7 +258,7 @@ void *process_logic(void *vps){
     rov_arduino   *a           = p->a;
     rov_ctrlstate  oldctrl     = a->ctrl;
     bool           always_step = p->always_step;
-    useconds_t     sleep_time  = p->phz;
+    useconds_t     sleep_time  = 1000000 / p->phz;
     FILE          *logic_fl    = fopen(logic_path,"r");
     rov_clean_js   cjs;
     rov_clean_js   oldinput;
@@ -316,11 +314,6 @@ void *process_logic(void *vps){
             gettimeofday(&before,NULL);
             timeval_subtract(&d,&after,&before);
             delta_t = total_usec(&d);
-            screen_printf(scr,"* tx:%d ry:%d",
-                          a->joystick.axes[a->keybinds.transpose_xv[0].axis],
-                          a->joystick.axes[a->keybinds.rotate_yv[0].axis]);
-            screen_printf(scr,"tx:%d ry:%d",cjs.transpose_x,cjs.rotate_y);
-            screen_printf(scr,"c:%d",scale_cleaned_val(cjs.transpose_x));
             scm_ctrl_state = scm_call_1(scm_sanatize,
                                         scm_call_3(scm_logic_step,
                                                    scm_input_state,
@@ -340,10 +333,10 @@ void *process_logic(void *vps){
 // Converts a (sanatized) ctrl-state to an rov_controlstate.
 // WARNING: Does no type checking, call sanatize-ctrl-state first.
 void ctrl_from_scm(SCM scm_ctrl,rov_ctrlstate *ctrl){
-    ctrl->leftmotor  = scm_to_short(scm_call_1(scm_leftmotor,scm_ctrl));
-    ctrl->rightmotor = scm_to_short(scm_call_1(scm_rightmotor,scm_ctrl));
-    ctrl->frontmotor = scm_to_short(scm_call_1(scm_frontmotor,scm_ctrl));
-    ctrl->backmotor  = scm_to_short(scm_call_1(scm_backmotor,scm_ctrl));
+    ctrl->leftmotor  = scm_to_char(scm_call_1(scm_leftmotor,scm_ctrl));
+    ctrl->rightmotor = scm_to_char(scm_call_1(scm_rightmotor,scm_ctrl));
+    ctrl->frontmotor = scm_to_char(scm_call_1(scm_frontmotor,scm_ctrl));
+    ctrl->backmotor  = scm_to_char(scm_call_1(scm_backmotor,scm_ctrl));
     ctrl->headlights = scm_to_bool(scm_call_1(scm_headlights,scm_ctrl));
     ctrl->sidelights = scm_to_bool(scm_call_1(scm_sidelights,scm_ctrl));
     ctrl->lasers     = scm_to_bool(scm_call_1(scm_lasers,scm_ctrl));

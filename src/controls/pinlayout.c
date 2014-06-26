@@ -125,4 +125,7 @@ void pinmode_sync(rov_arduino *a){
     SETPINSTATESERVO(rightmotorc,rightmotorv);
     SETPINSTATESERVO(frontmotorc,frontmotorv);
     SETPINSTATESERVO(backmotorc,backmotorv);
+    SETPINSTATEOUT(claw_90c,claw_90v);
+    SETPINSTATEOUT(claw_180c,claw_180v);
+    SETPINSTATEOUT(clawgripc,clawgripv);
 }

@@ -52,9 +52,6 @@ void *process_logic(void*);
 // WARNING: Does no type checking, call sanatize-ctrl-state first.
 void ctrl_from_scm(SCM,rov_ctrlstate*);
 
-// The scheme that will setup the records and sanatize function.
-extern const char* const scm_init_logic_str;
-
 // return: A scheme js-state built from a clean joystick.
 SCM scm_from_cjs(rov_clean_js*);
 

@@ -24,7 +24,7 @@
 ;; Scales the values from a joystick to what the ctrl-state wants.
 ;; return: An integer
 (define (scale-axis-value v)
-  (floor (* 100 (/ v shrt-max))))
+  (round (* 100 (/ v shrt-max))))
 
 ;; Truncates the sum of two axis values
 (define (trunc-sum-axis-values v w)
@@ -59,12 +59,11 @@
 
 ;; (claw-90 . claw-180)
 (define (get-piston-state claw-x claw-y old-state)
-  (cond ((or (and (= 0 claw-x) (= 0 claw-y))
-             (and (not (= 0 claw-x)) (not (= 0 claw-y)))) old-state)
-        ((< claw-y 0) '(#t . #f))    ; Straight up
-        ((> claw-y 0) '(#t . #t))    ; Straight down.
-        ((< claw-x 0) '(#f . #f))    ; Straight foward.
-        ((> claw-x 0) '(#f . #f))))  ; Straight Back.
+  (cond ((and (< claw-y 0) (= claw-x 0)) '(#t . #f))    ; Straight up
+        ((and (> claw-y 0) (= claw-x 0)) '(#t . #t))    ; Straight down.
+        ((and (< claw-x 0) (= claw-y 0)) '(#f . #t))    ; Straight foward.
+        ((and (> claw-x 0) (= claw-y 0)) '(#f . #f))    ; Straight Back.
+        (else old-state)))
 
 ;; Setup control state; populate extra if you wish.
 (define (initialize ctrl-state)
@@ -78,7 +77,7 @@
 ;; On the first frame, delta-t will be a negative value and
 ;; the ctrl-state will be a default (zeroed) <ctrl-state>.
 (define (logic-step input-state delta-t ctrl-state)
-  (let* ((old-piston-state '((claw-90 ctrl-state) . (claw-180 ctrl-state)))
+  (let* ((old-piston-state (cons (claw-90 ctrl-state) (claw-180 ctrl-state)))
          (new-piston-state (get-piston-state (claw-x input-state)
                                              (claw-y input-state)
                                              old-piston-state))
@@ -86,7 +85,7 @@
          (claw-180-state (cdr new-piston-state)))
     (mk-ctrl-state
      (scale-left-motor  input-state)
-     (scale-front-motor input-state)
+     (scale-right-motor input-state)
      (scale-front-motor input-state)
      (scale-back-motor  input-state)
      (if (headlight-toggle input-state)

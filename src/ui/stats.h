@@ -19,7 +19,7 @@
 #define ROV_STATS_H
 
 // The length of the stat value array.
-#define STATC           10
+#define STATC           11
 
 // Stat value indecies.
 #define LEFTMOTOR_STAT  0
@@ -30,7 +30,8 @@
 #define SIDELIGHTS_STAT 5
 #define LASERS_STAT     6
 #define CLAW_STAT       7
-#define MISWRITES_STAT  9
+#define CLAW_POS_STAT   8
+#define MISWRITES_STAT  10
 
 // Stat name values.
 extern char *statv[STATC];

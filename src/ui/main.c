@@ -46,7 +46,7 @@ int main(void){
     pthread_create(&a.qt,NULL,process_queue,&pqp);
     plp.a           = &a;
     plp.scr         = &scr;
-    plp.phz         = 10000;
+    plp.phz         = 100;
     plp.shz         = 100;
     plp.logic_path  = "logic.scm";
     plp.always_step = false;
