@@ -43,6 +43,9 @@ int init_arduino(rov_arduino*,const char*,const char*);
 // Closes the file descripotr to the arduino.
 void destroy_arduino(rov_arduino*);
 
+// Sets up the rov_ctrlstate for the arduino.
+void init_ctrlstate(rov_ctrlstate*);
+
 // Writes a single byte to the arduino.
 // return: 0 on success, non-zero on failure.
 int write_char(rov_arduino*,unsigned char);
@@ -77,13 +80,14 @@ unsigned short enqueue_blocking(rov_msgqueue*,unsigned char*,size_t);
 int dequeue(rov_msgqueue*);
 
 // Procedure to run in a pthread to manage the message queue.
-// Accepts the rov_msgqueue* as a void*.
 void *process_queue(void*);
 
 // Set the state of the pin to output if true, or input if false.
+// This is a non-blocking call.
 void set_pinstate(rov_arduino*,rov_pin,rov_pinstate);
 
 // Enqueues a message that sets a digital pin on or off.
+// This is a non-blocking call.
 void digital_write(rov_arduino*,rov_pin,bool);
 
 // Reads the state of a pin on the arduino.
@@ -94,12 +98,14 @@ bool digital_read(rov_arduino*,rov_pin);
 // Data is formatted as so: byte 0 = opcode
 //                          byte 1 = pin number
 //                          byte 2 = value
+// This is a non-blocking call.
 void analog_write(rov_arduino*,rov_pin,unsigned char);
 
 // Sends a value to a pin in the range of [0,180]
 // Data is formatted as so: byte 0 = opcode
 //                          byte 1 = pin number
 //                          byte 2 = value
+// This is a non-blocking call.
 void servo_write(rov_arduino*,rov_pin,unsigned char);
 
 // Enqueues a message that reads an analog value in the range of [0,1023] off of

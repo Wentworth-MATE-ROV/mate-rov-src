@@ -27,13 +27,12 @@
 #define QUIT_PROG       ']'
 
 // Reloads the keybinds from the .keybinds file and prints differences.
-void screen_reload_keybinds(rov_screen*,rov_arduino*,bool);
+void screen_reload_keybinds(rov_screen*,rov_arduino*,const char*,bool);
 
 // Reloads the pinlayout from the .pins file and prints differences.
-void screen_reload_pinlayout(rov_screen*,rov_arduino*,bool);
+void screen_reload_pinlayout(rov_screen*,rov_arduino*,const char*,bool);
 
 // Handles all keyboard presses.
-// Pass the screen.
-void process_keyboard(rov_screen*,rov_arduino*);
+void process_keyboard(rov_screen*,rov_arduino*,const char*,const char*);
 
 #endif

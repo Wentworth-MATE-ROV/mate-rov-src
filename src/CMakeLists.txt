@@ -67,4 +67,9 @@ target_link_libraries(rov
                       guile-2.0
                       gc)
 
+execute_process(COMMAND ${CMAKE_COMMAND} -E date -I
+                OUTPUT_VARIABLE CUR_DATE)
+
+add_definitions(-DBUILD_DATE="${CUR_DATE}")
+
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")

@@ -32,6 +32,7 @@ int init_arduino(rov_arduino *a,const char *af,const char *jf){
         perror("init_arduino: could not get term attr");
         return -1;
     }
+    // Sets up 'the terminal' settings, we treat the arduino as a tty.
     cfsetispeed(&topts,B9600);
     cfsetospeed(&topts,B9600);
     topts.c_cflag     &= ~PARENB;
@@ -43,8 +44,8 @@ int init_arduino(rov_arduino *a,const char *af,const char *jf){
     topts.c_iflag     &= ~(IXON | IXOFF | IXANY);
     topts.c_lflag     &= ~(ICANON | ECHO | ECHOE | ISIG);
     topts.c_oflag     &= ~OPOST;
-    topts.c_cc[VMIN]  =  0; // Minimum number of characters to read.
-    topts.c_cc[VTIME] =  0; // VTIME * 0.1 = Time to wait for input.
+    topts.c_cc[VMIN]  =  0;  // Minimum number of characters to read.
+    topts.c_cc[VTIME] =  0;  // VTIME * 0.1 = Time to wait for input.
     tcsetattr(a->fd,TCSANOW,&topts);
     if (tcsetattr(a->fd,TCSAFLUSH,&topts) < 0){
         perror("init_arduino: could not set term attributes");
@@ -54,7 +55,7 @@ int init_arduino(rov_arduino *a,const char *af,const char *jf){
         perror("init_arduino: could not read joystick file");
         return -1;
     }
-    memset(&a->ctrl,0,sizeof(rov_ctrlstate));
+    init_ctrlstate(&a->ctrl);
     init_pinlayout(&a->layout);
     init_queue(&a->queue,a,2500,100);
     return 0;
@@ -65,6 +66,12 @@ void destroy_arduino(rov_arduino *a){
     pthread_cancel(a->qt);
     close(a->fd);
     destroy_joystick(&a->joystick);
+}
+
+// Sets up the rov_ctrlstate for the arduino.
+void init_ctrlstate(rov_ctrlstate *ctrl){
+    memset(ctrl,0,sizeof(rov_ctrlstate));
+    memset(ctrl->motorv,90,4 * sizeof(rov_motor));  // 'zero' the motors.
 }
 
 // Writes a single byte to the arduino.
@@ -92,12 +99,14 @@ int write_short(rov_arduino *a,unsigned short v){
 }
 
 // Set the state of the pin to output if true, or input if false.
+// This is a non-blocking call.
 void set_pinstate(rov_arduino *a,rov_pin p,rov_pinstate s){
     unsigned char msg[2] = { OP_SET_PINSTATE, (s << 6) | p };
     enqueue(&a->queue,msg,2 * sizeof(unsigned char));
 }
 
 // Sets a digital pin on or off.
+// This is a non-blocking call.
 void digital_write(rov_arduino *a,rov_pin p,bool v){
     unsigned char msg[] = { (v) ? OP_DIGITAL_ON : OP_DIGITAL_OFF,p };
     enqueue(&a->queue,msg,2 * sizeof(unsigned char));
@@ -114,6 +123,7 @@ bool digital_read(rov_arduino *a,rov_pin p){
 // Data is formatted as so: byte 0 = opcode
 //                          byte 1 = pin number
 //                          byte 2 = value
+// This is a non-blocking call.
 void analog_write(rov_arduino *a,rov_pin p,unsigned char v){
     unsigned char msg[3] = { OP_ANALOG_WRITE,p,v };
     enqueue(&a->queue,msg,3 * sizeof(unsigned char));
@@ -123,6 +133,7 @@ void analog_write(rov_arduino *a,rov_pin p,unsigned char v){
 // Data is formatted as so: byte 0 = opcode
 //                          byte 1 = pin number
 //                          byte 2 = value
+// This is a non-blocking call.
 void servo_write(rov_arduino *a,rov_pin p,unsigned char v){
     unsigned char msg[3] = { OP_SERVO_WRITE,p,v };
     enqueue(&a->queue,msg,3 * sizeof(unsigned char));

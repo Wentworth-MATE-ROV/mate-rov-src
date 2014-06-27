@@ -1,14 +1,14 @@
 ;;; Joe Jevnik
-;;; 2014.4.21
-;;; Keybinding layout for the robot.
+;;; 2014.06.27
+;;; Pin layout for the robot.
 
 (lasers      '(48 38))
 (headlights  '(22))
 (sidelights  '(22))
 (claw-grip   '(40 52))
-(left-motor  '(6))
-(right-motor '(7))
-(front-motor '(8))
-(back-motor  '(9))
+(left-motor  '(8))
+(right-motor '(6))
+(front-motor '(9))
+(back-motor  '(7))
 (claw-90     '(44 46))
 (claw-180    '(42 50))

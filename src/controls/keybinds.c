@@ -121,13 +121,7 @@ int parse_keybinds(rov_keybinds *kbs,const char *kfl){
     memset(path,0,256);
     memset(scm_fc,0,BUFSIZ);
     memcpy(kbs,&default_keybinds,sizeof(rov_keybinds));
-    getcwd(path,256);
-    path[strlen(path)] = '/';
-    strncat(path,kfl,256 - strlen(path));
-    if (access(path,F_OK)){
-        return -1;
-    }
-    kbs_fl = fopen(path,"r");
+    kbs_fl = fopen(kfl,"r");
     if (!kbs_fl){
         return -1;
     }

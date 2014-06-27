@@ -45,4 +45,8 @@ void update_stats(rov_screen*,rov_arduino*);
 // Updates the stats that have changed.
 void diff_update_stats(rov_screen*,rov_arduino*,rov_ctrlstate*);
 
+// Draws the claw_pos as a string representing a dotted pair of scheme bools
+// iff they differ.
+void update_claw_pos_stat(rov_screen*,rov_ctrlstate*);
+
 #endif

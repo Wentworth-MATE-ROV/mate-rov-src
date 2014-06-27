@@ -28,6 +28,8 @@
 #include <ncurses.h>
 #include <limits.h>
 
+#define VERSION_NUMBER "0.1.0.1"
+
 // The type of a pin on the arduino. Range: [0,63]
 typedef unsigned char rov_pin;
 
@@ -43,11 +45,11 @@ typedef int rov_accel;
 typedef bool rov_light;
 
 // A type representing the values of power that can be sent to a motor.
-typedef short rov_motor;
+typedef unsigned char rov_motor;
 
 // Define the limits for this type.
-#define ROV_MOTOR_MAX SHRT_MAX
-#define ROV_MOTOR_MIN SHRT_MIN
+#define ROV_MOTOR_MAX 255
+#define ROV_MOTOR_MIN 0
 
 // The states the pins may be in.
 typedef enum{
@@ -190,9 +192,9 @@ typedef struct{
         };
         rov_motor     motorv[4];  // The array of motors.
     };
-    rov_light         headlights; // The headlights.
-    rov_light         sidelights; // The lights on the side cameras.
-    rov_light         lasers;     // The laser mechanism.
+    rov_light         headlight;  // The headlights.
+    rov_light         sidelight;  // The lights on the side cameras.
+    rov_light         laser;      // The laser mechanism.
     bool              clawgrip;   // Is the claw closed?
     bool              claw_90;    // The 90deg piston.
     bool              claw_180;   // The 90deg piston.

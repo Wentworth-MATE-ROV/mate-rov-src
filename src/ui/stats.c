@@ -31,22 +31,24 @@ char *statv[STATC] = { "left motor: ",
 
 // return: the appropriate color for the given motor value.
 int getstatcol(rov_motor p){
+    p = abs(p - 90);
     if (!p){
         return GREEN_PAIR | A_BOLD;
     }
-    p = abs(p);
-    if (p <= 25){
+    if (p < 30){
         return GREEN_PAIR;
     }
-    if (p <= 50){
+    if (p < 60){
         return YELLOW_PAIR;
     }
-    if (p < 75 && p != 100){
+    if (p < 90){
         return RED_PAIR;
     }
     return RED_PAIR | A_BOLD;
 }
 
+// Draws the claw_pos as a string representing a dotted pair of scheme bools
+// iff they differ.
 void update_claw_pos_stat(rov_screen *scr,rov_ctrlstate *ctrl){
     unsigned char s = 0;
     if (ctrl->claw_90){
@@ -83,13 +85,13 @@ void update_stats(rov_screen *scr,rov_arduino *a){
                       "%+d",a->ctrl.frontmotor);
     update_statvfattr(scr,BACKMOTOR_STAT,getstatcol(a->ctrl.backmotor),
                       "%+d",a->ctrl.backmotor);
-    b = a->ctrl.headlights;
+    b = a->ctrl.headlight;
     update_statvattr(scr,HEADLIGHTS_STAT,(b) ? GREEN_PAIR : RED_PAIR,
                      (b) ? "on" : "off");
-    b = a->ctrl.sidelights;
+    b = a->ctrl.sidelight;
     update_statvattr(scr,SIDELIGHTS_STAT,(b) ? GREEN_PAIR : RED_PAIR,
                      (b) ? "on" : "off");
-    b = a->ctrl.lasers;
+    b = a->ctrl.laser;
     update_statvattr(scr,LASERS_STAT,(b) ? GREEN_PAIR : RED_PAIR,
                      (b) ? "on" : "off");
     b = a->ctrl.clawgrip;
@@ -121,18 +123,18 @@ void diff_update_stats(rov_screen *scr,rov_arduino *a,rov_ctrlstate *old){
         update_statvfattr(scr,BACKMOTOR_STAT,getstatcol(a->ctrl.backmotor),
                           "%+d",a->ctrl.backmotor);
     }
-    if (a->ctrl.headlights != old->headlights){
-        b = a->ctrl.headlights;
+    if (a->ctrl.headlight != old->headlight){
+        b = a->ctrl.headlight;
         update_statvattr(scr,HEADLIGHTS_STAT,(b) ? GREEN_PAIR : RED_PAIR,
                          (b) ? "on" : "off");
     }
-    if (a->ctrl.sidelights != old->sidelights){
-        b = a->ctrl.sidelights;
+    if (a->ctrl.sidelight != old->sidelight){
+        b = a->ctrl.sidelight;
         update_statvattr(scr,SIDELIGHTS_STAT,(b) ? GREEN_PAIR : RED_PAIR,
                          (b) ? "on" : "off");
     }
-    if (a->ctrl.lasers != old->lasers){
-        b = a->ctrl.lasers;
+    if (a->ctrl.laser != old->laser){
+        b = a->ctrl.laser;
         update_statvattr(scr,LASERS_STAT,(b) ? GREEN_PAIR : RED_PAIR,
                          (b) ? "on" : "off");
     }

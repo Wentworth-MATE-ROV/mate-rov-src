@@ -25,18 +25,21 @@
 #include "../common.h"
 
 // A type representing a pre-proccessed (keybind mappings applied) joystick.
+// We use ints here so that we can in-place average the values from the many
+// inputs. We call trunc_cleaned_val() on all the ints before returning from
+// clean_joystick() so the range of all ints is that of a short.
 typedef struct{
-    bool  claw_open;        // Claw open.
-    bool  claw_close;       // Claw close.
-    bool  laser_toggle;     // Laser toggle.
-    bool  headlight_toggle; // Headlights toggle.
-    bool  sidelight_toggle; // Sidelights toggle.
-    short claw_x;           // Claw x-axis.
-    short claw_y;           // Claw y-axis.
-    short rotate_z;         // Rotation about z.
-    short rotate_y;         // Rotation about y.
-    short transpose_x;      // Transposition over x.
-    short transpose_y;      // Transposition over y.
+    bool claw_open;        // Claw open.
+    bool claw_close;       // Claw close.
+    bool laser_toggle;     // Laser toggle.
+    bool headlight_toggle; // Headlights toggle.
+    bool sidelight_toggle; // Sidelights toggle.
+    int  claw_x;           // Claw x-axis.
+    int  claw_y;           // Claw y-axis.
+    int  rotate_z;         // Rotation about z.
+    int  rotate_y;         // Rotation about y.
+    int  transpose_x;      // Transposition over x.
+    int  transpose_y;      // Transposition over y.
 }rov_clean_js;
 
 // Applies the keybinds to the joystick to clean it, storing the result in c.

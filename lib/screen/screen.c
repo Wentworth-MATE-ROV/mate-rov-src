@@ -162,6 +162,7 @@ void screen_printattr(rov_screen *scr,int attr,const char *str){
     strncat(buffer,str,(80 - strlen(buffer)) * sizeof(char));
     init_logmsg(&scr->logv[0],buffer,attr);
     fputs(scr->logv[0].txt,scr->logf);
+    fputc('\n',scr->logf);
     wclear(scr->logw);
     for (n = scr->logc;n >= 0;n--){
 	wattron(scr->logw,scr->logv[n].attr);

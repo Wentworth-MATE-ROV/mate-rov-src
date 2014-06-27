@@ -18,11 +18,14 @@
 #include "arduinoh.h"
 #include <Servo.h>
 
+// The vector of servos as they must be statically declared.
 rov_servo servov[SERVOC];
 
 // Is the arduino waiting to process more data.
 boolean is_waiting;
 
+// Finds the servo object attached to pin p.
+// return: the servo object on pin p or NULL if none is attached to pin p.
 rov_servo *lookup_servo(int p){
     unsigned char n;
     for (n = 0;n < SERVOC;n++){
@@ -39,7 +42,7 @@ void setup(){
     Serial.begin(9600);
     is_waiting = false;
     for (n = 0;n < SERVOC;n++){
-        servov[n].p = -1;
+        servov[n].p = -1;  // None of the servos are on a pin.
     }
 }
 
@@ -64,7 +67,7 @@ void loop(){
             p = Serial.read();
             while(!Serial.available());
             v = Serial.read();
-            if (s = lookup_servo(p)){
+            if (s = lookup_servo(p)){  // Find the servo object on this pin.
                 s->s.write(v);
             }
             break;
@@ -96,18 +99,19 @@ void loop(){
         case OP_SET_PINSTATE:
             while (!Serial.available());
             t = Serial.read();
-            p = t & 0x3f;
-            if (s = lookup_servo(p)){
+            p = t & 0x3f;  // Get the pin number.
+            if (s = lookup_servo(p)){  // Detach any servos on this pin.
                 s->s.detach();
                 s->p = -1;
             }
             t = (t & 0xc0) >> 6;
             if (t == ROV_SERVO){
                 for (v = 0;v < SERVOC;v++){
-                    if (servov[v].p == -1){
+                    if (servov[v].p == -1){  // Find a free servo.
                         s = &servov[v];
                         s->p = p;
-                        s->s.attach(p);
+                        s->s.attach(p,1000,2000);
+                        s->s.write(90);
                         break;
                     }
                 }

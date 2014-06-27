@@ -22,11 +22,14 @@
 (define shrt-min -32768)
 
 ;; Scales the values from a joystick to what the ctrl-state wants.
-;; return: An integer
+;; We scale our potential range by 75% to not harm the motors and for more
+;; control.
+;; return: An integer in the range 3/4 * [0,180].
 (define (scale-axis-value v)
-  (round (* 100 (/ v shrt-max))))
+  (+ 90 (round (* 67 (/ v shrt-max)))))
 
-;; Truncates the sum of two axis values
+;; Truncates the sum of two axis values such that they still fit in the range
+;; of axis values.
 (define (trunc-sum-axis-values v w)
   (let ((s (+ v w)))
     (cond ((> s shrt-max) shrt-max)
@@ -57,7 +60,10 @@
         (rot-z   (rotate-z    input-state)))
     (scale-axis-value (trunc-sum-axis-values trans-y (- 0 rot-z)))))
 
+;; Gets the state that the pistons should be in based on the claw-x and claw-y.
+;; returns the value as a pair of in the form:
 ;; (claw-90 . claw-180)
+;; where claw-90 and claw-180 are booleans.
 (define (get-piston-state claw-x claw-y old-state)
   (cond ((and (< claw-y 0) (= claw-x 0)) '(#t . #f))    ; Straight up
         ((and (> claw-y 0) (= claw-x 0)) '(#t . #t))    ; Straight down.
@@ -66,6 +72,7 @@
         (else old-state)))
 
 ;; Setup control state; populate extra if you wish.
+;; This acts as a nop currently.
 (define (initialize ctrl-state)
   ctrl-state)
 
@@ -74,7 +81,7 @@
 ;;   input-state: The state of the joystick this frame.
 ;;   delta-t:     The time in milliseconds since the last frame.
 ;;   ctrl-state:  The <ctrl-state> returned from the last frame.
-;; On the first frame, delta-t will be a negative value and
+;; On the first frame, delta-t will be the time since initialize was called and
 ;; the ctrl-state will be a default (zeroed) <ctrl-state>.
 (define (logic-step input-state delta-t ctrl-state)
   (let* ((old-piston-state (cons (claw-90 ctrl-state) (claw-180 ctrl-state)))

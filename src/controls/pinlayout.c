@@ -74,18 +74,13 @@ int pin_read_scm_line(rov_pinlayout *l,SCM scm){
 // return: 0 on success, non-zero on failure.
 int parse_pinlayout(rov_pinlayout *l,const char *pfl){
     FILE *l_fl;
-    char  path[256];
     char  scm_fc[BUFSIZ];
     SCM   scm;
     if (!pfl){
         return 0;
     }
-    memset(path,0,256);
     memset(scm_fc,0,BUFSIZ);
-    getcwd(path,256);
-    path[strlen(path)] = '/';
-    strncat(path,pfl,256 - strlen(path));
-    l_fl = fopen(path,"r");
+    l_fl = fopen(pfl,"r");
     if (!l_fl){
         return -1;
     }
@@ -101,31 +96,36 @@ int parse_pinlayout(rov_pinlayout *l,const char *pfl){
     return 0;
 }
 
-// Macros to facilitate setting some pins.
-#define SETPINSTATEIN(count,val)                    \
-    for (n = 0;n < a->layout.count;n++){            \
-        set_pinstate(a,a->layout.val[n],ROV_INPUT); \
-    }
-#define SETPINSTATEOUT(count,val)                       \
-    for (n = 0;n < a->layout.count;n++){                \
-        set_pinstate(a,a->layout.val[n],ROV_OUTPUT);    \
-    }
-#define SETPINSTATESERVO(count,val)                     \
-    for (n = 0;n < a->layout.count;n++){                \
-        set_pinstate(a,a->layout.val[n],ROV_SERVO);     \
-    }
-
 // Sets the pinmodes for the needed pins.
 void pinmode_sync(rov_arduino *a){
     size_t n;
-    SETPINSTATEOUT(laserc,laserv);
-    SETPINSTATEOUT(headlightc,headlightv);
-    SETPINSTATEOUT(sidelightc,sidelightv);
-    SETPINSTATESERVO(leftmotorc,leftmotorv);
-    SETPINSTATESERVO(rightmotorc,rightmotorv);
-    SETPINSTATESERVO(frontmotorc,frontmotorv);
-    SETPINSTATESERVO(backmotorc,backmotorv);
-    SETPINSTATEOUT(claw_90c,claw_90v);
-    SETPINSTATEOUT(claw_180c,claw_180v);
-    SETPINSTATEOUT(clawgripc,clawgripv);
+
+// Macros to facilitate setting some pins.
+#define SETPINSTATEIN(val)                               \
+    for (n = 0;n < a->layout.val ## c;n++){              \
+        set_pinstate(a,a->layout.val ## v[n],ROV_INPUT); \
+    }
+#define SETPINSTATEOUT(val)                                  \
+    for (n = 0;n < a->layout.val ## c;n++){                  \
+        set_pinstate(a,a->layout.val ## v[n],ROV_OUTPUT);    \
+    }
+#define SETPINSTATESERVO(val)                                \
+    for (n = 0;n < a->layout.val ## c;n++){                  \
+        set_pinstate(a,a->layout.val ## v[n],ROV_SERVO);     \
+    }
+
+    SETPINSTATEOUT(laser);
+    SETPINSTATEOUT(headlight);
+    SETPINSTATEOUT(sidelight);
+    SETPINSTATESERVO(leftmotor);
+    SETPINSTATESERVO(rightmotor);
+    SETPINSTATESERVO(frontmotor);
+    SETPINSTATESERVO(backmotor);
+    SETPINSTATEOUT(claw_90);
+    SETPINSTATEOUT(claw_180);
+    SETPINSTATEOUT(clawgrip);
+
+#undef SETPINSTATEIN
+#undef SETPINSTATEOUT
+#undef SETPINSTATESERVO
 }

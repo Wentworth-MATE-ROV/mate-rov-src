@@ -18,6 +18,7 @@
 #ifndef ROV_OPCODES_H
 #define ROV_OPCODES_H
 
+// The buffer overflow management opcodes.
 #define OP_SHOULDWAIT    0x50
 #define OP_SHOULDSTART   0x60
 

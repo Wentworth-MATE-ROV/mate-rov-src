@@ -31,15 +31,15 @@ void init_node(rov_node* n,unsigned char* msg,size_t len){
 void init_queue(rov_msgqueue *q,rov_arduino *a,useconds_t sleep_time,
                 size_t r_attempts){
     q->arduino    = a;
-    q->head       = NULL;
-    q->last       = NULL;
-    q->size       = 0;
-    q->is_waiting = false;
-    q->response   = 0;
-    q->miswrites  = 0;
-    q->writes     = 0;
-    q->sleep_time = sleep_time;
-    q->r_attempts = r_attempts;
+    q->head       = NULL;        // The first message.
+    q->last       = NULL;        // The last message.
+    q->size       = 0;           // The size of the queue (number of msgs).
+    q->is_waiting = false;       // Is this waiting for the arduino buffer?
+    q->response   = 0;           // Store the response back from the arduino.
+    q->miswrites  = 0;           // Number of miswrites (failures).
+    q->writes     = 0;           // Total writes.
+    q->sleep_time = sleep_time;  // The amount of time to wait between msgs.
+    q->r_attempts = r_attempts;  // Retry attempts.
     pthread_mutex_init(&q->mutex,NULL);
 }
 
@@ -47,7 +47,7 @@ void init_queue(rov_msgqueue *q,rov_arduino *a,useconds_t sleep_time,
 void destroy_queue(rov_msgqueue *q){
     rov_node *n;
     for (n = q->head;n;n = q->head->tail){
-        free(n);
+        free(n);  // Free the nodes.
     }
     pthread_mutex_destroy(&q->mutex);
 }
@@ -95,7 +95,7 @@ int dequeue(rov_msgqueue *q){
     }
     if (n->is_blocking){
         while (!read(q->arduino->fd,&res,sizeof(unsigned short))){
-            usleep(200); // Magic timing number.
+            usleep(200); // Magic timing number to not kill my processor.
         }
         q->response    = res;
         n->is_blocking = false;
@@ -110,7 +110,6 @@ int dequeue(rov_msgqueue *q){
 }
 
 // Procedure to run in a pthread to manage the message queue.
-// Accepts the rov_msgqueue* as a void*.
 void *process_queue(void *pqp){
     rov_pq_param *ps  = pqp;
     rov_msgqueue *q   = ps->q;
@@ -133,7 +132,7 @@ void *process_queue(void *pqp){
             q->is_waiting = true;
             screen_printattr(scr,RED_PAIR,"Recieved: OP_SHOULDWAIT");
         }
-        usleep(q->sleep_time);
+        usleep(q->sleep_time);  // Sleep the thread.
     }
     return NULL;
 }

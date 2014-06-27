@@ -30,9 +30,17 @@ static void print_jsaxis(rov_screen *scr,rov_jsaxis *j){
     }
 }
 
+// Reloads the keybinds from the .keybinds file.
+void screen_reload_keybinds(rov_screen *scr,rov_arduino *a,
+                            const char *path,bool diff){
+    unsigned int  n,c = 0;
+    rov_keybinds  old = a->keybinds;
+    rov_keybinds *kbs = &a->keybinds;
+    char          line[81];
+
 // Quick macros to print if values differ.
 #define DIFFCMPBUTTON(str,val,count)                                    \
-    if (!diff || memcmp(&old.val,kbs->val,12)){                          \
+    if (!diff || memcmp(&old.val,kbs->val,12)){                         \
         boldgreenprint(scr,str);                                        \
         for (n = 0;n < kbs->count;n++){                                 \
             screen_printfattr(scr,GREEN_PAIR,"%u ",kbs->val[n] + 1);    \
@@ -40,7 +48,7 @@ static void print_jsaxis(rov_screen *scr,rov_jsaxis *j){
         ++c;                                                            \
     }
 #define DIFFCMPAXIS(str,val,count)                                      \
-    if (!diff || memcmp(&old.val,kbs->val,6 * sizeof(rov_jsaxis))){    \
+    if (!diff || memcmp(&old.val,kbs->val,6 * sizeof(rov_jsaxis))){     \
         boldgreenprint(scr,str);                                        \
         for (n = 0;n < kbs->count;n++){                                 \
             print_jsaxis(scr,&kbs->val[n]);                             \
@@ -48,17 +56,11 @@ static void print_jsaxis(rov_screen *scr,rov_jsaxis *j){
         ++c;                                                            \
     }
 
-// Reloads the keybinds from the .keybinds file.
-void screen_reload_keybinds(rov_screen *scr,rov_arduino *a,bool diff){
-    unsigned int  n,c = 0;
-    rov_keybinds  old = a->keybinds;
-    rov_keybinds *kbs = &a->keybinds;
-    char          line[81];
-    if (parse_keybinds(kbs,".keybinds")){
+    if (parse_keybinds(kbs,path)){
         screen_printattr(scr,RED_PAIR,"Failed to reload keybinds!");
         return;
     }
-    memset(line,'-',80);
+    memset(line,'-',80);  // Get a straight line and null terminate it.
     line[81] = '\0';
     screen_printattr(scr,GREEN_PAIR,line);
     DIFFCMPBUTTON("claw-open: ",claw_openv,claw_openc);
@@ -75,7 +77,19 @@ void screen_reload_keybinds(rov_screen *scr,rov_arduino *a,bool diff){
     if (!c){
         screen_printattr(scr,GREEN_PAIR | A_BOLD,"Nothing to reload! (keys)");
     }
+
+#undef DIFFCMPBUTTON
+#undef DIFFCMPAXIS
 }
+
+
+// Reloads the keybindings.
+void screen_reload_pinlayout(rov_screen *scr,rov_arduino *a,
+                             const char *path,bool diff){
+    unsigned int   n,c = 0;
+    rov_pinlayout  old = a->layout;
+    rov_pinlayout *l   = &a->layout;
+    char           line[81];
 
 // Quick macro to print only if two pin value differ.
 #define DIFFCMPPIN(str,val,count)                                       \
@@ -87,16 +101,11 @@ void screen_reload_keybinds(rov_screen *scr,rov_arduino *a,bool diff){
         ++c;                                                            \
     }
 
-void screen_reload_pinlayout(rov_screen *scr,rov_arduino *a,bool diff){
-    unsigned int   n,c = 0;
-    rov_pinlayout  old = a->layout;
-    rov_pinlayout *l   = &a->layout;
-    char           line[81];
-    if (parse_pinlayout(l,".pins")){
+    if (parse_pinlayout(l,path)){
         screen_printattr(scr,RED_PAIR,"Failed to reload pin layout!");
         return;
     }
-    memset(line,'-',80);
+    memset(line,'-',80);  // Get a straight line and null terminate it.
     line[81] = '\0';
     screen_printattr(scr,GREEN_PAIR,line);
     DIFFCMPPIN("lasers: ",laserv,laserc);
@@ -111,23 +120,25 @@ void screen_reload_pinlayout(rov_screen *scr,rov_arduino *a,bool diff){
     if (!c){
         screen_printattr(scr,GREEN_PAIR | A_BOLD,"Nothing to reload! (pins)");
     }
+
+#undef DIFFCMPPIN
 }
 
 // Handles all keyboard presses.
-// Pass the screen.
-void process_keyboard(rov_screen *scr,rov_arduino *a){
+void process_keyboard(rov_screen *scr,rov_arduino *a,
+                      const char *kfl,const char *pfl){
     int c;
     while ((c = getch())){
         switch(c){
         case RELOAD_KEYBINDS:
-            screen_reload_keybinds(scr,a,true);
+            screen_reload_keybinds(scr,a,kfl,true);
             break;
         case RELOAD_PINS:
-            screen_reload_pinlayout(scr,a,true);
+            screen_reload_pinlayout(scr,a,pfl,true);
             pinmode_sync(a);
             break;
         case QUIT_PROG:
-            return;
+            return;  // Returns from the function; exiting the loop.
         }
     }
 }
