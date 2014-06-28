@@ -40,7 +40,7 @@
 (define (scale-left-motor input-state)
   (let ((trans-x (transpose-x input-state))
         (rot-y   (rotate-y    input-state)))
-    (scale-axis-value (trunc-sum-axis-values trans-x rot-y))))
+    (scale-axis-value (- 0 (trunc-sum-axis-values trans-x rot-y)))))
 
 ;; Scales and returns to the power to send to the right motor
 (define (scale-right-motor input-state)
@@ -65,10 +65,10 @@
 ;; (claw-90 . claw-180)
 ;; where claw-90 and claw-180 are booleans.
 (define (get-piston-state claw-x claw-y old-state)
-  (cond ((and (< claw-y 0) (= claw-x 0)) '(#t . #f))    ; Straight up
-        ((and (> claw-y 0) (= claw-x 0)) '(#t . #t))    ; Straight down.
-        ((and (< claw-x 0) (= claw-y 0)) '(#f . #t))    ; Straight foward.
-        ((and (> claw-x 0) (= claw-y 0)) '(#f . #f))    ; Straight Back.
+  (cond ((and (< claw-y 0) (= claw-x 0)) '(#f . #t))    ; Straight up
+        ((and (> claw-y 0) (= claw-x 0)) '(#f . #f))    ; Straight down.
+        ((and (< claw-x 0) (= claw-y 0)) '(#t . #f))    ; Straight foward.
+        ((and (> claw-x 0) (= claw-y 0)) '(#t . #t))    ; Straight Back.
         (else old-state)))
 
 ;; Setup control state; populate extra if you wish.
